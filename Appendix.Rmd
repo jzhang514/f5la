@@ -349,16 +349,14 @@ Nearly 700,000 Angelenos are undocumented, and 35% of the County population is f
 * This indicator is similar to and can be replaced by the Impact Framework’s Decreased rate of LA County children with Child Protective Services involvement indicator as needed. 
 ```{r}
 
-#child abuse/neglect?
-#DCFS case numbers
-###neighborhood level data
+# want to find a way to visualize child welfare data here
 
 ```
 
 
 # Data Links
 
-Many Program Officers and Regional Network Grantees expressed the importance of having data points readily accessible to use during conversations with stakeholders. To view all of the data indicators as an excel, please click the link below.
+To view all of the data indicators as an excel, please click the link below.
 
 * [Interview Notes and Findings](https://teams.microsoft.com/_#/tab%3A%3A4b5520db-dd7e-46f4-b6fb-135df0ca70f1/unknown?threadId=19%3A1e7e7b70c7eb4cb6b2e851e41582db4f%40thread.skype&ctx=channel&context=Interview%2520Notes) 
 * [Best Start Geography to PUMA Crosswalk](https://teams.microsoft.com/l/file/ECAF7E5C-1131-4139-97EC-D0AFA48AE51C?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=xlsx&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FV2%20Analysis%2Fpuma_bsc_crosswalk_f5la.xlsx&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=customspo&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
