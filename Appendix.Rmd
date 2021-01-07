@@ -1,0 +1,367 @@
+---
+title: "Appendix"
+output:
+  html_document:
+    number_sections: no
+    theme: paper
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+    
+---
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+
+```
+
+
+# Nonprofit Organizations in Los Angeles County {#nonprofit}
+
+When asked about how data can help Program Officers and Regional Network Grantees support families in their Best Start geographies, everyone lifted up the importance of supporting local __nonprofit capacity.__ Understanding the landscape of nonprofits in the Best Start geographies allows Program Officers and Regional Network Grantees to formulate better strategy on how to best support nonprofits and understand what local supports are missing. 
+
+```{r}
+#####NONPROFIT MAP#####
+
+##data source: IRS Business Master File downloaded on 09/29/20
+
+library(tidycensus)
+
+
+#connect to postgres
+
+pw <- {
+  "password"
+}
+
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+#read in bmf data but joined with BSC data by zip so that we are limiting the number of data points we are plotting to only those with zip codes within BSC boundaries
+
+
+bmf<-dbGetQuery(con,  "SELECT * FROM bsc_zip_crosswalk_new a
+ LEFT JOIN irs_eo_la_county_zips_lac b
+ ON b.zip=a.zip_code")
+
+
+bsc_zips<-dbGetQuery(con, "SELECT * FROM bsc_zip_crosswalk_new")
+
+  #convert the name column to proper case for mapping
+bmf$name = str_to_title(bmf$name)
+
+
+
+######Layer 2: BSC###########
+library(sf)
+library(tigris)
+
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies") #this is the updated view that CR made 
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc<-st_transform(bsc, CRS('+proj=longlat +datum=WGS84'))
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+
+#####LAYER 3: LA County#####
+
+lac<-pgGetGeom(con, "cb_2018_06_county_500k_losangelescounty_noislands")
+
+
+#convert to sf 
+lac<-st_as_sf(lac)
+
+####transform bsc shapefile for leaflet
+
+lac<-st_transform(lac, CRS('+proj=longlat +datum=WGS84'))
+
+
+#########################MAP###############################
+ 
+##define points pop up message  
+   points<-paste(bmf$name)
+
+
+library(leaflet)
+library(RColorBrewer)
+library(htmltools)
+
+
+#######Map#########
+
+
+
+leaflet()%>%
+  
+  addMapPane("bmf_pane", zIndex=480)%>%
+  addMapPane("bsc_pane", zIndex=490)%>%
+
+  
+addCircleMarkers(data = bmf, lat = ~y, lng = ~x, 
+                   weight = 2, fillOpacity = .8, radius=2,
+                   color="white", popup = ~htmlEscape(points), fillColor= "blue", stroke = TRUE,
+                  options = pathOptions(pane = "bmf_pane"))%>%
+  
+  #bsc layer
+  
+  addPolygons(data=bsc, color="black", weight=2, opacity = .5, fill=F,
+              options = pathOptions(pane = "bsc_pane"),
+              label=as.character(bsc$best_start)
+               ) %>%
+  addLabelOnlyMarkers(data=bsc,  ~X, ~Y, label =  ~as.character(bsc_label), 
+                      labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T,
+                                                  style=list("font-size"="8px", "color"="black",  "font-weight" = "bold")))%>%
+  
+  
+  #LA County Layer
+  
+  addPolygons(data=lac, color="black", weight=2, fill=F)%>%
+  
+  #base and view
+  addProviderTiles("CartoDB.PositronNoLabels")%>%
+  setView(	-118.205914, 	34.187684	, zoom = 9)
+  
+
+```
+
+# Real Cost Measure by Best Start Geography {#rcm}
+```{r}
+library(DT)
+
+#####Grab data from postgres
+rcm_bsc<-dbGetQuery(con, "SELECT * FROM real_cost_measure_bsc_new")
+
+
+
+#####Create stacked bar graph for rcm by bsc
+
+#Convert data wide to long for variables of interest
+rcm_long<-gather(rcm_bsc, hh_type, number, num_hh, num_hh_below_rcm, factor_key=TRUE)
+
+ 
+#Subset colunms of interest
+rcm_long<-rcm_long[c(1, 21:22)]
+
+#make the number column formatted with thousand comma seperator to see if it changes the filter slider in the DT --note it does not 
+rcm_long$number<-prettyNum(rcm_long$number,big.mark=",", preserve.width="none")
+
+#create factors for the x axis labels (bsc) to customize the order
+rcm_long$best_start <- factor(rcm_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+rcm_dt<-rcm_bsc[c(1:6)]
+
+datatable(rcm_dt[, c("best_start", "num_hh","num_hh_below_official_pov_measure", "num_hh_below_rcm")],
+colnames = c("Best Start Geography", "Number of Households","Number of Households Below Official Poverty Level", "Number of Households Below Real Cost Measure"),
+style = "default",
+          rownames = F, filter = "top",
+         editable = FALSE, extensions = c("Buttons", "FixedColumns"),
+          options = list(
+            searchHighlight = FALSE, 
+            dom="Bfrtip", 
+            buttons=c("excel", "copy"),  pageLength=15,  
+                        autoWidth = TRUE, scrollX=T, scroller = TRUE))%>%
+  formatRound(c("num_hh", "num_hh_below_official_pov_measure","num_hh_below_rcm"), digits=0, mark = ",") 
+
+```
+
+# Demographics by Best Start Geography {#demographic}
+
+```{r}
+
+
+race<-dbGetQuery(con, "SELECT * FROM f5la_2020_raceethnicity")
+youth<-dbGetQuery(con, "SELECT * FROM f5la_2020_youngchildren")
+
+race_youth<-left_join(race, youth)%>%
+  mutate(num_combined=sum(num_twoormore, num_other))%>%
+  mutate(pct_combined=sum(num_twoormore, num_other)/total_pop)
+
+
+datatable(race_youth[, c("best_start", "num_under_five", "pct_under_five" , "total_pop","num_white","pct_white", "num_black_afam",  "pct_black_afam", "num_aian", "pct_aian", "num_asian", "pct_asian", "num_nativepi", "pct_nativepi", "num_hispaniclatino", "pct_hispaniclatino","num_twoormore", "pct_twoormore", "num_other", "pct_other")],
+          
+          
+colnames = c("Best Start Geography", "Number Age 0 to 5", "Percent Age 0 to 5", "Total Population","Total Number White","Percent White", "Total Number Black/African American",  "Percent Black/African American", "Total Number AIAN", "Percent AIAN", "Total Number Asian", "Percent Asian", "Total Number Native Pacific Islander", "Percent Native Pacific Islander", "Total Number Hispanic/Latino", "Percent Hispanic/Latino",  "Total Number Two or More", "Percent Two or More", "Total Other", "Percent Other"),
+
+style = "default",
+          rownames = F, filter = "top",
+         editable = FALSE, extensions = c("Buttons", "FixedColumns"),
+          options = list(
+            searchHighlight = FALSE, 
+            dom="Bfrtip", 
+            buttons=c("excel", "copy"),  pageLength=15,  
+                        autoWidth = TRUE, scrollX=T, scroller = TRUE))%>%
+  formatRound(c("total_pop", "num_white", "num_black_afam","num_aian", "num_asian", "num_nativepi", "num_hispaniclatino", "num_twoormore", "num_other", "num_under_five"), digits=0, mark = ",") %>%
+   formatCurrency(c("pct_white","pct_black_afam", "pct_aian", "pct_asian", "pct_nativepi", "pct_hispaniclatino",  "pct_twoormore", "pct_other", "pct_under_five"), currency="%", before=FALSE)
+
+```
+
+
+# Rates Table
+
+Below are rates that accompany raw data points visualized above. 
+```{r}
+rates<-dbGetQuery(con, "SELECT * FROM f5la_2020_ratestable")
+
+
+rates<-rates[, -c(2:10)] #remove the children and race percentages because that is in the previous data table
+
+# rates<-rates%>%
+#   mutate(pct_unmet_need_children_it=pct_unmet_need_children_it/100)%>%
+#   mutate(pct_unmet_need_children_prek=pct_unmet_need_children_prek/100)%>%
+#   mutate(pct_transit=pct_transit/100)%>%
+#   mutate(pct_uninsured=pct_uninsured/100)%>%
+#   mutate(pct_internet=pct_internet/100)
+#   
+
+
+library(DT)
+
+
+datatable(rates[, c("best_start","pct_unmet_need_children_it", "pct_unmet_need_children_prek", "pct_transit", "pct_uninsured", "pct_internet")],
+colnames = c("Best Start Geography", "ECE Unmet Need Amount Infant Toddlers", "ECE Unmet Need Among Pre-K Children", "Transit Users", "Uninsured Population", "Families with Access to Internet"),
+style = "default",
+          rownames = F, filter = "top",
+         editable = FALSE, extensions = c("Buttons", "FixedColumns"),
+          options = list(
+            searchHighlight = FALSE, 
+            dom="Bfrtip", 
+            buttons=c("excel", "copy"),  pageLength=15,  
+                        autoWidth = TRUE, scrollX=T, scroller = TRUE))%>%
+  formatCurrency(c("pct_unmet_need_children_it", "pct_unmet_need_children_prek", "pct_transit", "pct_uninsured", "pct_internet"),
+                 currency="%",
+                 before=FALSE
+                ) 
+
+```
+
+
+
+
+# Region Specific Data Points {.tabset .tabset-pills}
+
+Data points requested by Program Officers and Regional Network Grantees for region-specific change agendas.
+
+## Region 1
+```{r}
+
+#Create table
+highed <-data.frame("Race"=c("Asian", "Black", "Filipino", "Latinx", "American Indian/Alaska Native", "Pacific Islander", "Two or more", "White", "Total"), "Percent"=c(78.7, 45.8, 73.8, 53.2, 45.5, 48.8, 57.6, 59.3, 56.6))
+
+library(kableExtra)
+#kable table
+kable(highed)%>%
+    kable_styling(bootstrap_options = c("striped"))%>%
+   add_header_above(c("LA County Percentage of Cohort Graduates Who Met Admission Requirements for a UC or CSU School (2018-19)"=1, " "=1), align="c")%>%
+   footnote(general = "California Department of Education "
+           )
+
+```
+
+## Region 2
+```{r}
+
+#Create table
+infant <-data.frame("Race"=c("African American/Black", "American Indian/Alaska Native", "Asian/Pacific Islander", "Hispanic/Latinx", "White", "Multiracial", "All Infants"), "Rate"=c(9.7, "S", 2.4, 4.3, 3.1, 9.1, 4.2))
+
+#kable table
+kable(infant)%>%
+    kable_styling(bootstrap_options = c("striped"))%>%
+   add_header_above(c("LA County Infant Mortality (2012-16)"=1, " "=1), align="left")%>%
+   footnote(general = "California Dept. of Public Health, Birth and Death Statistical Master Files; National Center for Health Statistics, Linked Birth / Infant Death Records (Feb. 2019). Via Kidsdata.org")
+
+```
+
+## Region 3
+The City of Long Beach has 32,162 children age 0 to 5. The Central Long Beach Best Start Community has 9,474 children age 0 to 5, which is approximately 9% of the total population this Best Start Community. 
+```{r}
+
+##Long Beach City comparison data 
+
+```
+
+## Region 4
+Nearly 700,000 Angelenos are undocumented, and 35% of the County population is foreign born. 
+```{r}
+#undocumented population
+
+
+```
+
+## Region 5
+* 14.6% of LA County children reported to CPS before Age 5, 5.2% of LA County children have cases substantiated before age 5, and 2.4% of LA County children enter Foster Care before age 5. Source: Children’s Data Network, Cumulative Risk of Child Protective Services Involvement.  
+* Progress on this indicator helps achieve [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://www.first5la.org/article/pathway-to-progress-indicators-of-young-child-well-being-in-los-angeles-county/#:~:text=First%205%20LA%20is%20pleased%20to%20share%20the,first%20three%20years%20of%20our%20Strategic%20Plan%20implementation.)   
+* This indicator is similar to and can be replaced by the Impact Framework’s Decreased rate of LA County children with Child Protective Services involvement indicator as needed. 
+```{r}
+
+#child abuse/neglect?
+#DCFS case numbers
+###neighborhood level data
+
+```
+
+
+# Data Links
+
+Many Program Officers and Regional Network Grantees expressed the importance of having data points readily accessible to use during conversations with stakeholders. To view all of the data indicators as an excel, please click the link below.
+
+* [Interview Notes and Findings](https://teams.microsoft.com/_#/tab%3A%3A4b5520db-dd7e-46f4-b6fb-135df0ca70f1/unknown?threadId=19%3A1e7e7b70c7eb4cb6b2e851e41582db4f%40thread.skype&ctx=channel&context=Interview%2520Notes) 
+* [Best Start Geography to PUMA Crosswalk](https://teams.microsoft.com/l/file/ECAF7E5C-1131-4139-97EC-D0AFA48AE51C?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=xlsx&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FV2%20Analysis%2Fpuma_bsc_crosswalk_f5la.xlsx&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=customspo&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* [LAHSA 2020 Homelessness Count Data](https://www.lahsa.org/documents?id=4697-2020-homeless-count-data-by-census-tract)
+* [Nonprofit Data from the IRS Business Master File](https://teams.microsoft.com/l/file/30764B94-8168-4AE3-AB02-411965F324C6?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=xlsx&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FV2%20Analysis%2Fnonprofit_data_f5la.xlsx&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=customspo&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* [First 5 LA Impact Framework Report](https://www.first5la.org/article/pathway-to-progress-indicators-of-young-child-well-being-in-los-angeles-county/#:~:text=First%205%20LA%20is%20pleased%20to%20share%20the,first%20three%20years%20of%20our%20Strategic%20Plan%20implementation.)
