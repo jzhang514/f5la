@@ -25,6 +25,43 @@ library(tidyverse)
 ```
 
 ```{r, include=FALSE}
+##########CREATE A THEME FOR HIGHCHART GRAPHS###################
+
+thm <- hc_theme(
+  colors = c("#332a86", "#22bcb9", "#ec098d"),
+  chart = list(
+    backgroundColor = "white"
+  ),
+  title = list(
+    style = list(
+      color = "#333333"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      margin = 20,
+      align = "left",
+      style = list(useHTML = TRUE, fontWeight="bold")
+    
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+
+
+```
+
+```{r, include=FALSE}
 
 ############################SET UP FOR CHILD CARE CENTER DATA##############################################
 
@@ -169,7 +206,9 @@ con <- dbConnect(drv, dbname = "f5la_v2",
 ####Layer 1: Child Care Centers####
 
 library(readxl)
-centers<-read_xlsx("W:/Project/RDA Team/First5LA/V2.0 Report/Data/childcarecenter_2020_download1152020_HCEXPORT.xlsx")
+# centers<-read_xlsx("W:/Project/RDA Team/First5LA/V2.0 Report/Data/childcarecenter_2020_download1152020_HCEXPORT.xlsx")
+centers<-read_xlsx("W:/Project/RDA Team/First5LA/V2.0 Report/Data/childcarecenter_y2020_download010721_HCEXPORT.xlsx")
+
 
 #convert name column to make nicer for label
 centers$name = str_to_title(centers$name)
@@ -177,7 +216,11 @@ centers$name = str_to_title(centers$name)
 #####Layer 2: Family Care Centers#####
 
 #read in geocoded family child care center data
-family<-read_xlsx("W:/Project/RDA Team/First5LA/V2.0 Report/Data/familyhomes_2020_download1152020_HCEXPORT.xlsx")
+# family<-read_xlsx("W:/Project/RDA Team/First5LA/V2.0 Report/Data/familyhomes_2020_download1152020_HCEXPORT.xlsx")
+family<-read_xlsx("W:/Project/RDA Team/First5LA/V2.0 Report/Data/familyhomes_y2020_download010721_HCEXPORT.xlsx")
+
+
+
 
 #convert name column to make nicer for label
 family$name = str_to_title(family$name)
@@ -255,14 +298,14 @@ leaflet()%>%
   
 addCircleMarkers(data = centers, lat = ~Y, lng = ~X, 
                    weight = 3, fillOpacity = 1, radius=3,
-                   color="white", popup = ~htmlEscape(points), fillColor= "#CC5DEB", stroke = TRUE,
+                   color="white", popup = ~htmlEscape(points), fillColor= "#332a86", stroke = TRUE,
                  group="Child Care Centers",
                   options = pathOptions(pane = "centers_pane"))%>%
   
   addCircleMarkers(data = family, lat = ~Y, lng = ~X, 
                    weight = 3, fillOpacity = 1, radius=3,
                    group="Family Child Care Homes",
-                   color="white", popup = ~htmlEscape(points), fillColor= "#7CEB5D", stroke = TRUE,
+                   color="white", popup = ~htmlEscape(points), fillColor= "#22bcb9", stroke = TRUE,
                   options = pathOptions(pane = "family_pane"))%>%
   
   
@@ -290,7 +333,7 @@ addCircleMarkers(data = centers, lat = ~Y, lng = ~X,
   
   
   #legend
-   addLegend("bottomleft", colors = c("#7CEB5D", "#CC5DEB"), 
+   addLegend("bottomleft", colors = c("#22bcb9", "#332a86"), 
                   labels = c("Family Child Care Homes", "Child Care Centers"))%>%
  
   
@@ -317,8 +360,6 @@ _Family Care Centers_
 * Family Child Care Centers in California experienced a spike in closures and seats lost in August of 2020
 * Both Los Angeles County and California experienced a decrease in closures in April of 2020, similar with Child Care Centers
 * The difference between California and Los Angeles County closures and seats lost is lower compared to the California and Los Angeles County child care centers. 
-
-
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -659,16 +700,15 @@ names(table)[names(table) == "closed"] <- "Closures"
 kable(table, 
       caption = "Summary of Permanent Closures and Seats Lost", align='c', col.names = c("", "", "California", "Los Angeles County"))%>%
       kable_styling(bootstrap_options = c("striped"), position = "center", font_size = 15)%>%
-    pack_rows("Permanent Center Closures", 1, 4, label_row_css = "background-color: #452F97; color: #fff;") %>%
+    pack_rows("Permanent Center Closures", 1, 4, label_row_css = "background-color: #332a86; color: #fff;") %>%
       pack_rows("Family Child Care Home", 1, 2)%>%
   pack_rows("Child Care Center", 3, 4)%>%
-      pack_rows("Seats Lost", 5, 8, label_row_css = "background-color: #452F97; color: #fff;")%>%
+      pack_rows("Seats Lost", 5, 8, label_row_css = "background-color: #332a86; color: #fff;")%>%
       pack_rows("Family Child Care Home", 5, 6)%>%
   pack_rows("Child Care Center", 7, 8)
 
 
 ```
-
 
 # Child Care Centers 
 
@@ -709,7 +749,7 @@ closed2020_lac<-y2020%>%
     mutate(MonthName = month.name[month])
   
 #graph
- hchart(closed2020, "line",
+ hc<-hchart(closed2020, "line",
          hcaes(x=MonthName, y=closed, group=geography),
          tooltip = list(pointFormat = "Number of centers with close dates in {point.MonthName}:
                         {point.closed}<br>"))%>%
@@ -730,6 +770,8 @@ closed2020_lac<-y2020%>%
     align = "left"
   ) 
   
+ hc_add_theme(hc, thm)
+
   
 ```  
 
@@ -752,7 +794,7 @@ closed_day_lac<-y2020%>%
 closed_day<-rbind(closed_day, closed_day_lac)
 
 #graph
-hchart(closed_day, "line",
+hc<-hchart(closed_day, "line",
          hcaes(x=Closed.Date, y=closed, group=geography),
          tooltip = list(pointFormat = "Number of Closures:
                         {point.closed}<br>"))%>%
@@ -773,6 +815,7 @@ hchart(closed_day, "line",
     align = "left"
   ) 
 
+hc_add_theme(hc, thm)
 ```
 
 
@@ -827,9 +870,9 @@ closed2019_lac<-childcare%>%
    ggplot(data=closeds1920_lac, aes(x=month, y=closed))+
   geom_line(aes(group=1))+
      geom_point()+
-     geom_hline(aes(yintercept=mean), colour="red", lty=5)+
+     geom_hline(aes(yintercept=mean), colour="#22bcb9", lty=5)+
     
-      geom_text(data=text, color="red",
+      geom_text(data=text, color="black",
                mapping = aes(x=-Inf, y=-Inf, label=label),
                hjust=-2,
                vjust=-20)+
@@ -888,10 +931,9 @@ closed2019_lac<-childcare%>%
      mutate(MonthName=month.name[month])
 
    
-   cols<-c("#8BEAD8", "#AA8BEA") 
-   
+
 #graph
-   hchart(seats2020, "line", color=cols,
+   hc<-hchart(seats2020, "line", 
           hcaes(x=MonthName, y=seatslost, group=geography),
            tooltip = list(pointFormat = "Number of seats lost  with close dates in {point.MonthName}:
                         {point.seatslost:,.0f}<br>"))%>%
@@ -909,8 +951,7 @@ closed2019_lac<-childcare%>%
     style = list( fontWeight = "bold")
   ) 
 
-
- 
+hc_add_theme(hc, thm) 
 ```
 
 
@@ -931,11 +972,10 @@ seats_day_lac<-y2020%>%
 
 seats_day<-rbind(seats_day, seats_day_lac)
 
-   cols<-c("#8BEAD8", "#AA8BEA") 
 
 
 #graph
-hchart(seats_day, "line", color=cols,
+hc<-hchart(seats_day, "line", 
          hcaes(x=Closed.Date, y=seatslost, group=geography),
          tooltip = list(pointFormat = "Number of Seats Lost:
                         {point.seatslost}<br>"))%>%
@@ -954,6 +994,8 @@ hchart(seats_day, "line", color=cols,
     align = "left",
     style = list( fontWeight = "bold")
   ) 
+
+hc_add_theme(hc, thm) 
 
 
 ```
@@ -1014,9 +1056,9 @@ seats2020_lac<-seats2020_lac%>%
      xlab("\nMonth of Closure")+
      ylab("Number of Seats Lost\n")+
      theme_bw()+
-     geom_hline(aes(yintercept=mean), colour="red", lty=5)+
+     geom_hline(aes(yintercept=mean), colour="#22bcb9", lty=5)+
      
-      geom_text(data=text, color="red",
+      geom_text(data=text, color="black",
                mapping = aes(x=-Inf, y=-Inf, label=label),
                hjust=-1.62,
                vjust=-20)+
@@ -1062,9 +1104,8 @@ homesclosed2020<-rbind(homesclosed2020, homesclosed2020_lac)%>%
   mutate(MonthName=month.name[month])
 
 #graph
-  cols<-c("#F39E53", "#53A8F3") 
 
-   hchart(homesclosed2020, "line", color=cols,
+   hc<-hchart(homesclosed2020, "line",
           hcaes(x=MonthName, y=closed, group=geography),
            tooltip = list(pointFormat = "Number of family child care homes with close dates in {point.MonthName}: {point.closed:,.0f}<br>"))%>%
      hc_xAxis(title = list(text = "Month of Closure"))%>%
@@ -1080,6 +1121,8 @@ homesclosed2020<-rbind(homesclosed2020, homesclosed2020_lac)%>%
      style = list( fontWeight = "bold"),
     align = "left"
   ) 
+   
+hc_add_theme(hc, thm) 
 
 
 
@@ -1104,11 +1147,10 @@ homes_day_lac<-homes2020%>%
 
 homes_day<-rbind(homes_day, homes_day_lac)
 
-  cols<-c("#F39E53", "#53A8F3") 
 
 
 #graph
-hchart(homes_day, "line", color=cols,
+hc<-hchart(homes_day, "line", 
          hcaes(x=Closed.Date, y=closed, group=geography),
          tooltip = list(pointFormat = "Number of Closures:
                         {point.closed}<br>"))%>%
@@ -1127,6 +1169,9 @@ hchart(homes_day, "line", color=cols,
      style = list( fontWeight = "bold"),
     align = "left"
   ) 
+
+hc_add_theme(hc, thm) 
+
 
 ```
 
@@ -1188,9 +1233,9 @@ homesclosed2019<-homes%>%
      xlab("\nMonth of Closure")+
      ylab("Numer of Closures\n")+
     theme_bw()+
-     geom_hline(aes(yintercept=mean), colour="red", lty=5)+
+     geom_hline(aes(yintercept=mean), colour="#22bcb9", lty=5)+
      
-     geom_text(data=text, color="red",
+     geom_text(data=text, color="black",
                mapping = aes(x=-Inf, y=-Inf, label=label),
                hjust=-1.9,
                vjust=-24.3)+
@@ -1244,9 +1289,8 @@ homesclosed2019<-homes%>%
 
    #graph 
    
-   cols<-c("#53F353", "#F353F3") 
 
-   hchart(homeseats2020, "line", color=cols,
+   hc<-hchart(homeseats2020, "line",
           hcaes(x=MonthName, y=seatslost, group=geography),
            tooltip = list(pointFormat = "Number of seats lost  with close dates in {point.MonthName}:
                         {point.seatslost:,.0f}<br>"))%>%
@@ -1263,6 +1307,9 @@ homesclosed2019<-homes%>%
      style = list( fontWeight = "bold"),
     align = "left"
   ) 
+   
+   hc_add_theme(hc, thm) 
+
 
 ``` 
 
@@ -1286,10 +1333,9 @@ homeseats_day<-rbind(homeseats_day, homeseats_day_lac)
 
 #graph
 
-cols<-c("#53F353", "#F353F3") 
-   
+
   
-hchart(homeseats_day, "line", color=cols,
+hc<-hchart(homeseats_day, "line", 
          hcaes(x=Closed.Date, y=seatslost, group=geography),
          tooltip = list(pointFormat = "Seats Lost:
                         {point.seatslost}<br>"))%>%
@@ -1308,6 +1354,9 @@ hchart(homeseats_day, "line", color=cols,
      style = list( fontWeight = "bold"),
     align = "left"
   ) 
+
+hc_add_theme(hc, thm) 
+
 
 ```
 
@@ -1367,9 +1416,9 @@ homeseats2019<-homes%>%
      xlab("\nMonth of Closure")+
      ylab("Numer of Seats Lost\n")+
     theme_bw()+
-     geom_hline(aes(yintercept=mean), colour="red", lty=5)+
+     geom_hline(aes(yintercept=mean), colour="#22bcb9", lty=5)+
      
-      geom_text(data=text, color="red",
+      geom_text(data=text, color="black",
                mapping = aes(x=-Inf, y=-Inf, label=label),
                hjust=-1.7,
                vjust=-24)+
