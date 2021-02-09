@@ -12,6 +12,13 @@ output:
     toc_depth: '2'
     
 ---
+
+<style type="text/css">
+  body{
+  font-family: Franklin Gothic;
+}
+</style>
+
 ```{r setup, include=FALSE} 
 
 knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
@@ -274,7 +281,7 @@ library(DT)
 
 
 datatable(rates[, c("best_start","pct_unmet_need_children_it", "pct_unmet_need_children_prek", "pct_transit", "pct_uninsured", "pct_internet")],
-colnames = c("Best Start Geography", "ECE Unmet Need Amount Infant Toddlers", "ECE Unmet Need Among Pre-K Children", "Transit Users", "Uninsured Population", "Families with Access to Internet"),
+colnames = c("Best Start Geography", "ECE Unmet Need Among Infant Toddlers", "ECE Unmet Need Among Pre-K Children", "Transit Users", "Uninsured Population", "Families with Access to Internet"),
 style = "default",
           rownames = F, filter = "top",
          editable = FALSE, extensions = c("Buttons", "FixedColumns"),
