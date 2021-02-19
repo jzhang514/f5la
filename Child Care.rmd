@@ -1,0 +1,514 @@
+---
+title: "Child Care"
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(kableExtra)
+library(tigris)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+```
+
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+# Child Care Workers
+
+Child care workers are more numerous in Best Start geographies relative to the rest of the county, as indicated in the darker shading of purple. This makes it more important than ever that child care workers are getting sufficient resources and support in order to then take care of children in these communities. While a high number and percentage of child care workers preside in Best Start Geographies, stay-at home orders and safety concerns are driving [child care center closures](https://jzhang514.github.io/f5la/Childcare-Center-Closures.html), which impacts both child care workers and  working families who need child care for their children.
+
+Please note that child care workers age 16 to 18 are currently included in this analysis and can be excluded as needed.<br> 
+
+```{r}
+
+#######################CHILD CARE MAP W/ CPER DATA#####################################
+
+##Original R Script:"W:\Project\RDA Team\First5LA\V2.0 Report\R\Essential Workers_CEPR Data.R"
+
+#read in CEPR data
+
+cepr_lac <- dbGetQuery(con, "SELECT * FROM cepr_lac")
+
+#create dataframe subsetting only for
+#employed childcare workers and 
+#aggregating the person weights for child care workers, and everyone in the dataset
+
+cepr_lac_childcare<-cepr_lac%>%filter(flind1=='6' &
+         flind_dd=='SCA-Child Day Care Services' &
+         socp18=='PRS-Childcare Workers' &
+         lfstat == 'Employed')%>%
+  group_by(socp18, puma10)%>%
+  summarise(childcare_tot=sum(perwgt))%>%
+  mutate(pop_tot=10098376)%>% #got this number by summing the person weight of the entire dataset
+  mutate(geoid10=paste0('060', puma10)) #create new puma column that includes the leading '06' for joining 
+
+
+#read in puma spatial file
+puma<-pgGetGeom(con, "puma_lac") #get la county pumas that I created in postgres by filtering on geoid10 ilike '06037%'
+
+#join the puma spatial data to the childcare data on geoid10
+cepr_lac_childcare<-merge(puma, cepr_lac_childcare, duplicateGeoms = TRUE, all=TRUE)
+
+
+#transform for leaflet
+cepr_lac_childcare<-spTransform(cepr_lac_childcare, CRS('+proj=longlat +datum=WGS84'))
+
+######Layer 2: BSC###########
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies") #this is the updated view that CR made 
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc<-st_transform(bsc, CRS('+proj=longlat +datum=WGS84'))
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+
+#########################MAP###############################
+
+
+
+
+######Define color palette and bins for map#######
+library(leaflet)
+library(RColorBrewer)
+
+pal <- colorNumeric("PuRd",  domain = cepr_lac_childcare$childcare_tot)
+#mybins <- c(0,10,20,50,100,500,Inf)
+
+
+#######Map#########
+
+
+
+
+leaflet(cepr_lac_childcare)%>%
+  
+  addMapPane("puma_pane", zIndex=485)%>%
+  addMapPane("bsc_pane", zIndex=490)%>%
+ 
+  
+  #puma layer
+  
+  addPolygons(data=cepr_lac_childcare, weight = .40, color="black", smoothFactor = 0.8,
+              opacity = 1, fillColor=~pal(childcare_tot), fillOpacity = .75,
+              highlight=highlightOptions(color= "white", stroke = 1.5, weight = 2, bringToFront = TRUE), 
+              popup = ~paste0(cepr_lac_childcare$name10, "</br>", "Total Child Care Workers: ",cepr_lac_childcare$childcare_tot),
+               options = pathOptions(pane = "puma_pane")
+              )%>%
+  
+  #bsc layer
+  
+  addPolygons(data=bsc, color="black", weight=2, opacity = 1, fill=F,
+              label=as.character(bsc$best_start),
+               options = pathOptions(pane = "bsc_pane")) %>%
+  addLabelOnlyMarkers(data=bsc,  ~X, ~Y, label =  ~as.character(bsc_label), 
+                      labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T,
+                                                  style=list("font-size"="8px", "color"="black",  "font-weight" = "bold")))%>%
+  
+  
+  #base and view
+  addProviderTiles("CartoDB.PositronNoLabels")%>%
+  setView(	-118.205914, 	34.187684	, zoom = 9)%>%
+  
+  #legend
+  addLegend("bottomright", pal=pal, values = ~childcare_tot,
+            title = "Child Care Workers Living<br>in Best Start Geographies")
+  
+
+
+
+```
+Source: [Center for Economic and Policy Research Analysis of American Community Survey, 2014-2018 5-Year Estimate](https://github.com/ceprdata/frontline-workers)
+
+
+# Internet Access 
+
+In light of the pandemic, it is unsurprising that access to __internet and the digital divide__ has risen in importance. All Program Officers and Regional Network Grantees expressed the importance of digital equity in being able to outreach to families and for child care and education needs. 
+
+14 out of 15 of the Best Start geographies have a lower rate of homes with internet access compared to the LA County rate at 82.4%. The exception to this is Palmdale, where homes have a rate of internet access that is closer to the county rate.
+
+```{r}
+
+#############Internet Access#################
+
+internet<-dbGetQuery(con, "SELECT * FROM f5la_2021_internet")%>%
+  filter(!grepl("LA County", best_start))
+
+#highcharts
+
+hc<-hchart(internet, "column",
+         hcaes(x=best_start, y=pct_internet),
+          tooltip = list(pointFormat = "Percentage of Households Internet: {point.pct_internet:.1f}%<br>
+                         Number of Households Internet: {point.tot_internet}"))%>%
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100,
+       plotLines = list(
+      list(
+        label = list(text = "LA County = 84.5%<br>", align = "left"),
+        color = "#FF0000",
+        width = 2,
+        value = 84.5
+      )
+    ))%>%
+    hc_title(
+    text = "Homes with Internet Access in Best Start Geographies",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+
+# #create factors for the x axis labels (bsc) to customize the order
+# internet$best_start <-  factor(internet$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+# 
+# cols<-c( "#FF6666", "#FF6666", "#FF6666","#FF6666", "#FF6666", "#FF6666","#FF6666","#FF6666","#FF6666",
+#          "#FF6666","#FF6666","#FF6666","#FF6666","#FF6666")
+
+#ggplot graph
+
+# ggplot(internet, aes(y=pct_internet/100, x=best_start))+
+#   geom_bar(stat="identity", fill = cols)+ 
+#   geom_hline(yintercept=.824, linetype="dashed")+ #y intercept is the total rate which you can find on rc site, pgadmin, or from earlier table prior to filtering
+#   geom_text(data=data.frame(x=0,y=.824), aes(x, y), label="LA County Rate = 82.4%",  vjust=-.5, hjust=-.1)+ 
+#    scale_y_continuous(name="", limits = c(0, 1), labels=percent)+
+#   scale_x_discrete(name="")+
+#   theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         legend.title = element_blank())+
+#   ggtitle("Homes with Internet Access in the Best Start Geographies")
+
+
+``` 
+<br>Source: 2019 ACS 5-Year Estimates
+
+# Families who Own One or More Technology Devices
+
+Remote learning and child care requires families to have reliable internet as well as sufficient devices for all the children and adults who are learning or working remotely from home. The visual below shows the percentage of families who own at least one or more devices at home. 
+
+```{r}
+
+#highcharts
+
+hc<-hchart(internet, "column",
+         hcaes(x=best_start, y=pct_oneormoredevice),
+          tooltip = list(pointFormat = "Percentage of Homes w/ One or More Device: {point.pct_oneormoredevice:.1f}%<br>
+                         Number of Households w/ One or More Device: {point.tot_oneormoredevice}"))%>%
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100,
+       plotLines = list(
+      list(
+        label = list(text = "LA County =92.0%<br>", align = "left"),
+        color = "#FF0000",
+        width = 2,
+        value = 92.0
+      )
+    ))%>%
+    hc_title(
+    text = "Homes with Internet Access in Best Start Geographies",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+
+
+```
+<br>Source: 2019 ACS 5-Year Estimates
+
+# Pre-K Early Learning Care Enrollment
+
+The difference between the numbers of pre-k children who are eligible for subsidized early learning care programs versus enrolled in them is significant. This highlights the need to improve outreach and understand the barriers preventing eligible families from enrollment.<br>
+
+```{r}
+
+#####prek
+
+#grab data
+prek<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_prek_new")
+
+
+#convert data wide to long and prep for graphing
+
+prek_long <- melt(setDT(prek), id.vars = c("best_start"), variable.name = "type")%>%
+  filter(!grepl("unmet_need", type))%>%
+  filter(!grepl("LA County", best_start))
+
+prek_long<-prek_long%>%
+  mutate(variable = ifelse(type %in% 'eligible_children_prek', 'Eligible Children',
+                                ifelse(type %in% 'enrolled_children_prek', 'Enrolled Children',
+                                       "Total Children")))
+
+
+
+
+#highcharts
+hc<-hchart(prek_long, "column",
+         hcaes(x=best_start, y=value, group=variable),
+         stacking="normal",
+          tooltip = list(pointFormat = "Percent: {point.value}"))%>%
+      
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""))%>%
+    hc_title(
+    text = "Pre-K Eligibility and Enrollment in Subsidized Early Learning Care Programs",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://elneedsassessment.org/">Early Learning Needs Assessment Tool, American Institutes for Research (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+# 
+# 
+# #create factors for the x axis labels (bsc) to customize the order
+# prek_long$best_start <-  factor(prek_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+# 
+# #graph
+# 
+# ggplot(prek_long, aes(fill=type, y=value, x=best_start))+
+#   geom_bar(position="stack", stat="identity")+
+#    scale_y_continuous(name="", labels=comma, limits = c(0, 30000))+
+#   scale_x_discrete(name="")+
+#         theme(plot.title = element_text(hjust = 0.5), legend.position="right", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
+#   scale_fill_discrete(labels=c("Total", "Eligible", "Enrolled"))+
+#   labs(fill="")+
+#     ggtitle("Pre-K Eligibility and Enrollment in Subsidized \nEarly Learning Care Programs")
+  
+
+#graph LA County or make table???
+
+# prek_la<-melt(setDT(prek), id.vars = c("bsc"), variable.name = "type")%>%
+#   filter(grepl("LA County", bsc))
+```
+<br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/)
+
+# Infant Toddler Early Learning Care Enrollment
+
+The gap between infant toddlers who are eligible for subsidized early learning programs versus enrollment in them is substantial. Enrollment if extremely low across Best Start geographies. The gap for infant toddlers is larger than the gap among pre-k children, making this a higher priority area.<br>
+
+```{r}
+
+#grab data
+it<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_it_new")
+
+
+#convert data wide to long and prep for graphing
+it_long <- melt(setDT(it), id.vars = c("best_start"), variable.name = "type")%>%
+  filter(!grepl("unmet_need", type))%>%
+  filter(!grepl("LA County", best_start))
+
+
+#mutate and make the labels nicer for the legend on the graph
+
+it_long<-it_long%>%
+  mutate(variable = ifelse(type %in% 'eligible_children_it', 'Eligible Children',
+                                ifelse(type %in% 'enrolled_children_it', 'Enrolled Children',
+                                       "Total Children")))
+
+
+#highcharts graph
+hc<-hchart(it_long, "column",
+         hcaes(x=best_start, y=value, group=variable),
+         stacking="normal",
+          tooltip = list(pointFormat = "Percent: {point.value}"))%>%
+      
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""))%>%
+    hc_title(
+    text = "Infant Toddler Eligibility and Enrollment in Subsidized Early Learning Care Programs",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://elneedsassessment.org/">Early Learning Needs Assessment Tool, American Institutes for Research (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+
+
+# #creat factors for the x axis labels (bsc) to customize the order
+# it_long$best_start<- factor(it_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+# #graph
+# 
+# ggplot(it_long, aes(fill=type, y=value, x=best_start))+
+#   geom_bar(position="stack", stat="identity")+
+#    scale_y_continuous(name="", labels=comma, limits=c(0, 30000))+
+#   scale_x_discrete(name="")+
+#         theme(plot.title = element_text(hjust = 0.5), legend.position="right", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
+#   scale_fill_discrete(labels=c("Total", "Eligible", "Enrolled"))+
+#   labs(fill="")+
+#     ggtitle("Infant Toddler Eligibility and Enrollment in Subsidized \nEarly Learning Care Programs")
+
+
+##if we want an LA only graph or table here ???
+
+# it_la<-melt(setDT(it), id.vars = c("bsc"), variable.name = "type")%>%
+#   filter(grepl("LA County", bsc))
+
+
+```
+<br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/)
