@@ -1,0 +1,476 @@
+---
+title: "Demographics"
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(kableExtra)
+
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+```
+
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+
+# Age 0 to 5
+
+Best Start geographies are home to essential workers and their young children. All Best Start geographies have over 5% of their total population consisting of children age 0 to 5. Watts/Willowbrook has the highest percentage of children age 0 to 5 as these children comprise nearly 10% of Watts/Willowbrook total population. 8,015 children age 0 to 5 live there 
+
+To see the raw numbers please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix).
+
+
+```{r}
+
+age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
+  filter(best_start!="LA County")
+
+
+#highcharts
+
+   hc<-hchart(age, "column",
+         hcaes(x=best_start, y=pct_under_five),
+          tooltip = list(pointFormat = "Percent: {point.pct_under_five:.1f}%<br>
+                         Number: {point.num_under_five}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=20,
+       plotLines = list(
+      list(
+        label = list(text = "LA County = 6.2%<br>", align = "left", x=50, y=-10),
+        color = "#FF0000",
+        width = 2,
+        value = 6.2,
+        zIndex=5
+      )
+    ))%>%
+    hc_title(
+    text = "Population Age 0 to 5 by Best Start Geography",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+
+# 
+# #create factors for the x axis labels (bsc) to customize the order
+# age$best_start <- factor(age$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+
+
+#ggplot
+
+# ggplot(age, aes(x=best_start, y=pct_under_five/100, fill="#FF6666"))+
+#   geom_bar(stat="identity")+
+#    scale_y_continuous(name="", labels=percent,  limits = c(0, .2))+
+#   scale_x_discrete(name="")+
+#         theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
+# theme(legend.position = "none")+
+#     ggtitle("Population Age 0 to 5 by Best Start Community")+
+#   geom_hline(yintercept=0.063, linetype="dashed")+
+#     geom_text(data=data.frame(x=0,y=0.063), aes(x, y), label="LA County=6.2%",  vjust=-1.5, hjust=-.2)
+
+
+```
+<br>Source: 2018 ACS 5-Year Estimates
+
+# Race
+
+Diverse populations live in the Best Start geographies and are disproportionately affected by Covid-19. Most people across Best Start geographies are Latinx; only in Lancaster are Latinx residents not the majority in a Best Start geography. According to a [RACE COUNTS analysis](https://www.racecounts.org/covid/) of COVID-19 exposure in LA County, by September 21st, higher-Latinx areas had 3.1 times as many cases as lower-Latinx areas. 
+
+To see the raw data, refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix) <br>
+
+
+```{r}
+
+race<-dbGetQuery(con, "SELECT * FROM f5la_2021_raceethnicity")%>%
+   filter(best_start!='LA County')
+
+race<-race%>%
+  mutate(pct_combined = rowSums(race[,c(16,18)]))%>%  #combine 'other' and 'two or more' for pct
+ mutate(num_combined=rowSums(race[,c(15,17)]))%>% #combine 'other' and 'two or more' for num
+   mutate_if(is.numeric, round, 2)
+
+race<-race[c(1, 3:20)] #remote total column do not need it
+
+#separate the estimate and percent measures into two separate columns then recombine to one df
+
+race_num<-gather(race, num_measure, num_value, num_white:num_combined, factor_key=TRUE)%>%
+  filter(grepl("num", num_measure))
+
+race_pct<-gather(race, pct_measure, pct_value, num_white:num_combined, factor_key=TRUE)%>%
+  filter(grepl("pct", pct_measure))
+
+#combine pct and number dfs
+race<-cbind(race_num, race_pct)
+
+#remove duplicate name  column (best_start)
+race<-race[c(-4)]
+
+
+#now remove 'two or more' and 'other' because we are using the combined value instead
+race<-race%>%
+  filter(!grepl('twoormore', num_measure))%>%
+  filter(!grepl('twoormore', pct_measure))%>%
+  filter(!grepl('other', num_measure))%>%
+  filter(!grepl('other', pct_measure))
+
+#now create column 'variable' for nicer looking graph labels
+race<-race%>%
+ mutate(variable=ifelse(pct_measure %in% 'pct_white', 'Percent White',
+                         ifelse(pct_measure %in% 'pct_black_afam', 'Percent Black',
+                                ifelse(pct_measure %in% 'pct_aian', 'Percent AIAN',
+                                       ifelse(pct_measure %in% 'pct_asian', 'Percent Asian',
+                                         ifelse(pct_measure %in% 'pct_nhpi', 'Percent Native Hawaiin/Pacific Islander',
+                                                ifelse(pct_measure %in% 'pct_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_combined', 'Percent Combined', "Blank")))))))) 
+
+
+#highcharts
+  
+ hc<-  hchart(race, "column",
+         hcaes(x=best_start, y=pct_value, group=variable),
+          stacking = "normal",
+          tooltip = list(pointFormat = "{point.pct_measure}: {point.pct_value:,.1f}%<br>
+                         {point.num_measure}: {point.num_value}"))%>%
+      
+  hc_colors(cols9)%>%
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100)%>%
+    hc_title(
+    text = "Race Demographics by Best Start Geography",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)
+  
+ hc_add_theme(hc, thm)
+
+
+
+# #create factors for the x axis labels (bsc) to customize the order
+# race_pct$best_start <- factor(race_pct$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+
+#ggplot Graph
+  # ggplot(race, aes(fill=measure, y=value/100, x=best_start))+
+  #        geom_bar(position="stack", stat="identity")+
+  # scale_y_continuous(name="", labels=percent)+
+  # scale_x_discrete(name="")+
+  #       theme(plot.title = element_text(hjust = 0.5), legend.position="right", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+  #       plot.margin = margin(.1, .1, .1, .1, "cm"))+
+  # scale_fill_discrete(labels=c("White", "Black", "American Indian/Alaska Native","Asian","Native/Pacific Islander",  "Hispanic/Latinx", "Two or more" ))+
+  #   theme(legend.title = element_blank())+
+  #   ggtitle("Race Demographics by Best Start Geography")
+  
+  
+```
+<br>Source: 2018 ACS 5-Year Estimates
+
+
+# Undocumented Population
+
+Los Angeles County is a county of immigrants with approximately 2.7 million naturalized citizens and lawful permanent residents and an undocumented population of roughly 700,000 people, not including nearly 100,000 additional immigrants with deferred action for childhood arrivals (DACA) benefits or temporary protected status (TPS). 
+
+In interviews, First 5 LA Program Officers and Regional Network Grantees advocated for prioritizing undocumented families living in the Best Start geographies to ensure these families receive necessary supports. Undocumented families have a harder time accessing free COVID-19 tests and other government resources because of misinformation and fear, leaving it up to community-based organizations to act as social safety nets for these families. 
+
+```{r}
+
+#read excel in from W drive
+library(readxl)
+undoc_excel <- read_excel("W:/Project/RDA Team/First5LA/V2.0 Report/Data/Advancement _Project_First_Five_Undoc_Est_v1.xlsx")
+
+
+#Create table
+undoc <-data.frame("Nativity"=c("US-Born", "Naturalized Citizen", "Lawful Permanent \nResident (LPR)", "Undocumented \n(no DACA or TPS)", "TPS Holder", "DACA Recipient", "Total"), "Los Angeles County"=c(6642651, 1773675, 1010126, 698234, 37152, 58958, 10220796))
+
+
+#table
+
+kable(undoc, digits=1, format.args = list(big.mark = ","), col.names=c("Nativity","Los Angeles County"))%>%
+  add_header_above(c("Undocumented Population by Status"=1, " "=1), align="left")%>%
+kable_styling(bootstrap_options = "striped")%>%
+  footnote(general = "USC CSII analysis of 2018 5-year American Community Survey microdata from IPUMS USA. Data represent a 2014 through 2018 average. ", )
+
+
+
+```
+
+
+# Median Household Income
+
+The map below shows the varying median household incomes of families in LA County and Best Start geographies. Incomes are higher along the coast and on the Westside where fewer essential workers and more white-collar workers live.
+
+```{r cache=TRUE}
+
+#################################LA Census Tracts##########################
+
+
+########Prep Data: Census Tract Shapefile
+
+#read census tract shapefiles data
+ct <- st_read(
+  "W:/Project/RDA Team/First5LA/First 5 LA Regional Report/Shapes/tl_2019_06_tract_pj_clip.shp", quiet=TRUE)
+
+####Add XY coordinates to bsc spatial df
+## find centroid coordinates
+ct_cnt = st_centroid(ct)
+ct_crd = data.frame(st_coordinates(ct_cnt))
+
+#add ID column to each df and spatial df for joining
+ct$ID <- seq.int(nrow(ct))
+ct_crd$ID <- seq.int(nrow(ct_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+library(tigris)
+ct<-geo_join(ct, ct_crd, 'ID', 'ID',
+  how = "left")
+
+
+#######Prep Data: ACS Median HH Income 
+
+##read median HH data from ACS
+
+
+income<-dbGetQuery(con,"SELECT * FROM acs_5yr_s1901_multigeo_2019_wide WHERE level ILIKE 'tract' AND name ILIKE '%Los Angeles County%'") #read in 2019 ACS median household income data
+
+
+
+#rename income column name for clarity and subset for fields of interest
+income <-income[,c(1:2, 31)]
+colnames(income)[colnames(income)=="s1901_c02_012e"]<- "family_medianincome"
+
+##income fields of interest from acs table:
+####S1903_C02_012E	Estimate!!Families!!Median income (dollars) --I noticed this one doesn't have as many NA values for  Antelope Valley. Previous measure was using Household Median Income
+
+
+#########join ACS Median HH income data to spatial data
+
+
+##join census tract income_race data to ct spatial dataframe (shapefile)
+
+#join the ACS race/income data to census tract shapefile
+
+library(tigris)
+ct<-geo_join(ct, income, 'GEOID', 'geoid',
+  how = "left")
+
+#transform shapefile for leaflet
+ct<-st_transform(ct, CRS("+proj=longlat +datum=WGS84 +no_defs"))
+
+
+
+########################BSC#################################
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies") #this is the updated view that CR made 
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc<-st_transform(bsc, CRS('+proj=longlat +datum=WGS84'))
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+######add chloropleth
+
+library(leaflet)
+
+pal <- colorNumeric(palette="Greens",  domain = ct$family_medianincome) 
+
+####format income labels
+labels <- sprintf(prettyNum(ct$family_medianincome, big.mark = ","))
+
+
+########################FINAL Map!!##############################
+
+leaflet(ct) %>%
+  
+ 
+  addMapPane("ct_pane", zIndex=485)%>%
+  addMapPane("bsc_pane", zIndex=489)%>%
+  
+  
+  addPolygons(data=ct, color="#666666", fillColor=~pal(family_medianincome), weight = .85, smoothFactor = 0.5,
+    opacity = 1, fillOpacity =.8, group = "LA County Census Tracts", highlight=highlightOptions(color= "white", stroke = 2, weight = 3, bringToFront = TRUE),  popup = ~paste0(ct$NAMELSAD, "</br>", "Median Household Income: ","$",labels), options = pathOptions(pane = "ct_pane"))%>%
+  
+  
+  addPolygons(data=bsc, color="black", weight=2, opacity = 1, fill=F,
+              options = pathOptions(pane = "bsc_pane")) %>%
+  addLabelOnlyMarkers(data=bsc, ~X, ~Y, label =  ~as.character(bsc_label), labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T, style=list("font-size"="12px", "color"="black",  "font-weight" = "bold"))) %>%
+
+ 
+  addProviderTiles("CartoDB.PositronNoLabels")%>%
+  setView(	-118.205914, 	34.187684	, zoom = 9)%>%
+  
+  
+ addLegend("bottomright", pal=pal, values = ~family_medianincome,
+           labFormat = labelFormat(prefix = "$"),
+           na.label = "N/A",
+            title = "Median Household Income")
+
+
+
+```
+<br>Source: 2018 5-year American Census Survey (ACS) Estimates Table S1903
+
+
+
+# Regions
+```{r}
+
+bsc <- c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale")
+
+regions <- data.frame(bsc)
+
+kable(regions, col.names=c(""))%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))%>%
+  pack_rows("Region 1", 1,4) %>%
+  pack_rows("Region 2", 5, 8)%>%
+  pack_rows("Region 3", 9, 10)%>%
+  pack_rows("Region 4", 11, 12)%>%
+  pack_rows("Region 5", 13, 14)
+
+
+```
+
