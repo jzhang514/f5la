@@ -1,0 +1,357 @@
+---
+title: "Real Cost Measure"
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(kableExtra)
+
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+```
+
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+The Real Cost Measure was developed by advocates to capture what an annual budget looks like for a family in California meeting all of their basic needs: including food, housing, health care, child care, and transportation. Each of these need areas was elevated in conversations with First 5 LA Program Officers and Regional Network Grantees as being directly impacted or exacerbated by the pandemic, revealing the need for reforms. Using the Real Cost Measure as a framework for understanding where to target investments ensures that a holistic approach guides future planning and directly connects with needs raised by families.
+
+Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 5 LA’s Result: Family Resources.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) The Real Cost Measure also indirectly addresses the overlap of the Impact Framework’s Child Care, Poverty, Food Insecurity, Homelessness, and Access to Transportation indicators.
+
+# Annual Budget {#financialsecurity}
+
+This graph illustrates what an annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County compared to the county median household income. The median household income of $64,251 is clearly insufficient to meet the basic needs of most families with children. Several First 5 LA Program Officers and Regional Network Grantees noted that financial insecurity is increasing among families because of the pandemic. This further tightens the income constraint, forcing families to make difficult decisions between foundational needs like food, child care, health care, and housing. 
+
+```{r}
+###Grab census median household income data for la county
+library(tidycensus)
+library(scales)
+
+census_api_key("9c04405586a3811f542be8917ce8da4d75c9a8bf", overwrite=TRUE)
+
+median_hh_income<-get_acs(geography="county",
+        state="CA", county="037", variables = c("B19013_001"),
+        year=2019,
+        survey="acs5")
+
+#####Create data frame for RCM budget for LA County family of 4 (two adults, one preschooler, one school child)
+
+rcm_la <-data.frame("measure"=c("Real Cost Measure \nAnnual Household Budget", "Real Cost Measure \nAnnual Household Budget", "Real Cost Measure \nAnnual Household Budget", "Real Cost Measure \nAnnual Household Budget", "Real Cost Measure \nAnnual Household Budget", "Real Cost Measure \nAnnual Household Budget", "Real Cost Measure \nAnnual Household Budget", "Los Angeles County \nMedian Household Income"), expense=c("Housing", "Child Care", "Food", "Health Care", "Transportation", "Miscellaneous", "Taxes", "Median Household Income"), "amount"=c(18540, 16848, 12468, 9828, 11496, 6912, 15469, 68044))
+
+
+#highcharts
+# 
+# 
+#    hchart(rcm_la, "column",
+#          hcaes(x=measure, y=amount, group=expense),
+#           stacking = "normal",
+#           tooltip = list(pointFormat = "{point.expense}: {point.amount:,.0f}"))%>%
+#       
+#   #hc_colors(cols9)%>%
+#       hc_tooltip(crosshairs = TRUE)%>%
+#      
+#      hc_xAxis(title = list(text = ""))%>%
+#     hc_yAxis(title = list(text = "Dollar Amount"))%>%
+#     hc_title(
+#     text = "Real Cost Budget for Family in Los Angeles County",
+#     margin = 20,
+#     align = "left",
+#     style = list(useHTML = TRUE, fontWeight="bold")
+#     )%>%
+#       hc_subtitle(
+#     text =  'Annual budget for a family of two adults, one preschooler, and one school-age child living in Los Angeles County',
+#      style = list( fontWeight = "bold"),
+#     align = "left"
+#   )%>%
+#      hc_legend(enabled = TRUE)
+  
+ #hc_add_theme(hc, thm)
+
+
+#customize the order for the stacked bar graph
+rcm_la$expense <- factor(rcm_la$expense,levels = c("Child Care", "Food", "Health Care", "Housing", "Transportation", "Taxes", "Miscellaneous", "Median Household Income"))
+
+#####Graph
+
+ggplot(rcm_la, aes(fill=expense, y=amount, x=measure, label=amount))+
+  geom_bar(position="stack", stat="identity")+
+  geom_text(aes(label=paste0("$", format(amount, big.mark=","))), size = 3, position = position_stack(vjust = 0.5))+
+   scale_y_continuous(name="", labels=dollar_format(), breaks=seq(0,95000,10000))+
+  scale_x_discrete(name="")+
+  labs(fill="")+
+  scale_fill_brewer(breaks=c("Child Care", "Food", "Health Care", "Housing","Transportation", "Taxes","Miscellaneous"), type="qual", palette="Spectral")+
+  ggtitle("Real Cost Budget for Family in Los Angeles County")+
+ theme(panel.background = element_blank())
+
+
+```
+<br>Source: Annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County from Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California. http://www.unitedwaysca.org/realcost
+
+# Households Below Real Cost Measure
+
+Across all 14 Best Start geographies, more than 1/3 of families earn less than enough to meet their basic needs. If we are serious about the success of LA County we must get serious about meeting the real costs of our essential workers.
+
+To see the full raw data, please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix)<br>
+
+```{r}
+
+#####Grab data from postgres
+rcm_bsc<-dbGetQuery(con, "SELECT * FROM real_cost_measure_bsc_new")
+
+
+
+#####Create stacked bar graph for rcm by bsc
+
+#Convert data wide to long for variables of interest
+rcm_long<-gather(rcm_bsc, hh_type, number, num_hh, num_hh_below_rcm, factor_key=TRUE)%>%
+  mutate(variable=ifelse(hh_type %in% 'num_hh', 'Number of Households', 'Number of Households Below the Real Cost Measure'))
+
+ 
+#Subset colunms of interest
+rcm_long<-rcm_long[c(1, 21:23)]
+
+
+#highcharts 
+   hchart(rcm_long, "column",
+         hcaes(x=best_start, y=number, group=variable),
+          stacking = "normal",
+          tooltip = list(pointFormat = "{point.number:,.0f}"))%>%
+            hc_tooltip(crosshairs = TRUE)%>%
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""))%>%
+    hc_title(
+    text = "Number of Households Earning less than the Real Cost Measure",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+     hc_legend(enabled = TRUE)
+
+   
+# #create factors for the x axis labels (bsc) to customize the order
+# rcm_long$best_start <- factor(rcm_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+# 
+# 
+# #Graph
+#   ggplot(rcm_long, aes(fill=hh_type, y=number, x=best_start))+
+#          geom_bar(position="stack", stat="identity")+
+#   scale_y_continuous(name="", labels=comma)+
+#   scale_x_discrete(name="")+
+#         theme(plot.title = element_text(hjust = 0.5), legend.position="top", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
+#   scale_fill_discrete(labels=c("Total Number of Households", "Number of Households \nBelow the Real Cost Measure"))+
+#   labs(fill="")+
+#     ggtitle("Number of Households in Best Start Geographies \nEarning Less than the Real Cost Measure")
+
+
+
+```
+<br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California http://www.unitedwaysca.org/realcost
+
+
+```{r include=FALSE}
+
+#####Create stacked bar graph for official poverty measure
+
+#Convert data wide to long for variables of interest
+poverty_long<-gather(rcm_bsc, hh_type, number, num_hh:num_hh_below_official_pov_measure, factor_key=TRUE)
+
+#Subset colunms of interest
+poverty_long<-poverty_long[c(1, 21:22)]
+
+#create factors for the x axis labels (bsc) to customize the order
+rcm_long$best_start <- factor(rcm_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+
+
+#Graph
+  ggplot(poverty_long, aes(fill=hh_type, y=number, x=best_start))+
+         geom_bar(position="stack", stat="identity")+
+  scale_y_continuous(name="", labels=comma, breaks=seq(0,900000,20000))+
+  scale_x_discrete(name="")+
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        legend.position="top",
+        plot.margin = margin(.1, .1, .1, .1, "cm"))+
+  scale_fill_discrete(labels=c("Total Number of Households", "Number of Households \nBelow the Official Poverty Measure"))+
+  labs(fill="")+
+   ggtitle("Number of Households in Best Start Communities \nEarning Less than Official Poverty Measure")
+
+  
+```
+
+
+# Households in LA County Below Real Cost Measure by Race
+
+Over 600,000 Latinx families earn an income below the Real Cost Measure, making Latinx families the largest racial group to live on less than what’s required to meet one’s basic needs. In total, it is not sustainable for close to 1 million Angeleno families to earn incomes below the real cost of living in LA.
+
+```{r}
+
+#grab data 
+rcm_race<-dbGetQuery(con, "SELECT * FROM uw_2017_county_state_real_cost_measure")%>%
+  filter(county=='Los Angeles') #filter for LA County only
+
+#subset only keep colunms of interest for the graph
+rcm_race<-rcm_race[c(1,2, 14:23)]
+
+#make data long for both pct and number
+
+rcm_race_num <- melt(setDT(rcm_race), id.vars = c("county_id", "county"), variable.name = "num_measure")%>%
+  filter(str_detect(num_measure, "num"))%>%
+  rename(num_value=value)
+
+rcm_race_pct<- melt(setDT(rcm_race), id.vars = c("county_id", "county"), variable.name = "pct_measure")%>%
+  filter(str_detect(pct_measure, "pct"))%>%
+    rename(pct_value=value)
+
+#make percent column be multiplied by 100 
+rcm_race_pct$pct_value=rcm_race_pct$pct_value*100
+
+#combine
+
+rcm_race<-cbind(rcm_race_num, rcm_race_pct)
+
+#remove duplicate columns from cbind
+rcm_race<-rcm_race[,-c(5:6)]
+
+#now create new variable column with nicer labeling for the graph
+
+rcm_race<-rcm_race%>%
+  mutate(variable=ifelse(pct_measure %in% 'pct_hh_below_rcm_white', 'White',
+                         ifelse(pct_measure %in% 'pct_hh_below_rcm_black', 'Black',
+                                ifelse(pct_measure %in% 'pct_hh_below_rcm_api', 'Asian Pacific Islander',
+                                                ifelse(pct_measure %in% 'pct_hh_below_rcm_latino', 'Latinx', ifelse(pct_measure %in% 'pct_hh_below_rcm_other', 'Other', "Blank"))))))
+
+#highcharts
+
+
+   hc<-hchart(rcm_race, "column",
+         hcaes(x=variable, y=num_value),
+          tooltip = list(pointFormat = "Percent: {point.pct_value:,.1f}%<br>
+                         Number: {point.num_value}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    hc_yAxis(title = list(text = ""))%>%
+    hc_title(
+    text = "Number of Households in Los Angeles County Earning Less Than the Real Cost Measure",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+
+
+
+
+#####Graph
+
+# ggplot(rcm_race, aes(y=value, x=measure))+
+#   geom_bar( stat="identity", fill="#FF6666")+
+#    scale_y_continuous(name="",  labels=comma)+
+#   scale_x_discrete(name="", labels=c("White", "Black", "Asian Pacific Islander", "Latinx", "Other"))+
+#   labs(fill="")+
+#    theme(plot.title = element_text(hjust = 0.5),axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
+#   ggtitle("Number of Households in Los Angeles County \nEarning Below Real Cost Measure by Race")
+
+
+```
+<br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California http://www.unitedwaysca.org/realcost
