@@ -108,7 +108,15 @@ cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A
 
 ```
 
-# Child Care Workers
+# Program Officer and Grantee Perspectives
+
+*	The pandemic forced schools and child care centers to close, resulting in children having nowhere to go outside of their homes. This created a greater dependence on virtual tools, such as video conferencing and wifi access, to ensure that children can engage in remote classes or activities.
+*	Greater reliance on technology has revealed the digital divide that exists. Many families in Best Start geographies do not have access to wifi or laptops needed to enroll children in remote programs.
+*	Children are having a harder time staying engaged during the day which can hurt educational outcomes.
+*	This indicator is similar to the Impact Framework's child care indicator. Progress on this indicator helps achieve [<nobr style="color: #26BFB0;">__First 5 LA’s Result: Early Learning.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* [Additional stories directly from providers about their experiences providing early learning and care for families during the pandemic](https://www.advancementprojectca.org/blog)
+
+# Child Care Workers in Best Start Geographies
 
 Child care workers are more numerous in Best Start geographies relative to the rest of the county, as indicated in the darker shading of purple. This makes it more important than ever that child care workers are getting sufficient resources and support in order to then take care of children in these communities. While a high number and percentage of child care workers preside in Best Start Geographies, stay-at home orders and safety concerns are driving [child care center closures](https://jzhang514.github.io/f5la/Childcare-Center-Closures.html), which impacts both child care workers and  working families who need child care for their children.
 
