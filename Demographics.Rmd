@@ -127,7 +127,7 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
    hc<-hchart(age, "column",
          hcaes(x=best_start, y=pct_under_five),
           tooltip = list(pointFormat = "Percent: {point.pct_under_five:.1f}%<br>
-                         Number: {point.num_under_five}"))%>%
+                         Number: {point.est_under_five}"))%>%
       
 
       hc_tooltip(crosshairs = TRUE)%>%
@@ -184,7 +184,7 @@ hc_add_theme(hc, thm)
 
 
 ```
-<br>Source: 2018 ACS 5-Year Estimates
+<br>Source: 2019 ACS 5-Year Estimates
 
 # Race
 
@@ -242,8 +242,8 @@ race<-race%>%
  hc<-  hchart(race, "column",
          hcaes(x=best_start, y=pct_value, group=variable),
           stacking = "normal",
-          tooltip = list(pointFormat = "{point.pct_measure}: {point.pct_value:,.1f}%<br>
-                         {point.num_measure}: {point.num_value}"))%>%
+          tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.1f}%<br>
+                         Total Number: {point.num_value}"))%>%
       
   hc_colors(cols9)%>%
       hc_tooltip(crosshairs = TRUE)%>%
@@ -288,7 +288,7 @@ race<-race%>%
   
   
 ```
-<br>Source: 2018 ACS 5-Year Estimates
+<br>Source: 2019 ACS 5-Year Estimates
 
 
 # Undocumented Population
@@ -431,11 +431,11 @@ leaflet(ct) %>%
   addMapPane("bsc_pane", zIndex=489)%>%
   
   
-  addPolygons(data=ct, color="#666666", fillColor=~pal(family_medianincome), weight = .85, smoothFactor = 0.5,
+  addPolygons(data=ct, color="#C8CFC9", fillColor=~pal(family_medianincome), weight = .8, smoothFactor = 0.5,
     opacity = 1, fillOpacity =.8, group = "LA County Census Tracts", highlight=highlightOptions(color= "white", stroke = 2, weight = 3, bringToFront = TRUE),  popup = ~paste0(ct$NAMELSAD, "</br>", "Median Household Income: ","$",labels), options = pathOptions(pane = "ct_pane"))%>%
   
   
-  addPolygons(data=bsc, color="black", weight=2, opacity = 1, fill=F,
+  addPolygons(data=bsc, color="black", weight=1.5, opacity = 1, fill=F,
               options = pathOptions(pane = "bsc_pane")) %>%
   addLabelOnlyMarkers(data=bsc, ~X, ~Y, label =  ~as.character(bsc_label), labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T, style=list("font-size"="12px", "color"="black",  "font-weight" = "bold"))) %>%
 
@@ -452,7 +452,7 @@ leaflet(ct) %>%
 
 
 ```
-<br>Source: 2018 5-year American Census Survey (ACS) Estimates Table S1903
+<br>Source: 2019 5-year American Census Survey (ACS) Estimates
 
 
 
