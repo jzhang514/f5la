@@ -1,5 +1,5 @@
 ---
-title: "Demographics"
+title: "Demographics of the Best Start Geographies"
 output:
   html_document:
     number_sections: no
@@ -73,7 +73,7 @@ cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
 
 cols3=c("#033E8C", "#EC098D", "#04B2D9")
 
-cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600")
 
 ####MAKE MY HC THEME###
 
@@ -245,7 +245,7 @@ race<-race%>%
           tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.1f}%<br>
                          Total Number: {point.num_value}"))%>%
       
-  hc_colors(cols9)%>%
+  hc_colors(cols7)%>%
       hc_tooltip(crosshairs = TRUE)%>%
      
      hc_xAxis(title = list(text = ""),
@@ -264,8 +264,7 @@ race<-race%>%
       hc_subtitle(
     text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
      style = list( fontWeight = "bold"),
-    align = "left"
-  )%>%
+    align = "left")%>%
      hc_legend(enabled = TRUE)
   
  hc_add_theme(hc, thm)
@@ -313,7 +312,7 @@ undoc <-data.frame("Nativity"=c("US-Born", "Naturalized Citizen", "Lawful Perman
 kable(undoc, digits=1, format.args = list(big.mark = ","), col.names=c("Nativity","Los Angeles County"))%>%
   add_header_above(c("Undocumented Population by Status"=1, " "=1), align="left")%>%
 kable_styling(bootstrap_options = "striped")%>%
-  footnote(general = "USC CSII analysis of 2018 5-year American Community Survey microdata from IPUMS USA. Data represent a 2014 through 2018 average. ", )
+  footnote(general = "USC CSII analysis of 2018 5-year American Community Survey microdata from IPUMS USA. Data represent a 2014 through 2018 average.")
 
 
 
@@ -465,11 +464,11 @@ regions <- data.frame(bsc)
 
 kable(regions, col.names=c(""))%>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))%>%
-  pack_rows("Region 1", 1,4) %>%
-  pack_rows("Region 2", 5, 8)%>%
-  pack_rows("Region 3", 9, 10)%>%
-  pack_rows("Region 4", 11, 12)%>%
-  pack_rows("Region 5", 13, 14)
+  pack_rows("Region 1", 1,4, label_row_css = "background-color: #033E8C; color: #fff;") %>%
+  pack_rows("Region 2", 5, 8,label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  pack_rows("Region 3", 9, 10,label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  pack_rows("Region 4", 11, 12,label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  pack_rows("Region 5", 13, 14,label_row_css = "background-color: #033E8C; color: #fff;")
 
 
 ```
