@@ -71,7 +71,7 @@ con <- dbConnect(drv, dbname = "f5la_v2",
 
 cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
 
-cols3=c("#033E8C", "#EC098D", "#04B2D9")
+cols3=c("#EC098D", "#04B2D9",   "#033E8C")
 
 cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
 
@@ -399,9 +399,11 @@ prek_long<-prek_long%>%
 hc<-hchart(prek_long, "column",
          hcaes(x=best_start, y=value, group=variable),
          stacking="normal",
-          tooltip = list(pointFormat = "Percent: {point.value}"))%>%
+          tooltip = list(pointFormat = "Total: {point.value}"))%>%
       
       hc_tooltip(crosshairs = TRUE)%>%
+  
+  hc_colors(cols3)%>%
      
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
@@ -473,9 +475,10 @@ it_long<-it_long%>%
 hc<-hchart(it_long, "column",
          hcaes(x=best_start, y=value, group=variable),
          stacking="normal",
-          tooltip = list(pointFormat = "Percent: {point.value}"))%>%
+          tooltip = list(pointFormat = "Total: {point.value}"))%>%
       
       hc_tooltip(crosshairs = TRUE)%>%
+  hc_colors(cols3)%>%
      
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
