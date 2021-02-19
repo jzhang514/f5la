@@ -1,0 +1,437 @@
+---
+title: "Food Access and Insecurity in Los Angeles County and the Best Start Geographies"
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(kableExtra)
+library(tigris)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+```
+
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+
+# Program Officer and Grantee Perspectives
+
+*	Access to food is an urgent issue that families in all five regions face. The primary barriers to food access are the cost and transportation.
+*	Many families live far from grocery stores and rely on public transportation to access food. This creates heightened challenges during the pandemic as many families opt out of riding public transit for fear of catching Covid-19.
+*	Many food banks and agencies recognized the high need for food and set up distribution centers during the beginning of the pandemic. However, it is not easy for families to obtain reliable information about where newly available food resources are. This forces many service providers, Program Officers and Regional Network Grantees to operate as coordinators of information to ensure that families are connected to services closest to them.
+*	Progress on food access helps achieve [<nobr style="color: #04B2D9;">__First 5 LA’s Result: Family Resources.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) This indicator is similar to the Impact Framework's Food Insecurity indicator.
+
+
+# Grocery Store Availability
+
+Important disparities exist in the West LA and South LA food retail environment. South LA has a much lower rate of grocery stores per person and has more liquor stores than grocery stores.
+
+```{r}
+grocery<-dbGetQuery(con, "SELECT * FROM lafpc_grocery")%>%
+  filter(!grepl("South LA Grocery Store", indicator_name))
+
+
+kable(grocery, align="l", col.names = c("", "2013", "2017","2020","Trend"))%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))%>%
+  pack_rows("Grocery Stores", 1, 4, label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  pack_rows("Convenience Stores", 5,5, label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  pack_rows("Liquor Stores", 6, 9, label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  pack_rows("Ratio of Grocery Stores", 10,13, label_row_css = "background-color: #033E8C; color: #fff;")%>%
+  row_spec(1, bold=T)%>%
+   row_spec(5, bold=T)%>%
+   row_spec(6, bold=T)%>%
+  add_indent(c(14))
+
+```
+<br>Source: [LA Food Policy Council Food System Dashboard](https://static1.squarespace.com/static/5bc50618ab1a624d324ecd81/t/5e45c5915750af6b4e5e5c4b/1581630905550/2020FoodSystemDashboard.pdf) 
+
+# Food Insecurity by Race and Ethnicity
+
+Among families who are at or below 300% of the Federal Poverty Line, American Indian/Alaskan Native, Latinx, and Black families are most likely to report food insecurity. For more information, the Los Angeles [Food Policy Council's 2020 Food System Dashboard](https://static1.squarespace.com/static/5bc50618ab1a624d324ecd81/t/5e45c5915750af6b4e5e5c4b/1581630905550/2020FoodSystemDashboard.pdf) paints a comprehensive picture of food systems in Los Angeles and the landscape of food access and distribution using a racial equity lens. <br>
+
+```{r}
+
+food<-dbGetQuery(con, "SELECT * FROM lacdph_food_insecurity_county_2018")
+
+#format data for graphing
+
+food_long<-melt(setDT(food), id.vars = c("county_geoid","county_name"), variable.name = "Race")%>%
+  filter(!grepl('fb', Race))%>%
+  filter(!grepl('nb', Race))%>%
+  filter(grepl('pct|num', Race))
+
+
+food_pct<-food_long%>%
+  filter(grepl('pct', Race))%>%
+  rename(pct=Race)%>%
+  rename(pct_value=value)
+
+food_num<-food_long%>%
+  filter(grepl('num', Race))%>%
+  rename(number=Race)%>%
+rename(num_value=value)
+
+food_long<-cbind(food_pct, food_num)
+ 
+#remove duplicate columns from cbind
+food_long<-food_long[,-c(5:6)]
+
+#now lets remove the total row because we will add it as a horizontal line to match other graphs
+food_long<-food_long%>%
+  filter(!grepl('total', pct))
+
+#add column with nicer labels for the graph
+food_long<-food_long%>%
+  mutate(variable= ifelse(pct %in% 'pct_latinx', 'Latinx',
+                                ifelse(pct %in% 'pct_white', 'White',
+                                       ifelse(pct %in% 'pct_black', 'Black',
+                                         ifelse(pct %in% 'pct_asian', 'Asian',
+                                                ifelse(pct %in% 'pct_aian', 'American Indian/Alaskan Native', "Blank"))))))
+
+  
+#highchart
+
+hc<-hchart(food_long, "column",
+         hcaes(x=variable, y=pct_value),
+          tooltip = list(pointFormat = "Percent: {point.pct_value:.1f}%<br>
+                         Number: {point.num_value}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=40,
+       plotLines = list(
+      list(
+        label = list(text = "LA County = 26.8%<br>", align = "left", x=150),
+        color = "#FF0000",
+        width = 2,
+        value = 26.8,
+        zIndex=5
+      )
+    ))%>%
+    hc_title(
+    text = "Families <300% Federal Poverty Level Experiencing Food Insecurity in Los Angeles County",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="http://publichealth.lacounty.gov/ha/LACHSDataTopics2018.htm">Los Angeles County Department of Public Health, Los Angeles County Health Surve (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+# #set colors 
+# 
+# cols<-c("#5dbcd2", "#FF6666", "#FF6666", "#FF6666","#FF6666", "#FF6666")
+# 
+# #graph
+# 
+# ggplot(food, aes(x=Race, y=value/100))+
+#   geom_bar(aes(fill=Race), stat="identity") +
+#   scale_y_continuous(name="", labels=percent)+
+#   scale_x_discrete(name="", labels=c("Total", "Latinx", "White", "Black", "Asian", "American Indian/\nAlaskan Native"))+
+#   scale_fill_manual(values=cols)+
+#  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))+
+#    ggtitle("Families <300% Federal Poverty Level Experiencing Food \nInsecurity in Los Angeles County")
+
+
+```
+<br>Source: [Los Angeles County Department of Public Health, Los Angeles County Health Survey]( http://publichealth.lacounty.gov/ha/LACHSDataTopics2018.htm)
+
+# Families Experience with Food Security
+
+52% families who completed the Child Care Resource Center (CCRC) Family Needs Assessment indicated that they require assistance to meet basic food needs.<br>
+
+```{r}
+
+#read in data
+library(readxl)
+insecure <- read_excel("W:/Project/RDA Team/First5LA/V2.0 Report/Data/CCRC FNA 2019 Food Security.xlsx")
+
+
+
+#Create df
+insecure <-data.frame("Response"=c("We meet our basic food needs without any help", "We meet our basic food needs with some help", "We get most of our food from a bank or SNAP (Cal Fresh)", "We often do not have enough food or a way to cook or prepare it", "Multiple Response", "Unknown", "Total"), "Value"=c(4257, 1689, 2964, 65, 111, 201, 9287))
+
+#table
+kable(insecure, digits=1, format.args = list(big.mark = ","))%>%
+  kable_styling("striped")%>%
+  add_header_above(c("Which of the following best describes your family food needs? [Choose one]" = 1, " " = 1), align="left")
+
+
+```
+<br>[Source: Child Care Resource Center (CCRC) Family Needs Assessment 2018](https://www.ccrcca.org/parents/forms-publications)
+
+# SNAP Enrollment
+
+Over 47% of families who completed the Child Care Resource Center (CCRC) Family Needs Assessment were enrolled in SNAP.<br> 
+
+```{r}
+
+#Create df
+
+pubasst <-data.frame("Response"=c( "Yes", "No", "Multiple Response", "Unknown", "Total"), "Value"=c(4390, 491, 35, 4371, 9287))
+
+
+#table
+kable(pubasst, digits=1, format.args = list(big.mark = ","))%>%
+  kable_styling("striped")%>%
+   add_header_above(c("SNAP (food stamps)" = 1, " " = 1), align="left")
+
+
+
+```
+<br>[Source: Child Care Resource Center (CCRC) Family Needs Assessment 2018](https://www.ccrcca.org/parents/forms-publications)
+
+# Regional Snapshots of Food Security
+
+
+```{r}
+library(DT)
+
+## data
+dat <- data.frame(
+  Barriers = c("Region 1 - Application Process and Cultural and Linguistic Capacity", "Region 2 - Misinformation and Access to Services", "Region 3 - Misinformation and Access to Services", "Region 4 - Access to Servicers, Cultural and Linguistic Capacity and Accessibility", "Region 5 - Application Process, Accessibility, and Food Quality and Availability")
+)
+## details of row 1
+subdat1 <- data.frame(
+  CalFresh = "Prior to COVID-19, 36% of the residents were eligible but were not receiving CalFresh Benefits. Of the convening participants, 57% reported receiving CalFresh, 11% previously received CalFresh, and 11% have never received it. This convening was conducted virtually.", 
+  Concerns = "The top concerns for this include improved application processes and cultural & linguistic capacity. Some examples include not understanding the questions asked in the application, having too many steps to follow, not having supportive bilingual staff to help support and navigate the process. Since this Region’s convening virtually occurred during COVID-19, it is important to note that the community members described the changes they experienced as CalFresh application processes changed to accommodate the pandemic. Specifically, community members noted that the CalFresh application has improved and they have enrolled in the program during the pandemic. In addition, they highlighted the importance of coordinating with other programs to address food security. Despite the ease in applying for CalFresh, many shared the additional stresses placed on the households regarding the loss of jobs, children learning at home, and family members infected with COVID-19.",
+  stringsAsFactors = FALSE
+)
+## details of row 2
+subdat2 <- data.frame(
+  CalFresh = "Prior to COVID-19, 23% of the residents were eligible but were not receiving CalFresh Benefits.", 
+  Concerns = "The top concerns for this region include misinformation and access to services. Some examples of these concerns include not knowing what information to believe such as if sharing a residence with other households influences benefits, not knowing how to use CalFresh benefits at the store, having negative experiences when attempting to enroll, and fearful of public charge.", 
+  stringsAsFactors = FALSE
+)
+
+## details of row 3
+subdat3 <- data.frame(
+  CalFresh = "Prior to COVID-19, 38% of the residents were eligible but were not receiving CalFresh Benefits.[3] Of the convening participants, 25% reported receiving CalFresh, 23% previously received CalFresh, and 51% have never received it. This convening was conducted in-person and had on-site enrollment to CalFresh.", 
+  Concerns = "The top concerns for this region include misinformation and access to services.  Some examples of these concerns include fearing asking for help, feeling judged when trying to apply, documents are poorly translated in Spanish, and would like the process to be friendlier to the community.", 
+  stringsAsFactors = FALSE
+)
+
+## details of row 4
+subdat4 <- data.frame(
+  CalFresh = "Prior to COVID-19, 45% of the residents were eligible but were not receiving CalFresh Benefits.[4] This convening was conducted in-person and had on-site enrollment to CalFresh.", 
+  Concerns = "The top concerns for this region include access to services, cultural & linguistic capacity, and accessibility. Community members expressed confusion over different governmental programs, eligibility standards, and documentation requirements. In addition, language access was critical as several community members expressed a belief that non-English speakers were at a disadvantage. Many also found it hard to travel out of the community to receive services and sites that were not family-friendly.", 
+  stringsAsFactors = FALSE
+)
+
+## details of row 5
+subdat5 <- data.frame(
+  CalFresh = "Prior to COVID-19, 22% of the residents were eligible but were not receiving CalFresh Benefits. This convening was conducted virtually.", 
+  Concerns = "The top concerns for this region include the application process, accessibility, and food quality & availability. Community members expressed the amount of time it took to complete an application and the documentation required. Several shared positive experiences as they had help along the way from DPSS workers as well as other community-based resources at hospitals and community-based agencies. Community members also expressed the frustration of not having enough quality produce in their community. Moreover, many expressed wanting less fast food and more community gardens and food banks. Since this Region’s convening virtually occurred during COVID-19, it is important to note that the community members described the changes they experienced as CalFresh application processes changed to accommodate the newly unemployed. A majority of community members who were not previous CalFresh benefits were very interested in applying, being adversely impacted by COVID-19. Those that had started the process reported mixed experiences, some were able to apply quickly, which others expressed frustration with the online process and agency responsiveness. Several participants expressed other COVID-19 related issues including increases in the prices of some foods, less availability of other foods, and fear of shopping with people who weren’t following the appropriate distancing and mask guidelines.", 
+  stringsAsFactors = FALSE
+)
+
+
+## merge the row details
+subdats <- lapply(list(subdat1, subdat2, subdat3, subdat4, subdat5), purrr::transpose)
+
+## dataframe for the datatable
+Dat <- cbind(" " = "&oplus;", dat, details = I(subdats))
+
+## the callback
+callback = JS(
+  "table.column(1).nodes().to$().css({cursor: 'pointer'});",
+  "// Format the nested table into another table",
+  "var childId = function(d){",
+  "  var tail = d.slice(2, d.length - 1);",
+  "  return 'child_' + tail.join('_').replace(/[\\s|\\.|'|,|\\(|\\)]/g, '_');",
+  "};",
+  "var format = function (d) {",
+  "  if (d != null) {",
+  "    var id = childId(d);",
+  "    var html = ", 
+  "          '<table class=\"display compact\" id=\"' + id + '\"><thead><tr>';",
+  "    for (var key in d[d.length-1][0]) {",
+  "      html += '<th>' + key + '</th>';",
+  "    }",
+  "    html += '</tr></thead></table>'",
+  "    return html;",
+  "  } else {",
+  "    return '';",
+  "  }",
+  "};",
+  "var rowCallback = function(row, dat, displayNum, index){",
+  "  if($(row).hasClass('odd')){",
+  "    for(var j=0; j<dat.length; j++){",
+  "      $('td:eq('+j+')', row).css('background-color', 'papayawhip');",
+  "    }",
+  "  } else {",
+  "    for(var j=0; j<dat.length; j++){",
+  "      $('td:eq('+j+')', row).css('background-color', 'lemonchiffon');",
+  "    }",
+  "  }",
+  "};",
+  "var headerCallback = function(thead, data, start, end, display){",
+  "  $('th', thead).css({",
+  "    'border-top': '3px solid indigo',", 
+  "    'color': 'indigo',",
+  "    'background-color': '#fadadd'",
+  "  });",
+  "};",
+  "var format_datatable = function (d) {",
+  "  var dataset = [];",
+  "  var n = d.length - 1;",
+  "  for (var i = 0; i < d[n].length; i++) {",
+  "    var datarow = $.map(d[n][i], function (value, index) {",
+  "      return [value];",
+  "    });",
+  "    dataset.push(datarow);",
+  "  }",
+  "  var id = 'table#' + childId(d);",
+  "  var subtable = $(id).DataTable({",
+  "                     'data': dataset,",
+  "                     'autoWidth': true,",
+  "                     'deferRender': true,",
+  "                     'info': false,",
+  "                     'lengthChange': false,",
+  "                     'ordering': d[n].length > 1,",
+  "                     'order': [],",
+  "                     'paging': false,",
+  "                     'scrollX': false,",
+  "                     'scrollY': false,",
+  "                     'searching': false,",
+  "                     'sortClasses': false,",
+  "                     'rowCallback': rowCallback,",
+  "                     'headerCallback': headerCallback,",
+  "                     'columnDefs': [{targets: '_all', className: 'dt-center'}]",
+  "                   });",
+  "};",
+  "table.on('click', 'td.details-control', function () {",
+  "  var td = $(this),",
+  "      row = table.row(td.closest('tr'));",
+  "  if (row.child.isShown()) {",
+  "    row.child.hide();",
+  "    td.html('&oplus;');",
+  "  } else {",
+  "    row.child(format(row.data())).show();",
+  "    td.html('&CircleMinus;');",
+  "    format_datatable(row.data());",
+  "  }",
+  "});")
+
+## datatable
+
+datatable(Dat, callback = callback, escape = -2, 
+          options = list(
+            columnDefs = list(
+              list(visible = FALSE, targets = ncol(Dat)),
+              #list(width = '.5px', targets = c(1)),
+              list(orderable = FALSE, className = 'details-control', targets = 1),
+              list(className = "dt-center", targets = "_all")
+              
+              
+            )
+          ))
+
+```
+Source: Upcoming DPSS Report from the Los Angeles Food Policy Council
