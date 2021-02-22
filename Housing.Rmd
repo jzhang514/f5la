@@ -1,0 +1,422 @@
+---
+title: "Housing"
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(kableExtra)
+library(tigris)
+library(readxl)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+```
+
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+
+# Program Officer and Grantee Perspectives
+
+*	Rent is a significant portion of a family's expenses. Increasing rent burden is evident as jobs become more unstable.
+*	Many families live in small apartments, making them more susceptible to contracting Covid-19. Future data on over-crowding in housing units will help understand how this may contribute to disparate infection rates.
+*	Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 5 LA’s Result: Family Resources.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) This indicator is similar to the Impact Framework's Homelessness indicator.
+
+
+# Policy Opportunities {.tabset .tabset-pills}
+
+## Systems Change
+
+* __Enact comprehensive renter and evictions protections to increase housing security.__ Focus on low-income families and prevent harassment and intimidation of renters regardless of race/ethnicity, and immigration status. This includes rent control, freezes, and reductions, a cap on rent based on income, renters’ rights and protections, rent relief and forgiveness, just cause eviction ordinances, right to counsel, and a focus on making housing more affordable. End the use of Sheriff’s Department enforcing evictions and replace with housing assistance coordinators. For the duration of the pandemic, cancel rent to prevent future debt and future eviction. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Preempt gentrification and displacement of local community members.__ Ensure that new housing construction benefits current residents and not solely newcomers or tourists. Support land use policies and plans on and around high-quality transit corridors that includes tenant protections, anti-displacement measures and equity development goals. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Increase investments in local communities.__ Reform the under-taxation of commercial property.[<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+*	__Restore indigenous ownership over their land.__ Include language on following leadership of Indigenous peoples in restoring the relationship to the land and giving land back to Indigenous communities. Incorporate a decolonial lens in community control of the land. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+## Infrastructure to Support Children and Families
+
+* __Protect tenants from displacement by establishing non-commercialized, community-controlled housing__ to ensure that landlords cannot remove tenants to realize more profits, and support community land trusts and non-profit infrastructure that permanently creates affordable housing. (Bold Vision & DPH Ad-Hoc Affordable Housing Subcommittee) [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Invest in long-term community power building in advance of the Olympics.__ Ensure youth of color, undocumented people, and homeless people are not criminalized and arrested because of Olympics-related land use and enforcement policies (Bold Vision) [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Repurpose unused space to address housing, health, and childcare needs.__ Encourage repurposing of unused space (such as unused warehouses, lots, abandoned homes) for affordable housing and other community needs, including early learning and care programs and/or community clinics that serve as urgent care centers (Bold Vision)  [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Fully fund Project Roomkey and Project Homekey__ and ensure all our vulnerable homeless community members are housed permanently [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+## Direct Services and Technical Support
+
+* __Provide Targeted financial support to key groups of people.__ 
+  + Provide financial housing support for people out of work during this crisis (Bold Vision). Invest in a legal defense fund to support low-income tenants (Healthy LA). 
+  + Provide additional support for homeless people, including affordable housing and/or mobile housing units in empty lots, especially during COVID-19 (Bold Vision). 
+  + Allocate funds to acquire properties to house seniors, health-compromised individuals at-risk of homelessness, and essential workers in overcrowded conditions (Healthy LA).
+  + Allocate funds to stabilize single-family homeowners, small landlords, and neighborhoods (Healthy LA). 
+  + Support the provision of emergency grants to support tenants’ and would-be tenants’ first and last month’s rent, as well as emergency needs such as car repair and medical bills. (DPH Ad-Hoc Affordable Housing Subcommittee). 
+ [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Invest in a healthy built environment.__ Fund air filters in schools and homes near sources of pollution. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+
+# Homelessness in the Best Start Geographies
+
+Metro LA has the highest number of sheltered and unsheltered homeless individuals at nearly 3,000, despite being one of the smallest Best Start geographies. This figure includes individuals who are in shelters, transitional housing, or living outside the system in a vehicle or outside.<br>
+
+```{r, include=FALSE}
+###########################LAHSA 2019 RESULTS###########################################
+
+#get data
+housing<-dbGetQuery(con, "SELECT * FROM bsc_homeless_2019_new")
+
+#remove la row from table for graphing because it skews the graph too much (LA homelessness = 51,000+)
+housing<-subset(housing, best_start!="LA County")
+
+
+
+#temporary fix for Long Beach homeless data: insert the value based on what was given to us from LB contact
+housing[5, 2] = 2304
+
+  
+#create factors for the x axis labels (bsc) to customize the order
+housing$best_start <- factor(housing$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+
+#graph
+ggplot(housing, aes(x=best_start, y=totpeople))+
+  geom_bar(stat="identity", fill="#FF6666")+
+  scale_y_continuous(name="", labels=comma,   limits = c(0, 3000), breaks=seq(0,3000,1000))+
+  scale_x_discrete(name="")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        plot.margin = margin(.1, .1, .1, .1, "cm"))+
+  ggtitle("Total Sheltered and Unsheltered Homeless Population")
+
+```
+
+```{r}
+###############LAHSA 2020 HOMELESS COUNT RESULTS############################
+
+#get data
+housing20<-dbGetQuery(con, "SELECT * FROM bsc_homeless_2020_new")
+
+#remove la row from table for graphing because it skews the graph too much (LA homelessness = 51,000+)
+housing20<-subset(housing20, best_start!="LA County")
+
+
+
+#temporary fix for Long Beach homeless data: insert the value based on what was given to us from LB contact
+housing20[2, 2] = 2304 
+
+#highcharts
+
+hc<-hchart(housing20, "column",
+         hcaes(x=best_start, y=totpeople),
+          tooltip = list(pointFormat = "Total: {point.totpeople}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""))%>%
+    hc_title(
+    text = "Total Sheltered and Unsheltered Homleless Population",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://www.lahsa.org/news?article=726-2020-greater-los-angeles-homeless-count-results">Los Angeles Homeless Service Authority (LAHSA) 2020 Homelessness Count (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE) 
+
+hc_add_theme(hc, thm)
+
+
+  
+# #create factors for the x axis labels (bsc) to customize the order
+# housing20$best_start <- factor(housing20$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
+# 
+# #graph
+# ggplot(housing20, aes(x=best_start, y=totpeople))+
+#   geom_bar(stat="identity", fill="#FF6666")+
+#   scale_y_continuous(name="", labels=comma,   limits = c(0, 3000), breaks=seq(0,3000,1000))+
+#   scale_x_discrete(name="")+
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
+#   ggtitle("Total Sheltered and Unsheltered Homeless Population")
+
+
+
+```
+<br>Source: Los Angeles Homeless Service Authority (LAHSA) 2020 Homelessness Count
+<br>Source: City of Long Beach 2020 Homeless Count
+<br><br>* <mark>Please note that the data point for Long Beach reflects the total number of sheltered and unsheltered homeless individuals counted during the 2020 Homeless Count for the city of Long Beach. This does not reflect the count of homeless individuals in the Long Beach Best Start boundary and as a result is an over-count of homeless individuals.The methodology for the Long Beach Homeless Count data differs from the methodology used in the other Best Start geographies.<mark>
+
+
+# Homelessness in the Regions
+
+Region 1 has the largest population of sheltered and unsheltered homeless individuals at nearly 6,000. For all five regions, the overwhelming majority of homeless individuals are unsheltered, meaning that they are not connected to any safety net system.<br>
+
+```{r, include=FALSE}
+
+###########################LAHSA 2019 RESULTS###########################################
+
+
+#read in regions data
+regions<-read_xlsx("W:/Project/RDA Team/First5LA/First 5 LA Regional Report/Data/BSC Region Analysis.xlsx")
+
+#read in bsc -ct crosswalk
+bsc_ct<-dbGetQuery(con, "SELECT * FROM bsc_censustract_crosswalk_new")
+
+#read in lahsa homeless data and only keep columns of interest
+lahsa<-dbGetQuery(con, "SELECT * FROM lahsa_homeless_tract_2019")
+  
+lahsa<-lahsa[c(1:3, 4, 63:67)]
+
+#join the lahsa data to best start
+lahsa<-left_join(bsc_ct, lahsa, by=c("geoid"="ct_geoid"))
+
+#join lahsa to region data
+lahsa<-left_join(regions, lahsa, by=c("BSC" = "best_start"))
+
+#subset to columns of interest
+lahsa<-lahsa[c(2,18:22)]
+
+#remove region 4 from above ^
+lahsa<-lahsa%>%
+  filter(Region!='4')
+
+
+#create separate df for the long beach homeless data using data from long beach homeless count
+lb<-data.frame()
+
+
+lb <- data.frame("Region" = 4, "totunsheltpeople" = c(1582), "totespeople" = c(249), "totthpeople"=c(203),
+                 "totshpeople"=c(0), "totsheltpeople"=c(0))
+
+#combine the lb data frame to the overall lahsa housing dataframe
+lahsa<-rbind(lahsa, lb)
+
+
+#create long data for graphing
+lahsa<-pivot_longer(lahsa, c(totunsheltpeople:totsheltpeople), values_to = "value", names_to = "measure")
+
+#graph
+
+ggplot(lahsa, aes(fill=measure, y=value, x=Region))+
+  geom_bar(position="stack", stat="identity")+
+   scale_y_continuous(name="", labels=comma)+
+    xlab("Region")+
+  scale_x_continuous(name="\nRegion")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(vjust = 0.5, hjust=1),
+        plot.margin = margin(.1, .1, .1, .1, "cm"),
+        legend.position="right",
+        legend.title=element_blank())+
+  scale_fill_discrete(labels=c("Emergency shelter", "Sheltered homeless persons", "Safe havens", "Transitional housing", "Unsheltered homeless persons"))+
+  ggtitle("Total Sheltered and Unsheltered Homeless Populations by Region")
+ 
+
+                  
+
+```
+
+
+```{r}
+###################LAHSA 2020 RESULTS###############################
+
+
+#read in regions data
+regions<-read_xlsx("W:/Project/RDA Team/First5LA/First 5 LA Regional Report/Data/BSC Region Analysis.xlsx")
+
+#read in bsc -ct crosswalk
+bsc_ct<-dbGetQuery(con, "SELECT * FROM bsc_censustract_crosswalk_new")
+
+#read in lahsa homeless data and only keep columns of interest
+lahsa20<-dbGetQuery(con, "SELECT * FROM lahsa_homeless_tract_2020")
+  
+lahsa20<-lahsa20[c(1:3, 5, 68:72, 74)]
+
+#join the lahsa data to best start
+lahsa20<-left_join(bsc_ct, lahsa20, by=c("geoid"="geoid"))
+
+#join lahsa to region data
+lahsa20<-left_join(regions, lahsa20, by=c("BSC" = "best_start"))
+
+#subset to columns of interest
+lahsa20<-lahsa20[c(2,19:23)]
+
+#remove region 4 from above ^
+# lahsa20<-lahsa20%>%
+#   filter(Region!='4')
+
+
+#create separate df for the long beach homeless data using data from long beach homeless count
+
+
+lb <- data.frame("Region" = 4, "totunsheltpeople" = c(1582), "totespeople" = c(249), "totthpeople"=c(203),
+                 "totshpeople"=c(0), "totsheltpeople"=c(0))
+
+#combine the lb data frame to the overall lahsa housing dataframe
+lahsa20<-rbind(lahsa20, lb)
+
+#now lets group by and summarize for each homelessness category
+
+lahsa20<-lahsa20%>%
+  group_by(Region)%>%
+   summarise_at(c("totunsheltpeople", "totespeople", "totthpeople", "totshpeople", "totsheltpeople" ), sum, na.rm = TRUE)
+
+#create long data for graphing
+lahsa20<-pivot_longer(lahsa20, c(totunsheltpeople:totsheltpeople), values_to = "value", names_to = "measure")
+
+
+#now create a variable column for nicer labels on the legend when graphing
+lahsa20<-lahsa20%>%
+  mutate(variable=ifelse(measure %in% "totunsheltpeople", "Unsheltered Homeless Persons",
+                         ifelse(measure %in% "totespeople", "Persons Living in Emergency Shelters",
+                                ifelse(measure %in% "totthpeople", "Persons Living in Transitional Housing",
+                                       ifelse(measure %in% "totshpeople", "Persons living in Safe Havens",
+                                              ifelse(measure %in% "totsheltpeople", "Total Sheltered Persons", "Blank"))))))
+
+
+#lets add 'Region' to the region column for nicer labeling
+
+lahsa20$Region <- sub("^", "Region ", lahsa20$Region  )
+
+#highcharts
+
+ hc<-  hchart(lahsa20, "column",
+         hcaes(x=Region, y=value, group=variable),
+          stacking = "normal",
+          tooltip = list(pointFormat = "{point.variable}: {point.value}"))%>%
+      
+  hc_colors(cols7)%>%
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    hc_yAxis(title = list(text = ""))%>%
+    hc_title(
+    text = "Types of Homelessness by Region",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://www.lahsa.org/news?article=726-2020-greater-los-angeles-homeless-count-results">Los Angeles Homeless Service Authority (LAHSA) 2020 Homelessness Count (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)
+  
+ hc_add_theme(hc, thm)
+
+#ggplot
+
+# ggplot(lahsa20, aes(fill=measure, y=value, x=Region))+
+#   geom_bar(position="stack", stat="identity")+
+#    scale_y_continuous(name="", labels=comma)+
+#     xlab("Region")+
+#   scale_x_continuous(name="\nRegion")+
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         plot.margin = margin(.1, .1, .1, .1, "cm"),
+#         legend.position="right",
+#         legend.title=element_blank())+
+#   scale_fill_discrete(labels=c("Emergency shelter", "Sheltered homeless persons", "Safe havens", "Transitional housing", "Unsheltered homeless persons"))+
+#   ggtitle("Total Sheltered and Unsheltered Homeless Populations by Region")
+ 
+
+```
+<br>Source: Los Angeles Homeless Service Authority (LAHSA) 2020 Homelessness Count
+<br>Source: City of Long Beach 2020 Homeless Count
+<br><br>* Please note that the Region 4 data includes methodologies from both the Long Beach Homeless Count and the Los Angeles Housing Authority (LAHSA) Homeless Count.
