@@ -1,0 +1,227 @@
+---
+title: "Transportation"
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(kableExtra)
+library(tigris)
+library(readxl)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+```
+
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+# Program Officer and Grantee Perspectives
+
+* Transportation intersects several domains of a family’s life and can create significant barriers to accessing important social services.
+* Many families struggle to access food and other services because they fear catching Covid-19 taking public transportation.
+* This indicator is similar to the Impact Framework's Access to Transportation indicator. Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 5 LA’s Result: Family Resources.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+
+# Policy Opportunities {.tabset .tabset-pills}
+
+## Systems Change
+
+* __Implement free, safe public transit that disinvests from policing. Implement a fare-free system and end fare enforcement to ensure greater access to public transportation.__ Pursue policies that remove law enforcement from transportation-related activities and invest in street improvements and community-based alternatives to policing. (Bold Vision, Alliance for Community Transit-Los Angeles [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Promote transit systems that improve the built environment and creates neighborhood stabilization.__ Work with decisionmakers to ensure that return to work does not exacerbate emissions and air pollution and implement equitable policies to reduce congestion and invest in active transportation and complete streets infrastructure in low-income communities of color. Work with local jurisdictions to create equitable transit-oriented communities to prevent gentrification and displacement and ensure that long-term tenants can stay in place and enjoy increased transit access. (Bold Vision, Alliance for Community Transit-Los Angeles).  [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+## Infrastructure to Support Children and Families
+
+* __Restore and invest in better bus options.__ Restore bus service to pre-pandemic levels and increase frequency to avoid bus overcrowding and ensure that riders taking essential trips can safely social distance without risking their lives and the lives of bus operators. Invest in bus supportive infrastructure to provide high quality bus service and guarantee fast, frequent, and safe bus rides all over the county, including bus-only lanes, bus shelters, benches, shade structures, public restrooms, and sanitizing stations near bus stops and rail stops. Invest in a high-quality, regional dedicated bus lane network with reliable and frequent service and incentivize cities to implement and coordinate across jurisdictions. (Alliance for Community Transit-Los Angeles). [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Prioritize transit safety.__ Invest in safe routes to school programming and streetscape improvements to enhance the safety of families and students traveling to and from school. Divest from the multi-agency policing contracts and reinvest funds into operations and projects that enhance community safety in low-income communities of color. (Bold Vision, Alliance for Community Transit-Los Angeles) [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+## Direct Services and Technical Support
+
+* __Flexible transit.__ Fund public transportation initiatives that create flexible, on-demand trips to close first-last mile gaps in accessible food, medicine, and other essential household items for low-income families. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+
+# Workers who use Public Transportation in Best Start Geographies
+
+<br>The highest concentration of public transportation users reside in Metro LA, which is unsurprising and speaks to the availability of public transportation in that area. By contrast, the lowest concentration of public transportation users reside in the Antelope Valley, highlighting the lack of transportation infrastructure in this area.<br>
+
+```{r}
+transpo<-dbGetQuery(con, "SELECT * FROM f5la_2021_transit")%>%
+  filter(!grepl('LA County', best_start))
+ 
+transpo_notot<-transpo[c(1,5:20)] #get rid of 'whitecombo' race group, and remove totals we dont need them for graphing
+
+
+#separate the estimate and percents to separate columns then recombine 
+
+transpo_num<-gather(transpo_notot, num_measure, num_value,  total_pubtrans_black:pct_pubtrans_whitealone, factor_key=TRUE)%>%
+  filter(grepl("total", num_measure))
+
+transpo_pct<-gather(transpo_notot, pct_measure, pct_value,  total_pubtrans_black:pct_pubtrans_whitealone, factor_key=TRUE)%>%
+  filter(grepl("pct", pct_measure))
+
+#combine pct and number dfs
+transpo_long<-cbind(transpo_num, transpo_pct)
+
+#remove duplicate name  column (best_start)
+transpo_long<-transpo_long[c(-4)]
+
+#now create a nicer 'variable' column for grouping the races
+
+transpo_long<-transpo_long%>%
+ mutate(variable=ifelse(pct_measure %in% 'pct_pubtrans_whitealone', 'Percent White',
+                         ifelse(pct_measure %in% 'pct_pubtrans_black', 'Percent Black',
+                                ifelse(pct_measure %in% 'pct_pubtrans_aian', 'Percent AIAN',
+                                       ifelse(pct_measure %in% 'pct_pubtrans_asian', 'Percent Asian',
+                                         ifelse(pct_measure %in% 'pct_pubtrans_nhpi', 'Percent Native Hawaiin/Pacific Islander',
+                                                ifelse(pct_measure %in% 'pct_pubtrans_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_pubtrans_twoormore', 'Percent Two or More Races', ifelse(pct_measure %in% "pct_pubtrans_other", 'Percent Other Race', "Blank"))))))))) 
+
+
+#highcharts
+  
+ hc<-  hchart(transpo_long, "column",
+         hcaes(x=best_start, y=pct_value, group=variable),
+          stacking = "normal",
+          tooltip = list(pointFormat = "Percent: {point.pct_value:,.1f}%<br>
+                        Total: {point.num_value}"))%>%
+      
+  hc_colors(cols7)%>%
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100)%>%
+    hc_title(
+    text = "Public Transportation Usage among Working Population (Age 16 and Over)",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)
+  
+ hc_add_theme(hc, thm)
+
+
+
+
+# 
+# #create factors for the x axis labels (bsc) to customize the order
+# transpo$best_start <- factor(transpo$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale", "LA County"))
+# 
+# cols<-c("#FF6666", "#FF6666", "#FF6666","#FF6666",  "#5DBCD2", "#FF6666", "#FF6666", "#FF6666", "#FF6666", "#FF6666", "#FF6666", "#FF6666", "#FF6666", "#FF6666","#FF6666")
+# 
+# 
+# #ggplot
+# ggplot(transpo, aes(y=pct_public/100, x=best_start))+
+#   geom_bar(stat="identity", fill = cols)+ 
+#    scale_y_continuous(name="", limits = c(0, .4), labels=percent)+
+#   scale_x_discrete(name="")+
+#   theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#         legend.title = element_blank())+
+#   ggtitle("Public Transportation Users by Best Start Community")
+
+
+
+
+```
+<br>2019 ACS 5-Year Estimates
