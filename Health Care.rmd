@@ -69,11 +69,8 @@ con <- dbConnect(drv, dbname = "f5la_v2",
 
 ##colors as a vector
 
-cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
 
-cols3=c("#033E8C", "#EC098D", "#04B2D9")
-
-cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600")
+cols8=c("#033E8C", "#623e96", "#9a3a93", "#c93786","#ec416f","#ff5c54", "#ff8034", "#ffa600")
 
 ####MAKE MY HC THEME###
 
@@ -176,12 +173,12 @@ insure_long_notot<-insure_long%>%
 hc<-hchart(insure_long_notot, "column",
          hcaes(x=best_start, y=pct_value, group=variable),
          stacking='normal',
-          tooltip = list(pointFormat = "Percent Uninsured: {point.pct_value:,.f}%<br>
-                         Total Uninsured: {point.num_value}"))%>%
+          tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
       
       hc_tooltip(crosshairs = TRUE)%>%
   
-  #hc_colors(cols7)%>%
+  hc_colors(cols8)%>%
      
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
