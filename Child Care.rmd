@@ -127,7 +127,9 @@ cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A
 * __Prioritize funding and linguistically accessible information/training/professional development for providers of dual-language early learning and care programs, particularly for monolingual providers of a language other than English.__ Children of essential workers are predominantly from families of color with languages other than English. Culturally and linguistically responsive dual language programs provide the foundation for overall language, cognitive, and healthy identity development.   [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
 * __Provide funding and training for providers to support virtual learning and technology needs of essential workers’ young children and school-aged students.__ As school districts engage in distance/hybrid learning, families are looking to after-school providers for full-day care. Providers need funding to be able to hire an assistant to support distance learning as they serve school-aged children alongside young children in their care.  [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
 
-# Child Care Workers in Best Start Geographies
+# Data
+
+## Child Care Workers in Best Start Geographies
 
 Child care workers are more numerous in Best Start geographies relative to the rest of the county, as indicated in the darker shading of purple. This makes it more important than ever that child care workers are getting sufficient resources and support in order to then take care of children in these communities. While a high number and percentage of child care workers preside in Best Start Geographies, stay-at home orders and safety concerns are driving [child care center closures](https://jzhang514.github.io/f5la/Childcare-Center-Closures.html), which impacts both child care workers and  working families who need child care for their children.
 
@@ -255,7 +257,7 @@ leaflet(cepr_lac_childcare)%>%
 Source: [Center for Economic and Policy Research Analysis of American Community Survey, 2014-2018 5-Year Estimate](https://github.com/ceprdata/frontline-workers)
 
 
-# Internet Access 
+## Internet Access 
 
 In light of the pandemic, it is unsurprising that access to __internet and the digital divide__ has risen in importance. All Program Officers and Regional Network Grantees expressed the importance of digital equity in being able to outreach to families and for child care and education needs. 
 
@@ -330,7 +332,7 @@ hc_add_theme(hc, thm)
 ``` 
 <br>Source: 2019 ACS 5-Year Estimates
 
-# Families who Own One or More Technology Devices
+## Families who Own One or More Technology Devices
 
 Remote learning and child care requires families to have reliable internet as well as sufficient devices for all the children and adults who are learning or working remotely from home. The visual below shows the percentage of families who own at least one or more devices at home. 
 
@@ -380,7 +382,7 @@ hc_add_theme(hc, thm)
 ```
 <br>Source: 2019 ACS 5-Year Estimates
 
-# Pre-K Early Learning Care Enrollment
+## Pre-K Early Learning Care Enrollment
 
 The difference between the numbers of pre-k children who are eligible for subsidized early learning care programs versus enrolled in them is significant. This highlights the need to improve outreach and understand the barriers preventing eligible families from enrollment.<br>
 
@@ -458,7 +460,7 @@ hc_add_theme(hc, thm)
 ```
 <br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/)
 
-# Infant Toddler Early Learning Care Enrollment
+## Infant Toddler Early Learning Care Enrollment
 
 The gap between infant toddlers who are eligible for subsidized early learning programs versus enrollment in them is substantial. Enrollment if extremely low across Best Start geographies. The gap for infant toddlers is larger than the gap among pre-k children, making this a higher priority area.<br>
 
