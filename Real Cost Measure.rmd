@@ -72,7 +72,6 @@ cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
 
 cols3=c("#033E8C", "#EC098D", "#04B2D9")
 
-cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
 
 ####MAKE MY HC THEME###
 
@@ -205,7 +204,7 @@ rcm_long<-rcm_long[c(1, 21:23)]
 
 
 #highcharts 
-   hchart(rcm_long, "column",
+ hc<-  hchart(rcm_long, "column",
          hcaes(x=best_start, y=number, group=variable),
           stacking = "normal",
           tooltip = list(pointFormat = "{point.number:,.0f}"))%>%
@@ -221,6 +220,9 @@ rcm_long<-rcm_long[c(1, 21:23)]
     )%>%
      hc_legend(enabled = TRUE)
 
+   hc_add_theme(hc, thm)
+   
+   
    
 # #create factors for the x axis labels (bsc) to customize the order
 # rcm_long$best_start <- factor(rcm_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
