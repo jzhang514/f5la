@@ -108,7 +108,7 @@ cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600
 
 ```
 
-# Interview Findings
+# Program Officer and Grantee Perspectives
 
 * Many families in Best Start geographies have a more difficult time accessing healthcare. This disparity creates greater challenges during Covid-19 as families lack access to testing.
 * These indicators are the Impact Framework Prenatal Care, Postpartum Care, and Maternal Depression indicators. Progress on them helps achieve [<nobr style="color: #FF6699;">__First 5 LA’s Result: Early Intervention.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
@@ -130,7 +130,9 @@ cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600
 * __Expand access to essential health care services. Set a baseline standard requiring that every resident in LA receive primary care and require county programs to extend eligibility regardless of immigration status.__ Provide resources for COVID-19 testing and follow up care at local community health clinics [<nobr style="color: #04B2D9;"> __F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
 * __Support culturally appropriate health promotion and community ownership for essential workers.__ Support Worker Public Health Councils to ensure workers have a say in implementing safety measures to prevent COVID outbreaks. Increase investments supporting community health promotion and education .[<nobr style="color: #333366;">__F5LA Result: Child Safety __</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
 
-# Uninsured Population
+# Data
+
+## Uninsured Population
 
 Southeast LA and Panorama City & Neighbors both have the highest number of uninsured households and have among the highest number of total households within the Best Start geography.
 
@@ -234,7 +236,7 @@ hc_add_theme(hc, thm)
 ```
 <br>Source: ACS 2019 5-Year Estimates
 
-# Postpartum Care
+## Postpartum Care
 
 A high percentage of mothers across the five supervisorial districts received postpartum check-ups. These successful figures speak to the growing degree of access to maternal healthcare services across the county.<br>
 
@@ -308,7 +310,7 @@ hc_add_theme(hc, thm)
 ```
 <br>Source: Los Angeles County Department of Public Health Los Angeles Mommy and Baby Project (LAMB Survey)
 
-# Maternal Depression
+## Maternal Depression
 
 The percentage of mothers who experienced prenatal or postpartum depression across the five supervisorial districts closely resembles the county percentage. There is also minimal variation between the five districts.<br>
 
@@ -380,7 +382,7 @@ hc_add_theme(hc, thm)
 <br>Source: Los Angeles County Department of Public Health Los Angeles Mommy and Baby Project (LAMB Survey)
 
 
-# Prenatal Care
+## Prenatal Care
 
 The annual percentage of mothers who entered prenatal care after the 1st trimester of pregnancy is low across the five supervisorial districts and in the county. Supervisorial district 3 has the lowest percent at 5.8%. This district encompasses Pacoima and Panorama City.<br>
 
@@ -408,7 +410,7 @@ hc<-hchart(prenatal, "column",
               labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=20,
+                                    }")), min=0,max=100,
        plotLines = list(
       list(
         label = list(text = "LA County = 8.2%", align = "left", y=-20),
