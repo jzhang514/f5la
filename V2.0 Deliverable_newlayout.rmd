@@ -1,0 +1,609 @@
+---
+title: Essential Best Start Data 
+output:
+  html_document:
+    number_sections: no
+    theme: sandstone
+    css: styles.css
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+
+```{r setup, include=FALSE} 
+
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(readxl)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+
+
+```
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B")
+
+cols3=c("#033E8C", "#EC098D", "#04B2D9")
+
+cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#033E8C", "#EC098D", "#04B2D9","#26BFB0", "#64BF4B"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = "Franklin Gothic Condensed"
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = "Franklin Gothic"
+    )
+  ),
+  legend = list(
+    itemStyle = list(
+      fontFamily = "Franklin Gothic",
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+
+```
+
+# Overview 
+
+Los Angeles County’s essential workers are the backbone of the county and essential to Best Start success.  Covid-19 disproportionately impacts disinvested communities and communities of color, groups where essential workers are highly represented. These essential workers live and raise families in Best Start geographies but earn incomes insufficient to access resources needed to thrive. Loss of child care, loss of income, and K-12 learning loss with distance learning are just a couple of examples of how the pandemic is hurting families and children. These challenges exacerbate inequities that existed prior to the pandemic and are even harder to ignore now; inequities such as access to food, housing, transportation, early learning and care, and other essential resources. 
+
+__The map below shows that essential workers predominantly live in and around Best Start geographies.__ Thus, supporting families in Best Start geographies in turn supports essential workers and their families. Essential workers include health practitioners, food service workers, and early learning and care providers.  The darker red areas on the map represent higher numbers of essential workers relative to the lighter red portions of the map. Most of the dark red areas on the map are within Best Start geography boundaries (outlined in black).  
+```{r}
+
+######################OCCUPATION BASED MAP: ACS DATA######################################
+
+library(ggrepel)
+library(hrbrthemes)
+library(tidycensus)
+library(data.table)
+
+#####################################ACS Jobs data######################################3
+
+#grab from postgres 
+occupation<-dbGetQuery(con, "SELECT * FROM acs_5yr_s2401_multigeo_2019_wide")
+
+
+#filter only for census tracts in la county
+
+###filter for 'essential workers' 
+
+#pull out identified 'essential' jobs. currently based off: 
+#https://www.aclum.org/en/publications/data-show-Covid-19-hitting-essential-workers-and-people-color-hardest
+
+# Healthcare practitioners and technical occupations ---S2401_C01_015E
+# Construction and extraction occupation ------S2401_C01_031E	
+# Farming, fishing, and forestry occupation ----------S2401_C01_030E	
+# Installation, maintenance, and repair occupation --------S2401_C01_032E	
+# Material moving occupation -----------S2401_C01_033E
+# Production occupation-----------------S2401_C01_034E	
+# Transportation occupation --------------S2401_C01_035E	
+# Office and administrative support occupation-----------S2401_C01_028E	
+# Sales and related occupation------------------------------S2401_C01_027E
+# Building and grounds cleaning and maintenance occupation------S2401_C01_024E
+# Food preparation and serving related occupation--------------S2401_C01_023E
+# Healthcare support occupation-----------------------------S2401_C01_019E	
+# Personal care and service occupation--------------------S2401_C01_025E	
+# Protective service occupations---------------------------S2401_C01_020E
+
+#convert column names from lower case to uppercase
+names(occupation) <- toupper(names(occupation))
+
+
+library(stringr)
+
+#remove any trailing white space from column header names
+names(occupation) <- gsub("\\s+", "", names(occupation))
+
+
+#this is the subset of columns for 'essential' businesses
+
+string<-c("GEOID", "LEVEL", "NAME", "S2401_C01_001E", "S2401_C01_001M", "S2401_C01_015E", "S2401_C01_015M", "S2401_C01_019E", 
+          "S2401_C01_019M", "S2401_C01_020E", "S2401_C01_020M", "S2401_C01_023E", "S2401_C01_023M", "S2401_C01_024E", 
+          "S2401_C01_024M","S2401_C01_025E", "S2401_C01_025M", "S2401_C01_027E", "S2401_C01_027M", "S2401_C01_028E",
+          "S2401_C01_028M", "S2401_C01_030E", "S2401_C01_030M", "S2401_C01_031E", "S2401_C01_031M", "S2401_C01_032E", 
+          "S2401_C01_032M","S2401_C01_034E", "S2401_C01_034M", "S2401_C01_035E", "S2401_C01_035M", "S2401_C01_033E", 
+          "S2401_C01_033M")
+
+#filter for variables in the string
+essential<-occupation[,colnames(occupation) %in% string]
+
+#now filter for only census tract geography level and in LA County
+
+essential<-essential%>%
+  filter(LEVEL == 'tract')%>%
+  filter(str_detect(NAME, 'Los Angeles County'))
+
+#relace n/a values with 0 for aggregating
+ #essential[is.na(essential)] <- 0
+ 
+ #NO MOE: Convert data from wide to long for mapping
+ essential_long_nomoe<-gather(essential, variable, value, S2401_C01_001E:S2401_C01_035M)%>%
+   filter(!grepl('M',variable)) #take out moe
+
+ 
+ #convert the value column from character to numeric for aggregating
+ essential_long_nomoe$value<-as.numeric(essential_long_nomoe$value)
+ 
+ 
+
+#explore creating a percentage column by dividing the sum of the essential
+#job counts, divided by the total number of civilian population
+ 
+
+# test<-essential_long_nomoe%>%
+#   group_by(GEO_ID, NAME)%>%
+#   mutate(denominator=case_when(variable=='S2401_C01_001E' ~ value))%>%
+#   mutate(numerator=case_when(variable!='S2401_C01_001E'~sum(value)))
+
+#the above shows that there is likely overlap in the  census counts per occupation that won't allow us to
+#calculate by percent. all the numerators are muc greater than the denominator. I will map based off counts 
+
+#aggregate counts without percent
+
+essential_long_nomoe<-essential_long_nomoe[!(essential_long_nomoe$variable=="S2401_C01_001E"),] #remove denominator variable
+
+
+
+essential_aggerate_nomoe<-essential_long_nomoe%>%
+  group_by(GEOID, NAME)%>%
+  summarise(total=sum(value))
+
+
+##############################Map Data######################################
+library(leaflet)
+library(tigris)
+library(RPostgreSQL)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(RColorBrewer)
+
+######Layer 1: CT Data -get la county ct shape and merge essential employment data######
+
+#increase memory limit
+#memory.limit(size=300000) 
+
+#get cts from postgres
+ct_lac<-pgGetGeom(con, "ct_lac", geom="geom") #created a view in postgres that just filters the california tracts to la county tracts for size
+
+#convert to sf 
+ct_lac<-st_as_sf(ct_lac)
+
+#join the essential data
+
+ct_lac<-geo_join(ct_lac, essential_aggerate_nomoe, 'geoid', 'GEOID',
+              how = "left")
+
+#transform
+ct_lac<-st_transform(ct_lac, CRS('+proj=longlat +datum=WGS84'))
+
+
+######Layer 2: BSC###########
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies") #this is the updated view that CR made 
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc<-st_transform(bsc, CRS('+proj=longlat +datum=WGS84'))
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+##########supervisorial districts##############
+
+##read in shapefile
+supdist<-  st_read("W:/Project/RDA Team/First5LA/First 5 LA Regional Report/Shapes/DPW-Supervisorial-District/sup_dist_2011.shp", quiet=TRUE)
+
+
+##transform shapefile
+supdist<-st_transform(supdist, CRS("+proj=longlat +datum=WGS84 +no_defs"))
+
+##create popup for labeling on map later
+supdist_popup<-paste(supdist$SUP_DIST_N)
+
+
+####Add XY coordinates to spatial df
+## find centroid coordinates
+supdist_cnt = st_centroid(supdist)
+supdist_crd = data.frame(st_coordinates(supdist_cnt))
+
+#add ID column to each df and spatial df for joining
+supdist$ID <- seq.int(nrow(supdist))
+supdist_crd$ID <- seq.int(nrow(supdist_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+supdist<-geo_join(supdist, supdist_crd, 'ID', 'ID',
+                  how = "left")
+
+
+######Define color palette and bins for map#######
+
+pal <- colorQuantile("YlOrRd", NULL, n = 8)
+#mybins <- c(0,10,20,50,100,500,Inf)
+
+
+#######Map#########
+
+
+leaflet(ct_lac)%>%
+  
+  addMapPane("ct_pane", zIndex=485)%>%
+  #ct layer
+  
+  addPolygons(data=ct_lac, weight = .2, color="black", smoothFactor = 0.5,
+              opacity = 1, fillColor=~pal(total), fillOpacity = .6,
+              highlight=highlightOptions(color= "#8c8b8b", stroke = 2, weight = 3, bringToFront = TRUE), 
+              popup = ~paste0("Census Tract ",ct_lac$name, "</br>", "Total: ",ct_lac$total),
+              options = pathOptions(pane = "ct_pane")
+             )%>%
+  
+  #bsc layer
+  
+  addPolygons(data=bsc, color="black", weight=2, opacity = 1, fillOpacity =0,
+               label=as.character(bsc$best_start)) %>%
+  addLabelOnlyMarkers(data=bsc,  ~X, ~Y, label =  ~as.character(bsc_label), 
+  labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T,
+                              style=list("font-size"="8px", "color"="black",  "font-weight" = "bold")))%>%
+  
+  
+  #supdist layer
+  
+  addPolygons(data=supdist, color="#0000FF", weight = 3.5, smoothFactor = 0.5,
+  
+                           opacity = 1.0, fillOpacity = 0, group="Supervisorial Districts")%>%
+ 
+   # addCircleMarkers(data=supdist, lng=~X, lat=~Y, group = "Supervisorial Districts",
+   #                   label = ~as.character(supdist_popup), 
+   #                 stroke = FALSE, fillOpacity = 0.5, color="white",
+   #                 labelOptions = labelOptions(textOnly = TRUE, noHide=TRUE,
+   #                                             style=list("font-size"="15px", "color"="#0000FF", 
+   #                                                                         "font-weight" = "bold") ))%>%
+   
+  addLabelOnlyMarkers(data=supdist, ~X, ~Y,
+  group="Supervisorial Districts",
+  label =  ~as.character(supdist_popup),
+  labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T,
+                  style=list("font-size"="35px", "color"="#0000FF",
+                  "font-weight" = "bold")))%>%
+  
+  
+  #base and view
+  addProviderTiles("CartoDB.PositronNoLabels")%>%
+  setView(	-118.205914, 	34.187684	, zoom = 9) %>%
+  
+   #layer control
+    addLayersControl(overlayGroups =
+                       c("Supervisorial Districts"), 
+                  options = layersControlOptions(collapsed = FALSE))%>%
+  
+  #hide supervisorial districts by default
+  hideGroup("Supervisorial Districts")%>%
+  
+  #legend
+  addLegend(pal = pal, 
+            values = ~total,
+            opacity = 0.7,
+            position = "bottomright",
+            #na.label = "Outside LA County",
+            title="Percentage of<br>Essential Workers"
+  )
+
+
+```
+Source: 2019 ACS 5-Year Estimates
+
+The pandemic’s impacts, including on preexisting inequities, will have long-term ramifications for families and the nonprofit landscape. We interviewed First 5 LA Program Officers and Regional Network Grantees, gathered data relevant to First 5 LA community change agendas, spoke with policy experts and more to understand this. 
+
+The interview findings, data, and policy opportunities introduced here seek to address those long-term ramifications, while not losing site of the immediate needs of families and service providers. Specifically, they focus on closing opportunity gaps for Best Start geographies through:
+
+1) Systems change
+2) Infrastructure to support children and families
+3) Direct services and technical assistance
+
+Policy opportunities and findings also include relationships to First 5 LA’s Strategic Framework and offer considerations for state and local leadership to impact the greatest needs for young children and families.
+
+
+__Key Findings__
+
+* __[Financial insecurity](https://jzhang514.github.io/f5la/Real-Cost-Measure.html)__ and the __[digital divide](#digitaldivide)__ are the two top themes that came out across all five regions from both Program Officers and Regional Network Grantees. 
+
+* In addition to lifting themes that resonate with what family needs are, several First 5 LA Program Officers cited the importance of understanding the __[nonprofit landscape](https://jzhang514.github.io/f5la/Appendix)__ of their best start geographies to support nonprofit capacity and understand who key players are and form partnerships. 
+
+```{r, message=FALSE, echo=FALSE}
+text_tbl <- data.frame(
+  Findings = c("Financial Security", "Digital Divide", "Nonprofit Landscape"),
+  Description = c(
+    "Financial security is the number one priority that families are concerned with because it applies to every important aspect of a family's life, from affording food and making rent to health care access. In relation to financial security, rent burden and job insecurity were emphasized.",
+    
+    "The urgent need for equitable access to digital resources became immediately apparent when the pandemic started. Reliance on technology intensified as welfare programs and social benefits transitioned online, and early childcare programming and schools moved to virtual platforms. Program Officers and Regional Network Grantees also quickly adopted virtual methods for outreaching to families to maintain connection and support. The lack of technology intensifies the social isolation between community members during an already difficult time. ", 
+    
+    "First 5 LA Program Officers and Regional Network Grantees want to understand the nonprofit landscape of their Best Start Geographies in order to better support nonprofit capacities and form key partnerships with trusted organizations who have deep connection with the community. "
+  ),
+  
+  Results=c(
+    "Family Resources: Families have the resources, opportunities and relationships to optimize their child's development",
+    
+    "Early Learning: Children have high-quality early care and education experiences",
+    
+    "Family Resources: Families have the resources, opportunities and relationships to optimize their child's development"
+  )
+  
+)
+
+
+
+# #coloring for the results column
+# text_tbl$Results = cell_spec(text_tbl$Results, 
+#                              color = ifelse(text_tbl$Results=="Family Resources: Families have the resources, opportunities and relationships to optimize their child's development", "red", "#00999"))
+# 
+# text_tbl$Result = cell_spec(
+# text_tbl$Result, color = "white", align = "c", 
+#   background =  c("#666666", "#999999", "#BBBBBB"))
+
+library(kableExtra)
+
+kable(text_tbl, align = "l", col.names=c("Finding", "Description", "First 5 LA Results")) %>%
+  #kable_paper(full_width = F) %>%
+   kable_paper(bootstrap_options = c("condensed", "responsive"), full_width = F)%>%
+  column_spec(1, bold = T, border_right = T) %>%
+    column_spec(2,  border_right = T) 
+
+```
+<br>
+
+# Who are the Essential Workers Living in Best Start Geographies
+
+
+Understanding who lives in Best Start geographies is foundational to addressing the systemic inequities Best Start families and children face. The Best Start geographies reflect communities with a higher Latinx and Black population, as well as a higher age 0 to 5 population. <mark>Think we can consider more anti-blackness and anti-racist language here if we want<mark>
+
+<i><mark>We can add more text here highlighting a story of the families living in Best Starts, or introduce our 'main narrative' if we have one story that we want to plug throughout the entire deliverable, including images<mark></i>
+
+
+<a href="https://jzhang514.github.io/f5la/Demographics.html" class="button">Click here to explore the demographics of the Best Start Geographies</a>
+
+
+# What does it really cost to support essential workers {.tabset .tabset-pills}
+
+Closing the opportunity gap for families of essential workers requires real investment in all areas of a family’s budget.  Financial security was the highest priority for families across all five Best Start regions, especially in conjunction with rent burden. Job loss and increased uncertainty during the pandemic puts families in impossible positions as they continue to work during a pandemic. Rent burden, the cost of food, and increased reliance on remote technologies are just some examples of needs that add financial strain to families.
+
+<i><mark>Additional storytelling and photos can be added here<mark></i>
+
+To begin understanding the way in which financial security is connected to every essential aspect of a family's life, this project uses the __Real Cost Measure__ to illustrate what it really costs for a family with two children (one age 0-5 and one school-aged) to meet their essential needs in Los Angeles County. The Real Cost Measure takes into consideration the cost of living in Los Angeles County and measures the minimum budget for the necessary domains of life: Child Care, Food, Health Care, Housing, Transportation, Taxes and Miscellaneous items. 
+
+
+<a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html" class="button">Click here to explore Real Cost Measure Data for the Best Start Geographies</a>
+
+# Findings and Policy Opportunities 
+
+This section of the report dives deeper into each of the basic need areas captured by the Real Cost Measure. All of them align with priorities listed on Best Start Change Agendas and themes lifted up during conversations with First 5 LA Program Officers and Regional Network Grantees. This alignment highlights the overlap that exists between food, housing, transportation, child care and health care, and the ways in which broader systems change and infrastructure to support children and families are needed. The creation or enhancements of specific programs in child care or health care alone are insufficient to close the opportunity gaps essential workers face. Supporting essential workers requires policies that address immediate family needs and long-term systemic change. Sufficient support must be given to family first responders, including direct service agencies and nonprofit organizations. At the same time, investing in long-term infrastructure and systemic reform is critical to alleviating preexisting inequities that are worsening during the pandemic. 
+
+The policy opportunities introduced here focus on three areas: 
+
+1) Systems change
+2) Creation of infrastructure to support children and families
+3) Direct services and technical assistance to close the opportunity gap for families of essential workers in the Best Start geographies
+
+Many policy opportunities cited here stem from community collective impact equity initiatives like Bold Vision and existing regional housing, health, transportation, and economic justice campaigns such as Healthy LA, Alliance for Community Transit, and conversations with child care providers and dual language learner partners. 
+
+
+## Child care 
+
+[![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/childcarevideo.PNG)](https://jzhang514.github.io/f5la/Child-Care.html)
+
+[![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/eceregion5.JPG)](https://www.first5la.org/article/the-big-picture-parents-take-on-teaching-in-preschool-without-walls/){ width=50% }
+
+<br>
+<i><mark>Add more narrative about child care workers and their direct experience here, including links out to the APCA ECE blog series or stories from that<mark></i>
+
+### Policy Opportunities
+
+Supporting child care needs for families is connected to supporting child care providers. Providers, who are essential workers, are predominately immigrant women of color. [They are the ones who are watching children while their parents continue to work in their own essential occupations.](https://www.advancementprojectca.org/blog/the-necessity-of-staying-open-during-Covid-19) During the pandemic, providers have had to adjust to Covid-19 safety guidelines, meet their financial needs in increasingly difficult circumstances, provide a safe space for children of essential workers, all while managing their own personal safety. Policies that provide more immediate financial support and tools to providers is desperately needed to ensure that they are being set up to succeed for the monumental task they have. 
+
+
+<a href="https://jzhang514.github.io/f5la/Child-Care.html" class="button">Click here to explore data and policy opportunities on child care providers and access early child care education</a>
+
+## Food 
+
+<br>
+[![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/lafpc_dashboard.JPG)](https://www.goodfoodla.org/foodsystemdashboard){ width=50% height=50%}
+
+<br>
+
+<i><mark>Add narrative here with examples of communities experiencing food scarcity OR use this space to highlight the new first 5 LA food delivery program in partnership with metro that has expanded to all 5 regions<mark></i>
+
+
+### Policy Opportunities 
+
+The failures of the current food landscape and the resulting inaccessibility to food are painfully clear during the pandemic. Serious investment is needed to reshape food access and empower communities to be able to create their own sources for healthy and affordable food, through green spaces and local businesses. The current reliance on K-12 schools for meals has long been an insufficient and inequitable system for food access. Funding must be directed to new sources of healthy food that are community-owned and empowering to communities of color. 
+
+<a href="https://jzhang514.github.io/f5la/Food.html" class="button">Click here to explore data and policy opportunities on food access</a>
+
+
+## Health care 
+
+<br>
+[![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/uninsuredpop.PNG)](https://jzhang514.github.io/f5la/Health-Care.html)
+
+<br>
+<i><mark>Add stories and narrative here about health care access<mark></i>
+
+### Policy Opportunities
+
+Covid-19 has heightened the need for health insurance and access to health care facilities. That is why the conversation surrounding the digital divide and access to technology must also include telehealth and the ability for families to receive health care services remotely and safely. However, it is crucial to think about health holistically. A child's safety is an intrinsic aspect of her health. Ensuring that children are in safe home situations is more crucial than ever given the increased isolation children are facing in lockdown. Ultimately, investing in a comprehensive continuum of care is needed to ensure that families and children are safe and have all of their health needs met in a preventative and timely manner. 
+
+
+<a href="https://jzhang514.github.io/f5la/Health-Care.html" class="button">Click here to explore more health care data and policy opportunities</a>
+
+## Housing 
+
+<br>
+[![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/homelessregions.PNG)](https://jzhang514.github.io/f5la/Housing.html)
+
+
+<br>
+<i><mark>Add stories and narrative here about housing<mark></i>
+
+
+### Policy Opportunities 
+
+Housing is arguably the number one issue that concerns families in Los Angeles County, so it is unsurprising when talking about family priorities in the Best Start Geographies that housing came up consistently. Increasing job insecurity and financial strains from the pandemic have made the high rent burden feel even more painful for families. Policies must quickly be enacted to cancel rent and evictions and ensure housing security. In addition to improving housing security, investments need to be directed to unused spaces to repurpose them for housing, health and child care needs. 
+
+<a href="https://jzhang514.github.io/f5la/Housing.html" class="button">Click here to explore more housing data and policy opportunities</a>
+
+
+## Transportation
+<br>
+
+[![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/publictranspo.PNG)](https://jzhang514.github.io/f5la/Transportation.html)
+
+
+<br>
+<i><mark>Add stories and narrative here about public transportation<mark></i>
+
+### Policy Opportunities
+
+Public transportation is inherent to access, whether it is to grocery stores for food or child care centers for children. It is a core tenant of a community's built environment and requires robust infrastructure and investment to ensure that it connects families to essential services. In light of the pandemic, many families are feeling the consequences of poor public transportation infrastructure as inaccessibility worsens. Safety is also a growing concern as crowded buses further the spread of disease. A stronger public transportation infrastructure that includes more bus options and flexible transit improves the safety of both riders and bus drivers.
+
+
+<a href="https://jzhang514.github.io/f5la/Transportation.html" class="button">Click here to explore more transportation data and policy opportunities</a>
+
+## Additional Priority Areas {.tabset .tabset-pills}
+
+### Systems Change
+* __Utilize a targeted approach to prioritize supports for highest-need communities, where a large segment of essential workers resides, using an Equity Index.__ Using a community-built Equity Index, allocate dollars more equitably across child-focused systems. A research-based ranking of communities facing the greatest challenges would enable leaders to prioritize and repair under-investments of our highest-need communities, including in Best Start geographies, at a time when our families need more support than ever. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Build capacity for case management in child-focused systems to be welcoming, family-centered, and aligned__ so that families of color and essential workers can easily access critical information, resources, and opportunities.  [<nobr style="color: #FF6699;">__F5LA Result: Early Intervention__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+  + Develop uniform eligibility and single application process for child-focused programs (e.g., CalFresh, Medi-Cal, Supplemental Nutrition Program for Women, Infants, and Children, California Earned Income Tax Credit, Early Learning and Care programs). Integrating applications and building safe data sharing practices across programs can address the challenges families face using multiple and lengthy eligibility verification and enrollment processes and address the delay in services, families inaccurately losing eligibility and additional administrative costs, much of which has been exacerbated under Covid-19. 
+  + Ensure no family falls through the cracks in obtaining information and resources for their children, starting from prenatal visits. Facilitate data sharing between hospitals, regional offices, county, and city levels with ongoing touchpoints to support families. Data protection and safety for undocumented families must be the priority in developing this aligned data system. [__F5LA Result: Early Intervention__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+  + Provide implicit bias and culturally and linguistically responsive training for all staff/case managers working with young children and families of essential workers. Anti-racism and anti-bias support and training should be provided to case managers, staff, and early learning professionals across programs so that no family falls through the cracks due to lack of cultural sensitivity or complications in navigating different bureaus and paperwork. 
+
+### Infrastrcture to Support Children and Families
+
+* __Partner with districts to provide every student and family with access to devices and internet (e.g., laptops and hotspots).__ Children of color and from low-income communities are likely to suffer from widening opportunity gaps without access to schools. During the past months, as school districts and organizations moved quickly to support families, technology and internet companies scrambled to offer “free” internet and Wi-Fi services for students and families in low-income communities. There is need to grow and monitor these efforts to ensure they meet the needs of students facing the greatest and most urgent barriers to technology access and distance learning. Digital justice and digital divide concerns were raised across all Best Start geographies. One third of LAUSD students in Region 1 are not able to access learning due to lack of digital and technology access. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)  
+* __Create Whole Family Wellness Hubs, such as Magnolia Place Family Center, in highest-need communities, as determined by an Equity Index.__ Whole Family Wellness Hubs provide wraparound services (including prenatal and child care social services, mental and behavioral health supports) that are linguistically and culturally responsive to children and families through structured partnerships between community entities and service providers that are tailored to the unique contours of each community, as determined by a community assessment.  [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)  [<nobr style="color: #EC098D;">__F5LA Result: Early Intervention__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Develop an Early Childhood Integrated Data system that includes critical community-based racial equity data__ such as race, home language, family needs, and preschool suspensions/expulsions to assist stakeholders to understand the needs of children and families and strategize supports for quality improvement with nuanced data about program access, participation, and child outcomes. [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Engage families to share evolving circumstances and needs.__ Ongoing engagement with families would provide clear channels that connect the evolving needs of essential workers with policy and decision-makers (such as the [Covid-19 Parent Survey](https://rrnetwork.org/research/Covid-19-parent-survey) or Region 1's Community Survey). Ensure parents and families are compensated as they share their expertise and recommendations. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) 
+* __Extend family fee waivers or prioritize funding support to remove family fees for all state-subsidized early learning and care programs.__ This would support the many families of essential workers that are unable to pay family fees for childcare, and it would also protect child care providers from absorbing the costs of fees which place them in incredibly vulnerable financial positions to keep their homes/centers open. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) 
+
+* __Provide supports for direct engagement with Black and American Indian and Alaska Native families and individuals within the Best Start Network.__ Ongoing direct engagement with Black, American Indian, and Alaska Native families across all the Network would enable grantees to identify specific needs and supports essential to these communities. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) 
+
+### Specific Support of Programs
+* __Deliver family strengthening supports, such as home visiting and community health worker/promotora programs.__ Community-centered, culturally, and linguistically competent, asset-based family strengthening programs, such as home visiting through calls, video chat, and text check-ins, are important as families shelter in place due to the pandemic. These programs connect families with community-based doulas, nurses, social workers, and other trained professionals that provide health and early education support. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) 
+
+* __Create a Universal Basic Income Program.__ Ensure a guaranteed income for Best Start families. Create pilot projects like what has been done in Stockton and Minneapolis. [<nobr style="color: #04B2D9;">__F5LA Result: Family Resources__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) 
+
+
+# Promising Practices {.tabset .tabset-pills}
+
+Prior to the pandemic, many Program Officers and Regional Network Grantees were engaged in systems-level change and strategic planning with community members. This work focused on capacity building and examining systemic policies that impacted families in the Best Start geographies. Immediate food and supply shortages caused by the pandemic forced partners to shift to direct service provision and coordination. Program Officers and Regional Network Grantees across all five regions quickly mobilized virtual methods of communication and directly contacted families to assess needs. Taking advantage of flexible funding streams from First 5 LA, Regional Network Grantees and Program Officers found creative solutions to support families and challenge the role of existing systems to better serve community needs.  These promising practices are learning opportunities for First 5 LA moving forward. The long-term impacts of Covid-19 provide an opportunity for First 5 LA to reimagine the role Program Officers and Regional Network Grantees can play in creating a new normal that holistically supports programs, infrastructure, and systems that close the opportunity gap for families and children.  
+
+## Region 1: Metro and Food Delivery
+Region 1 Program Officers and Region Network Grantees quickly identified food access as the most pressing need for families when the pandemic started. They quickly began working with Metro to create a food delivery program from the ground-up to ensure families can safely obtain food. 
+
+## Region 2: Free Wifi through Housing Project
+Region 2 conducted surveys to understand the needs of the families and identified a digital divide that made accessing critical information and resources more difficult during the pandemic. One of the community partners is now working to provide free potable wifi to families using an empty housing project. 
+
+## Region 3: Cedar Sinai and Food Delivery
+Program Officers and Regional Network Grantees in Region 3 are have partnered with Cedar Sinai to serve as a food distribution center for families and increase food access. 
+
+## Region 4: Helping Families Obtain Resources and Public Assistance
+Many undocumented families have been hesitant to access Covid-19 testing or public relief programs for fear of deportation. In response partners are connecting families to resources, crowdsourcing funding for immediate economic relief, and educating families on resources and their rights.
+
+## Region 5: Delivering Essential Supplies
+Community partners are using Instacart to deliver food to families in outlier towns that do not have access to grocery stores, and initiated a program called ‘Buckets of Hope’ which delivered utility buckets filled with essential supplies to families. 
+
+# Appendix
+
+[Click here for the full Appendix, which includes raw data tables and crosswalks for downloading](https://jzhang514.github.io/f5la/Appendix)
+
+# Acknowledgements
+
+[Advancement Project California](https://www.advancementprojectca.org/) partnered with First 5 LA to engage with internal stakeholders and community partners working in the Best Start geographies The Advancement Project California thanks every Regional Network Grantee and Program Officer who was interviewed. The insights shared guided the direction of this deliverable and ensured that it remained connected to the families residing in the Best Start geographies. Sincerest thank you to United Way, California Food Policy Advocates, the Los Angeles Food Policy Council, and the Child Care Resource Center for lending your expertise and insight on data indicators. 
+
+<center>
+![F5LA](W:/Project/RDA Team/First5LA/V2.0 Report/R/logo.png){width="50%"}
+</center>  
