@@ -161,7 +161,7 @@ insure_long<-insure_long%>%
                          ifelse(pct_measure %in% 'pct_black_uninsured', 'Percent Black',
                                 ifelse(pct_measure %in% 'pct_aian_uninsured', 'Percent AIAN',
                                        ifelse(pct_measure %in% 'pct_asian_uninsured', 'Percent Asian',
-                                         ifelse(pct_measure %in% 'pct_nhpi_uninsured', 'Percent Native Hawaiin/Pacific Islander',
+                                         ifelse(pct_measure %in% 'pct_nhpi_uninsured', 'Percent Native Hawaiian/Pacific Islander',
                                                 ifelse(pct_measure %in% 'pct_latinxcombo_uninsured', 'Percent Latinx', ifelse(pct_measure %in% 'pct_twoormore_uninsured', 'Percent Two or More Races', ifelse(pct_measure %in% "pct_other_uninsured", 'Percent Other Race', "Blank"))))))))) 
 
 #we can remove the 'total insured' measure and percent as well
