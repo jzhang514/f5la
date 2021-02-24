@@ -166,7 +166,7 @@ transpo_long<-transpo_long%>%
                          ifelse(pct_measure %in% 'pct_pubtrans_black', 'Percent Black',
                                 ifelse(pct_measure %in% 'pct_pubtrans_aian', 'Percent AIAN',
                                        ifelse(pct_measure %in% 'pct_pubtrans_asian', 'Percent Asian',
-                                         ifelse(pct_measure %in% 'pct_pubtrans_nhpi', 'Percent Native Hawaiin/Pacific Islander',
+                                         ifelse(pct_measure %in% 'pct_pubtrans_nhpi', 'Percent Native Hawaiian/Pacific Islander',
                                                 ifelse(pct_measure %in% 'pct_pubtrans_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_pubtrans_twoormore', 'Percent Two or More Races', ifelse(pct_measure %in% "pct_pubtrans_other", 'Percent Other Race', "Blank"))))))))) 
 
 
