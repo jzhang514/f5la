@@ -113,7 +113,7 @@ cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600
 
 Best Start geographies are home to essential workers and their young children. All Best Start geographies have over 5% of their total population consisting of children age 0 to 5. Watts/Willowbrook has the highest percentage of children age 0 to 5 as these children comprise nearly 10% of Watts/Willowbrook total population. 8,015 children age 0 to 5 live there 
 
-To see the raw numbers please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix).
+To see the raw numbers please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix){target="_blank"}.
 
 
 ```{r}
@@ -188,9 +188,9 @@ hc_add_theme(hc, thm)
 
 # Race
 
-Diverse populations live in the Best Start geographies and are disproportionately affected by Covid-19. Most people across Best Start geographies are Latinx; only in Lancaster are Latinx residents not the majority in a Best Start geography. According to a [RACE COUNTS analysis](https://www.racecounts.org/covid/) of COVID-19 exposure in LA County, by September 21st, higher-Latinx areas had 3.1 times as many cases as lower-Latinx areas. 
+Diverse populations live in the Best Start geographies and are disproportionately affected by Covid-19. Most people across Best Start geographies are Latinx; only in Lancaster are Latinx residents not the majority in a Best Start geography. According to a [RACE COUNTS analysis](https://www.racecounts.org/covid/){target="_blank"} of COVID-19 exposure in LA County, by September 21st, higher-Latinx areas had 3.1 times as many cases as lower-Latinx areas. 
 
-To see the raw data, refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix) <br>
+To see the raw data, refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix){target="_blank"} <br>
 
 
 ```{r}
