@@ -108,7 +108,7 @@ cols3=c("#033E8C", "#EC098D", "#04B2D9")
 
 The Real Cost Measure was developed by advocates to capture what an annual budget looks like for a family in California meeting all of their basic needs: including food, housing, health care, child care, and transportation. Each of these need areas was elevated in conversations with First 5 LA Program Officers and Regional Network Grantees as being directly impacted or exacerbated by the pandemic, revealing the need for reforms. Using the Real Cost Measure as a framework for understanding where to target investments ensures that a holistic approach guides future planning and directly connects with needs raised by families.
 
-Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 5 LA’s Result: Family Resources.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74) The Real Cost Measure also indirectly addresses the overlap of the Impact Framework’s Child Care, Poverty, Food Insecurity, Homelessness, and Access to Transportation indicators.
+Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 5 LA’s Result: Family Resources.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74){target="_blank"} The Real Cost Measure also indirectly addresses the overlap of the Impact Framework’s Child Care, Poverty, Food Insecurity, Homelessness, and Access to Transportation indicators.
 
 # Annual Budget {#financialsecurity}
 
@@ -177,13 +177,13 @@ ggplot(rcm_la, aes(fill=expense, y=amount, x=measure, label=amount))+
 
 
 ```
-<br>Source: Annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County from Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California. http://www.unitedwaysca.org/realcost
+<br>Source: Annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County from Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California. [http://www.unitedwaysca.org/realcost](http://www.unitedwaysca.org/realcost){target="_blank"}
 
 # Households Below Real Cost Measure
 
 Across all 14 Best Start geographies, more than 1/3 of families earn less than enough to meet their basic needs. If we are serious about the success of LA County we must get serious about meeting the real costs of our essential workers.
 
-To see the full raw data, please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix)<br>
+To see the full raw data, please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix){target="_blank"}<br>
 
 ```{r}
 
@@ -242,7 +242,7 @@ rcm_long<-rcm_long[c(1, 21:23)]
 
 
 ```
-<br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California http://www.unitedwaysca.org/realcost
+<br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California [http://www.unitedwaysca.org/realcost](http://www.unitedwaysca.org/realcost){target="_blank"}
 
 
 ```{r include=FALSE}
@@ -356,4 +356,4 @@ hc_add_theme(hc, thm)
 
 
 ```
-<br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California http://www.unitedwaysca.org/realcost
+<br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California [http://www.unitedwaysca.org/realcost](http://www.unitedwaysca.org/realcost){target="_blank"}
