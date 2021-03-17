@@ -12,7 +12,6 @@ output:
     toc: yes
     toc_depth: '2'
 ---
-
 <style type="text/css">
 .main-container {
   max-width: 1800px;
@@ -110,28 +109,30 @@ cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A
 
 # Program Officer and Grantee Perspectives
 
+<br>
+
 *	The pandemic forced schools and child care centers to close, resulting in children having nowhere to go outside of their homes. This created a greater dependence on virtual tools, such as video conferencing and wifi access, to ensure that children can engage in remote classes or activities.
 *	Greater reliance on technology has revealed the digital divide that exists. Many families in Best Start geographies do not have access to wifi or laptops needed to enroll children in remote programs.
 *	Children are having a harder time staying engaged during the day which can hurt educational outcomes.
-*	This indicator is similar to the Impact Framework's child care indicator. Progress on this indicator helps achieve [<nobr style="color: #26BFB0;">__First 5 LA’s Result: Early Learning.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
-* [Additional stories directly from providers about their experiences providing early learning and care for families during the pandemic](https://www.advancementprojectca.org/blog)
+*	This indicator is similar to the Impact Framework's child care indicator. Progress on this indicator helps achieve [<nobr style="color: #26BFB0;">__First 5 LA’s Result: Early Learning.__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74){target="_blank"}
+* [Additional stories directly from providers about their experiences providing early learning and care for families during the pandemic](https://www.advancementprojectca.org/blog){target="_blank"}
 
 # Policy Opportunities {.tabset .tabset-pills}
 
 ## Infrastructure to Support Children and Families
 
-* __Provide immediate financial support for home-based and center-based early educators adapting to COVID-19 guidelines to sustain the viability of serving children of essential workers.__ Allocate funding to guarantee full reimbursement for providers impacted by COVID-19 to stabilize the early learning and care field as many have been forced to close. Provide incentives and stipends to help providers cover increased program costs arising from reduced teacher-child ratios, rearranging their environments to respond to safety regulations, and increasing the supply of sanitizing and disinfecting materials. . [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Provide immediate financial support for home-based and center-based early educators adapting to COVID-19 guidelines to sustain the viability of serving children of essential workers.__ Allocate funding to guarantee full reimbursement for providers impacted by COVID-19 to stabilize the early learning and care field as many have been forced to close. Provide incentives and stipends to help providers cover increased program costs arising from reduced teacher-child ratios, rearranging their environments to respond to safety regulations, and increasing the supply of sanitizing and disinfecting materials. . [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74){target="_blank"}
 
 ## Direct Services and Technical Support
 
-* __Prioritize funding and linguistically accessible information/training/professional development for providers of dual-language early learning and care programs, particularly for monolingual providers of a language other than English.__ Children of essential workers are predominantly from families of color with languages other than English. Culturally and linguistically responsive dual language programs provide the foundation for overall language, cognitive, and healthy identity development.   [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
-* __Provide funding and training for providers to support virtual learning and technology needs of essential workers’ young children and school-aged students.__ As school districts engage in distance/hybrid learning, families are looking to after-school providers for full-day care. Providers need funding to be able to hire an assistant to support distance learning as they serve school-aged children alongside young children in their care.  [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74)
+* __Prioritize funding and linguistically accessible information/training/professional development for providers of dual-language early learning and care programs, particularly for monolingual providers of a language other than English.__ Children of essential workers are predominantly from families of color with languages other than English. Culturally and linguistically responsive dual language programs provide the foundation for overall language, cognitive, and healthy identity development.   [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74){target="_blank"}
+* __Provide funding and training for providers to support virtual learning and technology needs of essential workers’ young children and school-aged students.__ As school districts engage in distance/hybrid learning, families are looking to after-school providers for full-day care. Providers need funding to be able to hire an assistant to support distance learning as they serve school-aged children alongside young children in their care.  [<nobr style="color: #26BFB0;">__F5LA Result: Early Learning__</nobr>](https://teams.microsoft.com/l/file/7BCF9E27-DD6A-442D-BD86-AF6566D0C38B?tenantId=abc23eed-8c00-4a99-892a-09219a95119e&fileType=pdf&objectUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject%2FShared%20Documents%2FGeneral%2Fresults_for_children_and_families.pdf&baseUrl=https%3A%2F%2Ffirst5lacounty.sharepoint.com%2Fsites%2FAdvancementProject&serviceName=teams&threadId=19:1e7e7b70c7eb4cb6b2e851e41582db4f@thread.skype&groupId=1f9a4169-31de-476b-a42f-e2f7da7fce74){target="_blank"}
 
 # Data
 
 ## Child Care Workers in Best Start Geographies
 
-Child care workers are more numerous in Best Start geographies relative to the rest of the county, as indicated in the darker shading of purple. This makes it more important than ever that child care workers are getting sufficient resources and support in order to then take care of children in these communities. While a high number and percentage of child care workers preside in Best Start Geographies, stay-at home orders and safety concerns are driving [child care center closures](https://jzhang514.github.io/f5la/Childcare-Center-Closures.html), which impacts both child care workers and  working families who need child care for their children.
+Child care workers are more numerous in Best Start geographies relative to the rest of the county, as indicated in the darker shading of purple. This makes it more important than ever that child care workers are getting sufficient resources and support in order to then take care of children in these communities. While a high number and percentage of child care workers preside in Best Start Geographies, stay-at home orders and safety concerns are driving [child care center closures](https://jzhang514.github.io/f5la/Childcare-Center-Closures.html){target="_blank"}, which impacts both child care workers and  working families who need child care for their children.
 
 Please note that child care workers age 16 to 18 are currently included in this analysis and can be excluded as needed.<br> 
 
@@ -254,7 +255,7 @@ leaflet(cepr_lac_childcare)%>%
 
 
 ```
-Source: [Center for Economic and Policy Research Analysis of American Community Survey, 2014-2018 5-Year Estimate](https://github.com/ceprdata/frontline-workers)
+Source: [Center for Economic and Policy Research Analysis of American Community Survey, 2014-2018 5-Year Estimate](https://github.com/ceprdata/frontline-workers){target="_blank"}
 
 
 ## Internet Access 
@@ -458,7 +459,7 @@ hc_add_theme(hc, thm)
 # prek_la<-melt(setDT(prek), id.vars = c("bsc"), variable.name = "type")%>%
 #   filter(grepl("LA County", bsc))
 ```
-<br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/)
+<br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/){target="_blank"}
 
 ## Infant Toddler Early Learning Care Enrollment
 
@@ -535,4 +536,4 @@ hc_add_theme(hc, thm)
 
 
 ```
-<br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/)
+<br>Source: [Early Learning Needs Assessment Tool, American Institutes for Research](https://elneedsassessment.org/){target="_blank"}
