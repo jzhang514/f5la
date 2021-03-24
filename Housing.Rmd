@@ -245,7 +245,7 @@ hc_add_theme(hc, thm)
 <br><br>* <mark>Please note that the data point for Long Beach reflects the total number of sheltered and unsheltered homeless individuals counted during the 2020 Homeless Count for the city of Long Beach. This does not reflect the count of homeless individuals in the Long Beach Best Start boundary and as a result is an over-count of homeless individuals.The methodology for the Long Beach Homeless Count data differs from the methodology used in the other Best Start geographies.<mark>
 
 
-## Homelessness in the Regions
+## Homelessness in the Best Start Regions
 
 Region 1 has the largest population of sheltered and unsheltered homeless individuals at nearly 6,000. For all five regions, the overwhelming majority of homeless individuals are unsheltered, meaning that they are not connected to any safety net system.<br>
 
