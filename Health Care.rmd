@@ -187,7 +187,7 @@ hc<-hchart(insure_long_notot, "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=.5) %>%
+                                    }")), min=0,max=2) %>%
   
     hc_title(
     text = "Uninsured Population by Best Start Geography",
@@ -418,7 +418,7 @@ hc<-hchart(prenatal, "column",
       )
     ))%>%
     hc_title(
-    text = "Annual Percentage of Mothers Who Who Entered Prenatal Care After 1st Trimester of Pregnancy",
+    text = "Annual Percentage of Mothers Who Entered Prenatal Care After 1st Trimester of Pregnancy",
     margin = 20,
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
