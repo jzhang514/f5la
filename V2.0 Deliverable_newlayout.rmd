@@ -600,6 +600,92 @@ Community partners are using Instacart to deliver food to families in outlier to
 
 [Click here for the full Appendix, which includes raw data tables and crosswalks for downloading](https://jzhang514.github.io/f5la/Appendix){target="_blank"}
 
+# Index of Indicators
+```{r}
+
+library(DT)
+
+m = matrix(c(
+'<a href="https://jzhang514.github.io/f5la/V2.0-Deliverable_newlayout.html#Overview" target="_blank">Essential Workers</a>',
+'<a href="https://jzhang514.github.io/f5la/Demographics.html#Age_0_to_5" target="_blank">Children Age 0 to 5</a>',
+'<a href="https://jzhang514.github.io/f5la/Demographics.html#Race" target="_blank">Race and Ethnicity</a>',
+'<a href="https://jzhang514.github.io/f5la/Demographics.html#Undocumented_Population" target="_blank">Undocumented Population</a>',
+'<a href="https://jzhang514.github.io/f5la/Demographics.html#Median_Household_Income" target="_blank">Median Household Income</a>',
+'<a href="https://jzhang514.github.io/f5la/Demographics.html#Regions" target="_blank">Best Start Regions Crosswalk</a>',
+'<a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html#Annual_Budget" target="_blank">Real Cost Measure Annual Budget</a>',
+'<a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html#Households_Below_Real_Cost_Measure" target="_blank">Households Below the Real Cost Measure by Best Start Geography</a>',
+'<a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html#Households_in_LA_County_Below_Real_Cost_Measure_by_Race" target="_blank">Households Below the Real Cost Measure by Race</a>',
+'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Child_Care_Workers_in_Best_Start_Geographies" target="_blank">Child Care Workers in Best Start Geographies</a>',
+'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Internet_Access" target="_blank">internet Access</a>',
+'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Families_who_Own_One_or_More_Technology_Devices" target="_blank">Families Who Own One or More Technology Devices</a>',
+'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Pre-K_Early_Learning_Care_Enrollment" target="_blank">Pre-K Early Learning Care Enrollment</a>',
+'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Infant_Toddler_Early_Learning_Care_Enrollment" target="_blank">Infant Toddler Early Learning Care Enrollment</a>',
+'<a href="https://jzhang514.github.io/f5la/Food.html#Grocery_Store_Availability" target="_blank">Grocery Store Availability</a>',
+'<a href="https://jzhang514.github.io/f5la/Food.html#Food_Insecurity_by_Race_and_Ethnicity" target="_blank">Food Insecurity by Race and Ethnicity</a>',
+'<a href="https://jzhang514.github.io/f5la/Food.html#Families_Experience_with_Food_Security" target="_blank">Families Experience with Food Security</a>',
+'<a href="https://jzhang514.github.io/f5la/Food.html#SNAP_Enrollment" target="_blank">SNAP Enrollment</a>',
+'<a href="https://jzhang514.github.io/f5la/Food.html#Regional_Snapshots_of_Food_Security" target="_blank">Regional Snapshots of Food Security</a>',
+'<a href="https://jzhang514.github.io/f5la/Housing.html#Homelessness_in_the_Best_Start_Geographies" target="_blank">Homelessness in the Best Start Geographies</a>',
+'<a href="https://jzhang514.github.io/f5la/Housing.html#Homelessness_in_the_Regions" target="_blank">Homelessness in Best Start Regions</a>',
+'<a href="https://jzhang514.github.io/f5la/Transportation.html#Workers_who_use_Public_Transportation_in_Best_Start_Geographies" target="_blank">Workers who use Public Transportation in Best Start Geographies</a>',
+'<a href="https://jzhang514.github.io/f5la/Appendix#Nonprofit_Organizations_in_Los_Angeles_County" target="_blank">Nonprofit Organizations in Los Angeles County</a>',
+
+
+"American Community Survey (ACS) Census Bureau",
+"American Community Survey (ACS) Census Bureau",
+"American Community Survey (ACS) Census Bureau",
+"USC CSII analysis of 2018 5-year American Community Survey (ACS)  microdata from IPUMS USA",
+"American Community Survey (ACS) Census Bureau",
+"First 5 LA",
+"United Ways of California",
+"United Ways of California",
+"United Ways of California",
+" Center for Economic and Policy Research Analysis of American Community Survey (ACS) Data",
+"American Community Survey (ACS) Census Bureau",
+"American Community Survey (ACS) Census Bureau",
+"Early Learning Needs Assessment Tool, American Institutes for Research",
+"Early Learning Needs Assessment Tool, American Institutes for Research",
+"LA Food Policy Council Food System Dashboard",
+"Los Angeles County Department of Public Health, Los Angeles County Health Survey",
+"Child Care Resource Center (CCRC) Family Needs Assessment",
+"Child Care Resource Center (CCRC) Family Needs Assessment",
+"Upcoming DPSS Report from the Los Angeles Food Policy Council",
+"Los Angeles Housing Authority (LAHSA) Homeless Count and City of Long Beach Homeless Count",
+"Los Angeles Housing Authority (LAHSA) Homeless Count and City of Long Beach Homeless Count",
+"American Community Survey (ACS) Census Bureau",
+"IRS Business Master File",
+
+"2019",
+"2019",
+"2019",
+"2018",
+"2019",
+"2021",
+"2019",
+"2019",
+"2019",
+"2018",
+"2019",
+"2019",
+"2018",
+"2018",
+"2020",
+"2018",
+"2018",
+"2018",
+"2021",
+"2020",
+"2020",
+"2019",
+"2020"
+
+), nrow=23, ncol=3)
+colnames(m) = c('Indicator', 'Data Source', 'Year')
+
+datatable(m, escape=FALSE) 
+
+```
+
 # Acknowledgements
 
 [Advancement Project California](https://www.advancementprojectca.org/){target="_blank"} partnered with First 5 LA to engage with internal stakeholders and community partners working in the Best Start geographies The Advancement Project California thanks every Regional Network Grantee and Program Officer who was interviewed. The insights shared guided the direction of this deliverable and ensured that it remained connected to the families residing in the Best Start geographies. Sincerest thank you to United Way, California Food Policy Advocates, the Los Angeles Food Policy Council, and the Child Care Resource Center for lending your expertise and insight on data indicators. 
