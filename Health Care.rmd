@@ -71,6 +71,7 @@ con <- dbConnect(drv, dbname = "f5la_v2",
 
 
 cols8=c("#033E8C", "#623e96", "#9a3a93", "#c93786","#ec416f","#ff5c54", "#ff8034", "#ffa600")
+cols7=c("#033E8C", "#623e96", "#9a3a93", "#c93786","#ec416f","#ff5c54", "#ff8034")
 
 ####MAKE MY HC THEME###
 
@@ -129,9 +130,11 @@ cols8=c("#033E8C", "#623e96", "#9a3a93", "#c93786","#ec416f","#ff5c54", "#ff8034
 
 # Data
 
-## Uninsured Population
+## Uninsured Population {.tabset .tabset-dropdown}
 
 Southeast LA and Panorama City & Neighbors both have the highest number of uninsured households and have among the highest number of total households within the Best Start geography.
+
+### Broadway/Manchester
 
 ```{r}
 
@@ -168,29 +171,26 @@ insure_long<-insure_long%>%
 insure_long_notot<-insure_long%>%
   filter(!grepl('Blank', variable))
 
-#highcharts
 
-hc<-hchart(insure_long_notot, "column",
-         hcaes(x=best_start, y=pct_value, group=variable),
-         stacking='normal',
-          tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+###graph only Broadway Manchester
+
+
+
+insure_long_notot%>%
+  filter(grepl("Broadway/Manchester", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
                          Total: {point.num_value}"))%>%
-      
-      hc_tooltip(crosshairs = TRUE)%>%
   
-  hc_colors(cols8)%>%
-     
-     hc_xAxis(title = list(text = ""),
-               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
-  
-    hc_yAxis(title = list(text = ""),
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=2) %>%
+                                    }")), min=0,max=100) %>%
   
     hc_title(
-    text = "Uninsured Population by Best Start Geography",
+    text = "Uninsured Population in Broadway/Manchester",
     margin = 20,
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
@@ -201,12 +201,515 @@ hc<-hchart(insure_long_notot, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+  
 
-hc_add_theme(hc, thm)
+
+##polar column graph
+
+# broadwaymanchester<-insure_long_notot%>%
+#   filter(grepl("Broadway/Manchester", best_start))
+# 
+# 
+# highchart() %>%
+#   hc_chart(type = "column", polar = TRUE) %>% 
+#   hc_xAxis(categories = broadwaymanchester$variable) %>% 
+#   hc_series(list(
+#      name = "Percent",
+#      data = broadwaymanchester$pct_value,
+#      colorByPoint = TRUE,
+#      type = "column",
+#        colors=cols7,
+#      showInLegend = FALSE
+#    )
+#    )%>%
+# hc_add_theme(thm)
+
+```
+<br>Source: ACS 2019 5-Year Estimates
 
 
 
+### Central Long Beach
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Central Long Beach", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Central Long Beach",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+
+
+```
+
+### Compton/East Compton
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Compton/East Compton", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in 	
+Compton/East Compton",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### East LA
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("East LA", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in East LA",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### Lancaster
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Lancaster", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Lancaster",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+
+### Metro LA
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Metro LA", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Metro LA",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### North East Valley
+
+```{r}
+
+insure_long_notot%>%
+  filter(grepl("North East Valley", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in North East Valley",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### Palmdale
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Palmdale", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Palmdale",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### Panorama City & Neighbors
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Panorama City & Neighbors", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Panorama City & Neighbors",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### South El Monte/El Monte
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("South El Monte/El Monte", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in South El Monte/El Monte",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+
+### Southeast LA
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Southeast LA", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Southeast LA",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### Watts/Willowbrook
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Watts/Willowbrook", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Watts/Willowbrook",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### West Athens
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("West Athens", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in West Athens",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+### Wilmington
+
+```{r}
+
+
+insure_long_notot%>%
+  filter(grepl("Wilmington", best_start))%>%
+  hchart("column", polar = TRUE,
+  hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
+                         Total: {point.num_value}"))%>%
+  
+  hc_xAxis(title = list(text = ""))%>%
+   hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=100) %>%
+  
+    hc_title(
+    text = "Uninsured Population in Wilmington",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>% 
+hc_add_theme(thm)
+
+
+```
+
+
+
+
+
+
+
+```{r, inclued=FALSE}
 # #create factors for the x axis labels (bsc) to customize the order
 # insure_long$best_start <-  factor(insure_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
 # 
@@ -231,7 +734,7 @@ hc_add_theme(hc, thm)
 #     ggtitle("Uninsured Population")
 
 ```
-<br>Source: ACS 2019 5-Year Estimates
+
 
 ## Postpartum Care
 
