@@ -137,6 +137,9 @@ cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A
 
 Important disparities exist in the West LA and South LA food retail environment. South LA has a much lower rate of grocery stores per person and has more liquor stores than grocery stores.
 
+<br>
+<p class="round1">__Why this matters:__ The pandemic has shed a harsher light on the food insecurity that exists across communities, especially in South and East Los Angeles, where many of the Best Start geographies are located. A lack of grocery stores makes it difficult for families to safely obtain healthy food, especially during a pandemic when traveling long distances increases the likelihood of exposure to Covid-19.</p>
+<br>
 ```{r}
 grocery<-dbGetQuery(con, "SELECT * FROM lafpc_grocery")%>%
   filter(!grepl("South LA Grocery Store", indicator_name))
@@ -160,6 +163,13 @@ kable(grocery, align="l", col.names = c("", "2013", "2017","2020","Trend"))%>%
 
 Among families who are at or below 300% of the Federal Poverty Line, American Indian/Alaskan Native, Latinx, and Black families are most likely to report food insecurity. For more information, the Los Angeles [Food Policy Council's 2020 Food System Dashboard](https://static1.squarespace.com/static/5bc50618ab1a624d324ecd81/t/5e45c5915750af6b4e5e5c4b/1581630905550/2020FoodSystemDashboard.pdf){target="_blank"} paints a comprehensive picture of food systems in Los Angeles and the landscape of food access and distribution using a racial equity lens. <br>
 
+<br>
+<p class="round1">__Why this matters:__ Significant racial disparity exists among families who experience food insecurity in Los Angeles County. Among families who are at or below 300% of the Federal Poverty Line, American Indian/Alaskan Native families are most likely to experience food insecurity, with over 40% of AIAN families reporting it.</p>
+
+<br>
+For more information, the Los Angeles [Food Policy Council's 2020 Food System Dashboard](https://static1.squarespace.com/static/5bc50618ab1a624d324ecd81/t/5e45c5915750af6b4e5e5c4b/1581630905550/2020FoodSystemDashboard.pdf){target="_blank"} paints a comprehensive picture of food systems in Los Angeles and the landscape of food access and distribution using a racial equity lens
+
+<br>
 ```{r}
 
 food<-dbGetQuery(con, "SELECT * FROM lacdph_food_insecurity_county_2018")
@@ -180,7 +190,9 @@ food_pct<-food_long%>%
 food_num<-food_long%>%
   filter(grepl('num', Race))%>%
   rename(number=Race)%>%
-rename(num_value=value)
+rename(num_value=value)%>%
+     mutate(num_value = as.character(formattable::comma(num_value, 0)))
+
 
 food_long<-cbind(food_pct, food_num)
  
@@ -202,7 +214,7 @@ food_long<-food_long%>%
   
 #highchart
 
-hc<-hchart(food_long, "column",
+hchart(food_long, "column",
          hcaes(x=variable, y=pct_value),
           tooltip = list(pointFormat = "Percent: {point.pct_value:.1f}%<br>
                          Number: {point.num_value}"))%>%
@@ -210,15 +222,16 @@ hc<-hchart(food_long, "column",
 
       hc_tooltip(crosshairs = TRUE)%>%
      
-     hc_xAxis(title = list(text = ""))%>%
+     hc_xAxis(title = list(text = ""),
+               categories=c("American Indian/Alaskan Native", "Black", "Latinx", "White"," Asian"))%>%
     hc_yAxis(title = list(text = ""), 
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=40,
+                                    }")), min=0,max=60,
        plotLines = list(
       list(
-        label = list(text = "LA County = 26.8%<br>", align = "left", x=150),
+        label = list(text = "LA County = 26.8%<br>", align = "left", x=560),
         color = "#FF0000",
         width = 2,
         value = 26.8,
@@ -236,9 +249,8 @@ hc<-hchart(food_long, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
-
-hc_add_theme(hc, thm)
+     hc_legend(enabled = TRUE)%>%
+hc_add_theme(thm)
 
 # #set colors 
 # 
@@ -284,7 +296,7 @@ kable(insecure, digits=1, format.args = list(big.mark = ","))%>%
 
 ## SNAP Enrollment
 
-Over 47% of families who completed the Child Care Resource Center (CCRC) Family Needs Assessment were enrolled in SNAP.<br> 
+In LA County, over 9,000 families are enrolled in SNAP.<br> 
 
 ```{r}
 
