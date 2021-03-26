@@ -111,11 +111,11 @@ cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600
 
 # Age 0 to 5
 
-Best Start geographies are home to essential workers and their young children. All Best Start geographies have over 5% of their total population consisting of children age 0 to 5. Watts/Willowbrook has the highest percentage of children age 0 to 5 as these children comprise nearly 10% of Watts/Willowbrook total population. 8,015 children age 0 to 5 live there 
+Best Start geographies are home to essential workers and their young children. All Best Start geographies have over 5% of their total population consisting of children age 0 to 5. Watts/Willowbrook has the highest percentage of children age 0 to 5 as these children comprise nearly 10% of Watts/Willowbrook total population. 8,015 children age 0 to 5 live there.
 
-To see the raw numbers please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix){target="_blank"}.
-
-
+<br>
+<p class="round1">__Why this matters:__ Best start geographies are largely comprised of families with children age 0 to 5. Investing in these communities inherently improves the opportunities that children will have access to and better set them up for success.</p>
+<br>
 ```{r}
 
 age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
@@ -124,7 +124,9 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
 
 #highcharts
 
-   hc<-hchart(age, "column",
+  age%>%
+    mutate(est_under_five=as.character(formattable::comma(est_under_five, 0)))%>%
+    hchart("column",
          hcaes(x=best_start, y=pct_under_five),
           tooltip = list(pointFormat = "Percent: {point.pct_under_five:.1f}%<br>
                          Number: {point.est_under_five}"))%>%
@@ -138,10 +140,10 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=20,
+                                    }")), min=0,max=15,
        plotLines = list(
       list(
-        label = list(text = "LA County = 6.2%<br>", align = "left", x=50, y=-10),
+        label = list(text = "LA County = 6.2%<br>", align = "left", x=47, y=-10),
         color = "#FF0000",
         width = 2,
         value = 6.2,
@@ -155,13 +157,12 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
       hc_subtitle(
-    text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
-
-hc_add_theme(hc, thm)
+     hc_legend(enabled = TRUE)%>%
+hc_add_theme(thm)
 
 
 # 
@@ -188,11 +189,11 @@ hc_add_theme(hc, thm)
 
 # Race
 
-Diverse populations live in the Best Start geographies and are disproportionately affected by Covid-19. Most people across Best Start geographies are Latinx; only in Lancaster are Latinx residents not the majority in a Best Start geography. According to a [RACE COUNTS analysis](https://www.racecounts.org/covid/){target="_blank"} of COVID-19 exposure in LA County, by September 21st, higher-Latinx areas had 3.1 times as many cases as lower-Latinx areas. 
+Diverse populations live in the Best Start geographies and are disproportionately affected by Covid-19. Most people across Best Start geographies are Latinx; only in Lancaster are Latinx residents not the majority in a Best Start geography. According to a [RACE COUNTS analysis](https://www.racecounts.org/covid/){target="_blank"} of COVID-19 exposure in LA County, by September 21st, higher-Latinx areas had 3.1 times as many cases as lower-Latinx areas.
 
-To see the raw data, refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix){target="_blank"} <br>
-
-
+<br>
+<p class="round1">__Why this matters:__ Diverse populations live in the Best Start geographies and are disproportionately affected by Covid-19. According to a RACE COUNTS analysis of COVID-19 exposure in LA County, by September 21st, higher-Latinx areas had 3.1 times as many cases as lower-Latinx areas.</p>
+<br>
 ```{r}
 
 race<-dbGetQuery(con, "SELECT * FROM f5la_2021_raceethnicity")%>%
@@ -234,12 +235,14 @@ race<-race%>%
                                 ifelse(pct_measure %in% 'pct_aian', 'Percent AIAN',
                                        ifelse(pct_measure %in% 'pct_asian', 'Percent Asian',
                                          ifelse(pct_measure %in% 'pct_nhpi', 'Percent Native Hawaiin/Pacific Islander',
-                                                ifelse(pct_measure %in% 'pct_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_combined', 'Percent Combined', "Blank")))))))) 
+                                                ifelse(pct_measure %in% 'pct_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_combined', 'Percent Other/Two or More Races', "Blank"))))))))
 
 
 #highcharts
   
- hc<-  hchart(race, "column",
+race%>%
+  mutate(num_value=as.character(formattable::comma(num_value, 0)))%>%
+  hchart( "column",
          hcaes(x=best_start, y=pct_value, group=variable),
           stacking = "normal",
           tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.1f}%<br>
@@ -262,12 +265,11 @@ race<-race%>%
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
       hc_subtitle(
-    text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
      style = list( fontWeight = "bold"),
     align = "left")%>%
-     hc_legend(enabled = TRUE)
-  
- hc_add_theme(hc, thm)
+     hc_legend(enabled = TRUE)%>%
+ hc_add_theme(thm)
 
 
 
@@ -294,8 +296,11 @@ race<-race%>%
 
 Los Angeles County is a county of immigrants with approximately 2.7 million naturalized citizens and lawful permanent residents and an undocumented population of roughly 700,000 people, not including nearly 100,000 additional immigrants with deferred action for childhood arrivals (DACA) benefits or temporary protected status (TPS). 
 
-In interviews, First 5 LA Program Officers and Regional Network Grantees advocated for prioritizing undocumented families living in the Best Start geographies to ensure these families receive necessary supports. Undocumented families have a harder time accessing free COVID-19 tests and other government resources because of misinformation and fear, leaving it up to community-based organizations to act as social safety nets for these families. 
+In interviews, First 5 LA Program Officers and Regional Network Grantees advocated for prioritizing undocumented families living in the Best Start geographies to ensure these families receive necessary supports. Undocumented families have a harder time accessing free COVID-19 tests and other government resources because of misinformation and fear, leaving it up to community-based organizations to act as social safety nets for these families.
 
+<br>
+<p class="round1">__Why this matters:__ First 5 LA Program Officers and Regional Network Grantees both realize the need to prioritize undocumented families living in Best Start geographies to ensure these families receive necessary supports. Undocumented families have a harder time accessing free COVID-19 tests and other government resources because of misinformation and fear, leaving it up to community-based organizations to act as social safety nets for these families.</p>
+<br>
 ```{r}
 
 #read excel in from W drive
@@ -323,6 +328,9 @@ kable_styling(bootstrap_options = "striped")%>%
 
 The map below shows the varying median household incomes of families in LA County and Best Start geographies. Incomes are higher along the coast and on the Westside where fewer essential workers and more white-collar workers live.
 
+<br>
+<p class="round1">__Why this matters:__ Essential workers are earning incomes that are insufficient to meeting the fundamental needs of their children and families, despite shouldering the burden of the pandemic for families who can remain safe and earn higher incomes while working from home. Lower incomes automatically create constraints, forcing families to make impossible decisions on what to spend money on and sacrificing safety for job and income security.</p>
+<br>
 ```{r cache=TRUE}
 
 #################################LA Census Tracts##########################
