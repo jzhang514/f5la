@@ -264,7 +264,7 @@ In light of the pandemic, it is unsurprising that access to __internet and the d
 
 ### Internet Access
 
-14 out of 15 of the Best Start geographies have a lower rate of homes with internet access compared to the LA County rate at 82.4%. The exception to this is Palmdale, where homes have a rate of internet access that is closer to the county rate.
+This graph looks at the percentage of families who have Broadband such as cable, fiber optic or DSL in their homes. Families must have this type of internet in order to use virtual tools such as Zoom. It is important to distinguish the type of internet families have, because if a family has basic internet but cannot access video conferencing platforms that are commonly used, then that contributes to the widening digital divide. __In Broadway/Manchester, East LA and Watts/Willowbrook, less than half of the families living in these communities do not have the internet access needed for videoconferencing.__
 
 ```{r}
 
@@ -277,8 +277,8 @@ internet<-dbGetQuery(con, "SELECT * FROM f5la_2021_internet")%>%
 
 hc<-hchart(internet, "column",
          hcaes(x=best_start, y=pct_broadband),
-          tooltip = list(pointFormat = "Percentage of Households Internet: {point.pct_broadband:.1f}%<br>
-                         Number of Households Internet: {point.tot_broadband}"))%>%
+          tooltip = list(pointFormat = "Percentage of Households with Internet: {point.pct_broadband:.1f}%<br>
+                         Number of Households with Internet: {point.tot_broadband}"))%>%
 
       hc_tooltip(crosshairs = TRUE)%>%
      
@@ -291,14 +291,14 @@ hc<-hchart(internet, "column",
                                     }")), min=0,max=100,
        plotLines = list(
       list(
-        label = list(text = "LA County = 84.3%<br>", align = "left"),
+        label = list(text = "LA County = 71.46%<br>", align = "left"),
         color = "#FF0000",
         width = 2,
-        value = 84.5
+        value = 71.46
       )
     ))%>%
     hc_title(
-    text = "Homes with Internet Access in Best Start Geographies",
+    text = "Homes with Broadband Internet Access such as Cable, Fiber Optic or DSL in Best Start Geographies",
     margin = 20,
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
