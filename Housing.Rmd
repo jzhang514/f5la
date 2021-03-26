@@ -149,38 +149,9 @@ cols7=c("#6c3e96", "#ab3890", "#dc397b", "#fc515d","#033E8C","#ff793a", "#ffa600
 
 ## Homelessness in the Best Start Geographies
 
-Metro LA has the highest number of sheltered and unsheltered homeless individuals at nearly 3,000, despite being one of the smallest Best Start geographies. This figure includes individuals who are in shelters, transitional housing, or living outside the system in a vehicle or outside.<br>
-
-```{r, include=FALSE}
-###########################LAHSA 2019 RESULTS###########################################
-
-#get data
-housing<-dbGetQuery(con, "SELECT * FROM bsc_homeless_2019_new")
-
-#remove la row from table for graphing because it skews the graph too much (LA homelessness = 51,000+)
-housing<-subset(housing, best_start!="LA County")
-
-
-
-#temporary fix for Long Beach homeless data: insert the value based on what was given to us from LB contact
-housing[5, 2] = 2304
-
-  
-#create factors for the x axis labels (bsc) to customize the order
-housing$best_start <- factor(housing$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
-
-#graph
-ggplot(housing, aes(x=best_start, y=totpeople))+
-  geom_bar(stat="identity", fill="#FF6666")+
-  scale_y_continuous(name="", labels=comma,   limits = c(0, 3000), breaks=seq(0,3000,1000))+
-  scale_x_discrete(name="")+
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-        plot.margin = margin(.1, .1, .1, .1, "cm"))+
-  ggtitle("Total Sheltered and Unsheltered Homeless Population")
-
-```
-
+<br>
+<p class="round1">__Why this matters:__ Best start geographies are largely comprised of families with children age 0 to 5. Investing in these communities inherently improves the opportunities that children will have access to and better set them up for success.</p>
+<br>
 ```{r}
 ###############LAHSA 2020 HOMELESS COUNT RESULTS############################
 
@@ -188,7 +159,8 @@ ggplot(housing, aes(x=best_start, y=totpeople))+
 housing20<-dbGetQuery(con, "SELECT * FROM bsc_homeless_2020_new")
 
 #remove la row from table for graphing because it skews the graph too much (LA homelessness = 51,000+)
-housing20<-subset(housing20, best_start!="LA County")
+housing20<-subset(housing20, best_start!="LA County")%>%
+   mutate(totpeople_label = as.character(formattable::comma(totpeople, 0)))
 
 
 
@@ -197,9 +169,9 @@ housing20[2, 2] = 2304
 
 #highcharts
 
-hc<-hchart(housing20, "column",
+hchart(housing20, "column",
          hcaes(x=best_start, y=totpeople),
-          tooltip = list(pointFormat = "Total: {point.totpeople}"))%>%
+          tooltip = list(pointFormat = "Total: {point.totpeople_label}"))%>%
       
 
       hc_tooltip(crosshairs = TRUE)%>%
@@ -218,9 +190,8 @@ hc<-hchart(housing20, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
-
-hc_add_theme(hc, thm)
+     hc_legend(enabled = TRUE)%>%
+hc_add_theme(thm)
 
 
   
@@ -247,73 +218,11 @@ hc_add_theme(hc, thm)
 
 ## Homelessness in the Best Start Regions
 
-Region 1 has the largest population of sheltered and unsheltered homeless individuals at nearly 6,000. For all five regions, the overwhelming majority of homeless individuals are unsheltered, meaning that they are not connected to any safety net system.<br>
+Region 1 has the largest population of sheltered and unsheltered homeless individuals at nearly 6,000. 
 
-```{r, include=FALSE}
-
-###########################LAHSA 2019 RESULTS###########################################
-
-
-#read in regions data
-regions<-read_xlsx("W:/Project/RDA Team/First5LA/First 5 LA Regional Report/Data/BSC Region Analysis.xlsx")
-
-#read in bsc -ct crosswalk
-bsc_ct<-dbGetQuery(con, "SELECT * FROM bsc_censustract_crosswalk_new")
-
-#read in lahsa homeless data and only keep columns of interest
-lahsa<-dbGetQuery(con, "SELECT * FROM lahsa_homeless_tract_2019")
-  
-lahsa<-lahsa[c(1:3, 4, 63:67)]
-
-#join the lahsa data to best start
-lahsa<-left_join(bsc_ct, lahsa, by=c("geoid"="ct_geoid"))
-
-#join lahsa to region data
-lahsa<-left_join(regions, lahsa, by=c("BSC" = "best_start"))
-
-#subset to columns of interest
-lahsa<-lahsa[c(2,18:22)]
-
-#remove region 4 from above ^
-lahsa<-lahsa%>%
-  filter(Region!='4')
-
-
-#create separate df for the long beach homeless data using data from long beach homeless count
-lb<-data.frame()
-
-
-lb <- data.frame("Region" = 4, "totunsheltpeople" = c(1582), "totespeople" = c(249), "totthpeople"=c(203),
-                 "totshpeople"=c(0), "totsheltpeople"=c(0))
-
-#combine the lb data frame to the overall lahsa housing dataframe
-lahsa<-rbind(lahsa, lb)
-
-
-#create long data for graphing
-lahsa<-pivot_longer(lahsa, c(totunsheltpeople:totsheltpeople), values_to = "value", names_to = "measure")
-
-#graph
-
-ggplot(lahsa, aes(fill=measure, y=value, x=Region))+
-  geom_bar(position="stack", stat="identity")+
-   scale_y_continuous(name="", labels=comma)+
-    xlab("Region")+
-  scale_x_continuous(name="\nRegion")+
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(vjust = 0.5, hjust=1),
-        plot.margin = margin(.1, .1, .1, .1, "cm"),
-        legend.position="right",
-        legend.title=element_blank())+
-  scale_fill_discrete(labels=c("Emergency shelter", "Sheltered homeless persons", "Safe havens", "Transitional housing", "Unsheltered homeless persons"))+
-  ggtitle("Total Sheltered and Unsheltered Homeless Populations by Region")
- 
-
-                  
-
-```
-
-
+<br>
+<p class="round1">__Why this matters:__ For all five regions, the overwhelming majority of homeless individuals are unsheltered, meaning that they are not connected to any safety net system. </p>
+<br>
 ```{r}
 ###################LAHSA 2020 RESULTS###############################
 
@@ -377,10 +286,12 @@ lahsa20$Region <- sub("^", "Region ", lahsa20$Region  )
 
 #highcharts
 
- hc<-  hchart(lahsa20, "column",
+lahsa20%>%
+  mutate(valuelabel= as.character(formattable::comma(value, 0)))%>%
+           hchart("column",
          hcaes(x=Region, y=value, group=variable),
           stacking = "normal",
-          tooltip = list(pointFormat = "{point.variable}: {point.value}"))%>%
+          tooltip = list(pointFormat = "{point.variable}: {point.valuelabel}"))%>%
       
   hc_colors(cols7)%>%
       hc_tooltip(crosshairs = TRUE)%>%
@@ -398,9 +309,9 @@ lahsa20$Region <- sub("^", "Region ", lahsa20$Region  )
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE)
+     hc_legend(enabled = TRUE)%>%
   
- hc_add_theme(hc, thm)
+ hc_add_theme(thm)
 
 #ggplot
 
