@@ -258,9 +258,11 @@ leaflet(cepr_lac_childcare)%>%
 Source: [Center for Economic and Policy Research Analysis of American Community Survey, 2014-2018 5-Year Estimate](https://github.com/ceprdata/frontline-workers){target="_blank"}
 
 
-## Internet Access 
+## The Digital Divide {.tabset .tabset-pills}
 
 In light of the pandemic, it is unsurprising that access to __internet and the digital divide__ has risen in importance. All Program Officers and Regional Network Grantees expressed the importance of digital equity in being able to outreach to families and for child care and education needs. 
+
+### Internet Access
 
 14 out of 15 of the Best Start geographies have a lower rate of homes with internet access compared to the LA County rate at 82.4%. The exception to this is Palmdale, where homes have a rate of internet access that is closer to the county rate.
 
@@ -274,9 +276,9 @@ internet<-dbGetQuery(con, "SELECT * FROM f5la_2021_internet")%>%
 #highcharts
 
 hc<-hchart(internet, "column",
-         hcaes(x=best_start, y=pct_internet),
-          tooltip = list(pointFormat = "Percentage of Households Internet: {point.pct_internet:.1f}%<br>
-                         Number of Households Internet: {point.tot_internet}"))%>%
+         hcaes(x=best_start, y=pct_broadband),
+          tooltip = list(pointFormat = "Percentage of Households Internet: {point.pct_broadband:.1f}%<br>
+                         Number of Households Internet: {point.tot_broadband}"))%>%
 
       hc_tooltip(crosshairs = TRUE)%>%
      
@@ -289,7 +291,7 @@ hc<-hchart(internet, "column",
                                     }")), min=0,max=100,
        plotLines = list(
       list(
-        label = list(text = "LA County = 84.5%<br>", align = "left"),
+        label = list(text = "LA County = 84.3%<br>", align = "left"),
         color = "#FF0000",
         width = 2,
         value = 84.5
@@ -302,11 +304,11 @@ hc<-hchart(internet, "column",
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
       hc_subtitle(
-    text =  '<a href="https://data.census.gov/cedsci/">ACS 2018 5-Year Estimates (Click to download)</a>',
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
+     hc_legend(enabled = TRUE)
 
 hc_add_theme(hc, thm)
 
@@ -333,7 +335,7 @@ hc_add_theme(hc, thm)
 ``` 
 <br>Source: 2019 ACS 5-Year Estimates
 
-## Families who Own One or More Technology Devices
+### Families who Own One or More Technology Devices
 
 Remote learning and child care requires families to have reliable internet as well as sufficient devices for all the children and adults who are learning or working remotely from home. The visual below shows the percentage of families who own at least one or more devices at home. 
 
@@ -382,6 +384,61 @@ hc_add_theme(hc, thm)
 
 ```
 <br>Source: 2019 ACS 5-Year Estimates
+
+### Families who own an Age 0 to 5 Child and a K-12 Aged Child
+```{r}
+
+children<-dbGetQuery(con, "SELECT * FROM f5la_2021_multiplechildren")
+
+
+#separate the estimate and percents to separate columns then recombine 
+
+children_num<-gather(children, num_measure, num_value,  tot_hh:pct_hh_childund6_6to17, factor_key=TRUE)%>%
+  filter(grepl("est", num_measure))
+
+children_pct<-gather(children, pct_measure, pct_value,  tot_hh:pct_hh_childund6_6to17, factor_key=TRUE)%>%
+  filter(grepl("pct", pct_measure))
+
+#combine pct and number dfs
+children_long<-cbind(children_num, children_pct)
+
+#remove duplicate name  column (best_start)
+children_long<-children_long[c(-4)]
+
+
+#highcharts
+
+ children_long %>%
+   mutate(variable=ifelse(pct_measure %in% 'pct_hh_childund6', 'Percentage of Children Under 6 Years Old', 'Percentage of Children between 6 and 17 Years Old'))%>%
+  hchart('column', hcaes(x = 'best_start', y = 'pct_value', group = 'variable'),
+          tooltip = list(pointFormat = "Percent: {point.pct_value:,.1f}%<br>
+                        Total: {point.num_value}")) %>%
+   hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale", "LA County"))%>%
+    hc_yAxis(title = list(text = ""), 
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")), min=0,max=40)%>%
+    hc_title(
+    text = "Families with Age 0 to 5 and K-12 Aged Children",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+      hc_subtitle(
+    text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
+     style = list( fontWeight = "bold"),
+    align = "left"
+  )%>%
+     hc_legend(enabled = TRUE)%>%
+  hc_add_theme(thm)
+  
+
+
+
+
+```
 
 ## Pre-K Early Learning Care Enrollment
 
