@@ -134,6 +134,11 @@ cols7=c("#033E8C", "#623e96", "#9a3a93", "#c93786","#ec416f","#ff5c54", "#ff8034
 
 Southeast LA and Panorama City & Neighbors both have the highest number of uninsured households and have among the highest number of total households within the Best Start geography.
 
+<br>
+<p class="round1">__Why this matters:__ Across all 14 Best Start geographies, Latinx communities are disproportionately uninsured. This is particularly alarming in a pandemic, during which a person’s health is extremely vulnerable. Individuals with preexisting conditions are more at risk during the pandemic and are more likely to need health care. </p>
+
+<br>
+
 ### Broadway/Manchester
 
 ```{r}
@@ -169,7 +174,8 @@ insure_long<-insure_long%>%
 
 #we can remove the 'total insured' measure and percent as well
 insure_long_notot<-insure_long%>%
-  filter(!grepl('Blank', variable))
+  filter(!grepl('Blank', variable))%>%
+  mutate(num_value= as.character(formattable::comma(num_value, 0)))
 
 
 ###graph only Broadway Manchester
@@ -178,16 +184,17 @@ insure_long_notot<-insure_long%>%
 
 insure_long_notot%>%
   filter(grepl("Broadway/Manchester", best_start))%>%
-  hchart("column", polar = TRUE,
+  hchart("column",
   hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
                          Total: {point.num_value}"))%>%
+
   
   hc_xAxis(title = list(text = ""))%>%
    hc_yAxis(title = list(text = ""),
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=40) %>%
   
     hc_title(
     text = "Uninsured Population in Broadway/Manchester",
@@ -226,6 +233,7 @@ hc_add_theme(thm)
 #    )%>%
 # hc_add_theme(thm)
 
+
 ```
 <br>Source: ACS 2019 5-Year Estimates
 
@@ -241,13 +249,13 @@ insure_long_notot%>%
   hchart("column", polar = TRUE,
   hcaes(x=variable, y=pct_value),   tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.f}%<br>
                          Total: {point.num_value}"))%>%
-  
+
   hc_xAxis(title = list(text = ""))%>%
    hc_yAxis(title = list(text = ""),
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=30) %>%
   
     hc_title(
     text = "Uninsured Population in Central Long Beach",
@@ -261,7 +269,7 @@ insure_long_notot%>%
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE)%>% 
+     hc_legend(enabled = FALSE)%>% 
 hc_add_theme(thm)
 
 
@@ -285,7 +293,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=20) %>%
   
     hc_title(
     text = "Uninsured Population in 	
@@ -322,7 +330,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=30) %>%
   
     hc_title(
     text = "Uninsured Population in East LA",
@@ -358,7 +366,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=30) %>%
   
     hc_title(
     text = "Uninsured Population in Lancaster",
@@ -395,7 +403,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=40) %>%
   
     hc_title(
     text = "Uninsured Population in Metro LA",
@@ -430,7 +438,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=20) %>%
   
     hc_title(
     text = "Uninsured Population in North East Valley",
@@ -466,7 +474,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=20) %>%
   
     hc_title(
     text = "Uninsured Population in Palmdale",
@@ -502,7 +510,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=40) %>%
   
     hc_title(
     text = "Uninsured Population in Panorama City & Neighbors",
@@ -538,7 +546,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=25) %>%
   
     hc_title(
     text = "Uninsured Population in South El Monte/El Monte",
@@ -575,7 +583,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=25) %>%
   
     hc_title(
     text = "Uninsured Population in Southeast LA",
@@ -611,7 +619,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=25) %>%
   
     hc_title(
     text = "Uninsured Population in Watts/Willowbrook",
@@ -647,7 +655,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=20) %>%
   
     hc_title(
     text = "Uninsured Population in West Athens",
@@ -683,7 +691,7 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100) %>%
+                                    }")), min=0,max=40) %>%
   
     hc_title(
     text = "Uninsured Population in Wilmington",
@@ -704,42 +712,13 @@ hc_add_theme(thm)
 ```
 
 
-
-
-
-
-
-```{r, inclued=FALSE}
-# #create factors for the x axis labels (bsc) to customize the order
-# insure_long$best_start <-  factor(insure_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
-# 
-# #graph
-# 
-# ggplot(insure_long, aes(fill=factor(measure), y=value, x=best_start))+
-#   geom_bar(position="stack", stat="identity")+
-#   theme(plot.title = element_text(hjust = 0.5), 
-#               legend.position="right", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
-#    scale_y_continuous(name="", labels=comma)+
-#    scale_x_discrete(name="")+
-#   
-#         theme(plot.title = element_text(hjust = 0.5), 
-#               legend.position="right", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-#         plot.margin = margin(.1, .1, .1, .1, "cm"))+
-#   
-#   scale_fill_discrete(labels=c("Total Households", "Total Uninsured"))+
-#   
-#   labs(fill="")+
-#  
-#     ggtitle("Uninsured Population")
-
-```
-
-
 ## Postpartum Care
 
-A high percentage of mothers across the five supervisorial districts received postpartum check-ups. These successful figures speak to the growing degree of access to maternal healthcare services across the county.<br>
+A high percentage of mothers across LA’s five supervisorial districts received postpartum check-ups. These successful figures speak to the growing degree of access to maternal healthcare services across the county.
 
+<br>
+<p class="round1">__Why this matters:__ Supervisorial districts 1 and 2 have slightly lower percentages of mothers receiving their postpartum check-ups compared to the county. These regions represent South and Southeast Los Angeles.</p>
+<br>
 ```{r}
 
 #grab data 
@@ -812,8 +791,11 @@ hc_add_theme(hc, thm)
 
 ## Maternal Depression
 
-The percentage of mothers who experienced prenatal or postpartum depression across the five supervisorial districts closely resembles the county percentage. There is also minimal variation between the five districts.<br>
+The percentage of mothers who experienced prenatal or postpartum depression across LA’s five supervisorial districts closely resembles the county percentage. There is also minimal variation between the five districts.
 
+<br>
+<p class="round1">__Why this matters:__ Supervisorial district 2 has the highest percentage of mothers who experienced prenatal or postpartum depression. This region encompasses South Los Angeles and represents many Latinx and Black families.</p>
+<br>
 ```{r}
 
 #grab data 
@@ -821,11 +803,12 @@ depression<-dbGetQuery(con, "SELECT * FROM lamb_maternal_depression_supdist_2016
 
 #remove the 'total' row because we will plot it as a y intercept line to match other graphs
 depression<-depression%>%
-  filter(!grepl('LA County', bos_name))
+  filter(!grepl('LA County', bos_name))%>%
+   mutate(num_total = as.character(formattable::comma(num_total, 0)))
 
 #highchart
 
-hc<-hchart(depression, "column",
+hchart(depression, "column",
          hcaes(x=bos_name, y=pct_total),
           tooltip = list(pointFormat = "Percent: {point.pct_total:.1f}%<br>
                          Number: {point.num_total}"))%>%
@@ -838,7 +821,7 @@ hc<-hchart(depression, "column",
               labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100,
+                                    }")), min=0,max=40,
        plotLines = list(
       list(
         label = list(text = "LA County = 25.2%", align = "left"),
@@ -859,9 +842,9 @@ hc<-hchart(depression, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
+     hc_legend(enabled = TRUE)%>%
 
-hc_add_theme(hc, thm)
+hc_add_theme(thm)
 # 
 # #set colors 
 # 
@@ -884,8 +867,11 @@ hc_add_theme(hc, thm)
 
 ## Prenatal Care
 
-The annual percentage of mothers who entered prenatal care after the 1st trimester of pregnancy is low across the five supervisorial districts and in the county. Supervisorial district 3 has the lowest percent at 5.8%. This district encompasses Pacoima and Panorama City.<br>
+The annual percentage of mothers who entered prenatal care after the 1st trimester of pregnancy is low across LA’s five supervisorial districts and countywide. 
 
+<br>
+<p class="round1">__Why this matters:__  Supervisorial district 3 has the lowest percent with 5.8% of its mothers entering prenatal care after the first trimester of pregnancy. This district encompasses Pacoima and Panorama City.</p>
+<br>
 ```{r}
 
 #grab data 
@@ -893,11 +879,12 @@ prenatal<-dbGetQuery(con, "SELECT * FROM lamb_prenatal_care_supdist_2016")
 
 #remove the 'total' row because we will plot it as a y intercept line to match other graphs
 prenatal<-prenatal%>%
-  filter(!grepl('Los Angeles County', bos_name))
+  filter(!grepl('Los Angeles County', bos_name))%>%
+   mutate(num_total = as.character(formattable::comma(num_total, 0)))
 
 #highchart
 
-hc<-hchart(prenatal, "column",
+hchart(prenatal, "column",
          hcaes(x=bos_name, y=pct_total),
           tooltip = list(pointFormat = "Percent: {point.pct_total:.1f}%<br>
                          Number: {point.num_total}"))%>%
@@ -910,10 +897,10 @@ hc<-hchart(prenatal, "column",
               labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100,
+                                    }")), min=0,max=15,
        plotLines = list(
       list(
-        label = list(text = "LA County = 8.2%", align = "left", y=-20),
+        label = list(text = "LA County = 8.2%", align = "left", y=-10, x=850),
         color = "#FF0000",
         width = 2,
         value = 8.2,
@@ -931,9 +918,9 @@ hc<-hchart(prenatal, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE) 
+     hc_legend(enabled = TRUE)%>%
 
-hc_add_theme(hc, thm)
+hc_add_theme(thm)
 
 #set colors 
 # 
