@@ -20,7 +20,7 @@ output:
   margin-right: auto;
 }
  body{
-  font-family: Franklin Gothic;
+  font-family: Franklin GothiC
 }
 </style>
 
@@ -114,6 +114,9 @@ Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 
 
 This graph illustrates what an annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County compared to the county median household income. The median household income of $64,251 is clearly insufficient to meet the basic needs of most families with children. Several First 5 LA Program Officers and Regional Network Grantees noted that financial insecurity is increasing among families because of the pandemic. This further tightens the income constraint, forcing families to make difficult decisions between foundational needs like food, child care, health care, and housing. 
 
+<br>
+<p class="round1">__Why this matters:__ The Real Cost Measure resets the baseline for what expected costs are for a family with children. While it does not capture the varying costs of living within Los Angeles County, it helps reframe the mental model around what a family’s fundamental needs and costs are.</p>
+<br>
 ```{r}
 ###Grab census median household income data for la county
 library(tidycensus)
@@ -181,33 +184,34 @@ ggplot(rcm_la, aes(fill=expense, y=amount, x=measure, label=amount))+
 
 # Households Below Real Cost Measure
 
-Across all 14 Best Start geographies, more than 1/3 of families earn less than enough to meet their basic needs. If we are serious about the success of LA County we must get serious about meeting the real costs of our essential workers.
-
-To see the full raw data, please refer to the [Appendix](https://jzhang514.github.io/f5la/Appendix){target="_blank"}<br>
-
+<br>
+<p class="round1">__Why this matters:__ Across all 14 Best Start geographies, more than 1/3 of families earn less than enough to meet their basic needs. If we are serious about the success of LA County we must get serious about meeting the real costs of our essential workers.</p>
+<br>
 ```{r}
 
 #####Grab data from postgres
-rcm_bsc<-dbGetQuery(con, "SELECT * FROM real_cost_measure_bsc_new")
+rcm_bsc<-dbGetQuery(con, "SELECT * FROM real_cost_measure_bsc_new")%>%
+  select(1,5,7)
 
 
 
 #####Create stacked bar graph for rcm by bsc
 
 #Convert data wide to long for variables of interest
-rcm_long<-gather(rcm_bsc, hh_type, number, num_hh, num_hh_below_rcm, factor_key=TRUE)%>%
-  mutate(variable=ifelse(hh_type %in% 'num_hh', 'Number of Households', 'Number of Households Below the Real Cost Measure'))
+rcm_long<-rcm_bsc%>%
+  gather( hh_type, number, num_hh_below_rcm:num_hh_above_rcm, factor_key=TRUE)%>%
+  mutate(variable=ifelse(hh_type %in% 'num_hh_above_rcm', 'Number of Households Above the Real Cost Measure', 'Number of Households Below the Real Cost Measure'))%>%
+  mutate(num_label=as.character(formattable::comma(number, 0)))
+
 
  
-#Subset colunms of interest
-rcm_long<-rcm_long[c(1, 21:23)]
-
-
 #highcharts 
- hc<-  hchart(rcm_long, "column",
+ 
+
+  hchart(rcm_long, "column",
          hcaes(x=best_start, y=number, group=variable),
           stacking = "normal",
-          tooltip = list(pointFormat = "{point.number:,.0f}"))%>%
+          tooltip = list(pointFormat = "{point.num_label:,.0f}"))%>%
             hc_tooltip(crosshairs = TRUE)%>%
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
@@ -218,9 +222,8 @@ rcm_long<-rcm_long[c(1, 21:23)]
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
-     hc_legend(enabled = TRUE)
-
-   hc_add_theme(hc, thm)
+     hc_legend(enabled = TRUE)%>%
+   hc_add_theme( thm)
    
    
    
@@ -245,40 +248,11 @@ rcm_long<-rcm_long[c(1, 21:23)]
 <br>Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California [http://www.unitedwaysca.org/realcost](http://www.unitedwaysca.org/realcost){target="_blank"}
 
 
-```{r include=FALSE}
-
-#####Create stacked bar graph for official poverty measure
-
-#Convert data wide to long for variables of interest
-poverty_long<-gather(rcm_bsc, hh_type, number, num_hh:num_hh_below_official_pov_measure, factor_key=TRUE)
-
-#Subset colunms of interest
-poverty_long<-poverty_long[c(1, 21:22)]
-
-#create factors for the x axis labels (bsc) to customize the order
-rcm_long$best_start <- factor(rcm_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
-
-
-#Graph
-  ggplot(poverty_long, aes(fill=hh_type, y=number, x=best_start))+
-         geom_bar(position="stack", stat="identity")+
-  scale_y_continuous(name="", labels=comma, breaks=seq(0,900000,20000))+
-  scale_x_discrete(name="")+
-  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-        legend.position="top",
-        plot.margin = margin(.1, .1, .1, .1, "cm"))+
-  scale_fill_discrete(labels=c("Total Number of Households", "Number of Households \nBelow the Official Poverty Measure"))+
-  labs(fill="")+
-   ggtitle("Number of Households in Best Start Communities \nEarning Less than Official Poverty Measure")
-
-  
-```
-
-
 # Households in LA County Below Real Cost Measure by Race
 
-Over 600,000 Latinx families earn an income below the Real Cost Measure, making Latinx families the largest racial group to live on less than what’s required to meet one’s basic needs. In total, it is not sustainable for close to 1 million Angeleno families to earn incomes below the real cost of living in LA.
-
+<br>
+<p class="round1">__Why this matters:__ Significant racial disparity exists among families who earn less than the Real Cost Measure. Over 600,000 Latinx families earn an income below the Real Cost Measure, making Latinx families the largest racial group to live on less than what’s required to meet one’s basic needs. Latinx families also make up the majority of families living in the Best Start Geographies. In total, it is not sustainable for close to 1 million Angeleno families to earn incomes below the real cost of living in LA.</p>
+<br>
 ```{r}
 
 #grab data 
@@ -314,15 +288,17 @@ rcm_race<-rcm_race%>%
   mutate(variable=ifelse(pct_measure %in% 'pct_hh_below_rcm_white', 'White',
                          ifelse(pct_measure %in% 'pct_hh_below_rcm_black', 'Black',
                                 ifelse(pct_measure %in% 'pct_hh_below_rcm_api', 'Asian Pacific Islander',
-                                                ifelse(pct_measure %in% 'pct_hh_below_rcm_latino', 'Latinx', ifelse(pct_measure %in% 'pct_hh_below_rcm_other', 'Other', "Blank"))))))
+                                                ifelse(pct_measure %in% 'pct_hh_below_rcm_latino', 'Latinx', ifelse(pct_measure %in% 'pct_hh_below_rcm_other', 'Other', "Blank"))))))%>%
+  mutate(num_label=as.character(formattable::comma(num_value, 0)))
+
 
 #highcharts
 
 
-   hc<-hchart(rcm_race, "column",
+   hchart(rcm_race, "column",
          hcaes(x=variable, y=num_value),
           tooltip = list(pointFormat = "Percent: {point.pct_value:,.1f}%<br>
-                         Number: {point.num_value}"))%>%
+                         Number: {point.num_label}"))%>%
       
 
       hc_tooltip(crosshairs = TRUE)%>%
@@ -335,9 +311,8 @@ rcm_race<-rcm_race%>%
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
-     hc_legend(enabled = TRUE) 
-
-hc_add_theme(hc, thm)
+     hc_legend(enabled = TRUE)%>%
+hc_add_theme(thm)
 
 
 
