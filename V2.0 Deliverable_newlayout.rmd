@@ -110,9 +110,18 @@ cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A
 
 # Overview 
 
-Los Angeles County’s essential workers are the backbone of the county and essential to Best Start success.  Covid-19 disproportionately impacts disinvested communities and communities of color, groups where essential workers are highly represented. These essential workers live and raise families in Best Start geographies but earn incomes insufficient to access resources needed to thrive. Loss of child care, loss of income, and K-12 learning loss with distance learning are just a couple of examples of how the pandemic is hurting families and children. These challenges exacerbate inequities that existed prior to the pandemic and are even harder to ignore now; inequities such as access to food, housing, transportation, early learning and care, and other essential resources. 
+Los Angeles County’s essential workers are the backbone of the county and essential to Best Start success. These workers tend to live and raise families in Best Start geographies, but do not earn enough income to access the resources they need to thrive. __[Most essential workers are Black, Latinx, and American Indian or Alaska Native, and Black and Latinx women disproportionately work in lower paying occupations.](https://laborcenter.berkeley.edu/front-line-essential-jobs-in-california-a-profile-of-job-and-worker-characteristics/){target="_blank"}__ Understanding the challenges essential workers face goes hand in hand with understanding racial inequities. As essential workers support the entire county during a global pandemic, it is imperative that mental models shift and we reimagine how we address the needs of essential workers.
 
-__The map below shows that essential workers predominantly live in and around Best Start geographies.__ Thus, supporting families in Best Start geographies in turn supports essential workers and their families. Essential workers include health practitioners, food service workers, and early learning and care providers.  The darker red areas on the map represent higher numbers of essential workers relative to the lighter red portions of the map. Most of the dark red areas on the map are within Best Start geography boundaries (outlined in black).  
+COVID-19 has created incredible challenges that disproportionately impact communities where essential workers and Black, Indigenous, and other People of Color live, including significant losses in child care, food access, income insecurity, and K-12 learning. These challenges are not surprising, as they stem from systemic inequities that have always existed in communities of color and lower income neighborhoods. Generations of disinvestment and redlining have resulted in neighborhoods that lack robust infrastructure, resulting in a dearth of opportunities and resources. All of this contributes to a wider opportunity gap for children, especially children aged 0 to 5, in these communities. 
+
+If we are serious about supporting essential workers, then we must examine the systemic and infrastructure failures that drive the conditions essential workers and their families face and confront the racial disparities that exist. If we want to create a post-pandemic world that is more equitable than the one before, then we must shift our mental models and how we think about essential workers to drive transformative and sustainable change for families.
+
+<br>
+__The map below shows that essential workers predominantly live in and around Best Start geographies.__ Thus, supporting families in Best Start geographies in turn supports essential workers and their families. Essential workers include health practitioners, food service workers, and early learning and care providers.  The darker red areas on the map represent higher numbers of essential workers relative to the lighter red portions of the map. Most of the dark red areas on the map are within Best Start geography boundaries (outlined in black). 
+
+<br>
+<p class="round1">__Why this matters:__ Supporting families in Best Start geographies in turn supports essential workers and their families. Best start geographies are comprised of predominantly Black and Latinx families, many with young children age 0 to 5, and Black and Latinx women disproportionately represent lower paid essential workers.</p>
+<br>
 ```{r}
 
 ######################OCCUPATION BASED MAP: ACS DATA######################################
@@ -377,9 +386,11 @@ leaflet(ct_lac)%>%
 ```
 Source: 2019 ACS 5-Year Estimates
 
-The pandemic’s impacts, including on preexisting inequities, will have long-term ramifications for families and the nonprofit landscape. We interviewed First 5 LA Program Officers and Regional Network Grantees, gathered data relevant to First 5 LA community change agendas, spoke with policy experts and more to understand this. 
+## Methodology
 
-The interview findings, data, and policy opportunities introduced here seek to address those long-term ramifications, while not losing site of the immediate needs of families and service providers. Specifically, they focus on closing opportunity gaps for Best Start geographies through:
+First 5 LA Program Officers and Regional Network Grantees were interviewed in Spring of 2020 to incorporate their perspectives from working directly with community members in the Best Start geographies into the design and content of this report. Data that was identified in the interviews and the Best Start Change Agendas are analyzed and visualized for Program Officers and Regional Network Grantees to use in their work. 
+
+The policy opportunities introduced here identify what a better post-pandemic landscape looks like, while also not losing site of the immediate needs of families and service providers. Specifically, the policy opportunities in this report focus on closing opportunity gaps for Best Start geographies through:
 
 1) Systems change
 2) Infrastructure to support children and families
@@ -388,7 +399,7 @@ The interview findings, data, and policy opportunities introduced here seek to a
 Policy opportunities and findings also include relationships to First 5 LA’s Strategic Framework and offer considerations for state and local leadership to impact the greatest needs for young children and families.
 
 
-__Key Findings__
+## Key Findings 
 
 * __[Financial insecurity](https://jzhang514.github.io/f5la/Real-Cost-Measure.html){target="_blank"}__ and the __[digital divide](https://jzhang514.github.io/f5la/Child-Care.html#Internet_Access){target="_blank"}__ are the two top themes that came out across all five regions from both Program Officers and Regional Network Grantees. 
 
