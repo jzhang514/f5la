@@ -165,12 +165,12 @@ insure_long<-insure_long[c(-4)]
 #now create a nicer 'variable' column for grouping the races
 
 insure_long<-insure_long%>%
- mutate(variable=ifelse(pct_measure %in% 'pct_whitealone_uninsured', 'Percent White',
-                         ifelse(pct_measure %in% 'pct_black_uninsured', 'Percent Black',
-                                ifelse(pct_measure %in% 'pct_aian_uninsured', 'Percent AIAN',
-                                       ifelse(pct_measure %in% 'pct_asian_uninsured', 'Percent Asian',
-                                         ifelse(pct_measure %in% 'pct_nhpi_uninsured', 'Percent Native Hawaiian/Pacific Islander',
-                                                ifelse(pct_measure %in% 'pct_latinxcombo_uninsured', 'Percent Latinx', ifelse(pct_measure %in% 'pct_twoormore_uninsured', 'Percent Two or More Races', ifelse(pct_measure %in% "pct_other_uninsured", 'Percent Other Race', "Blank"))))))))) 
+ mutate(variable=ifelse(pct_measure %in% 'pct_whitealone_uninsured', 'White',
+                         ifelse(pct_measure %in% 'pct_black_uninsured', 'Black',
+                                ifelse(pct_measure %in% 'pct_aian_uninsured', 'American Indian/Alaskan Native',
+                                       ifelse(pct_measure %in% 'pct_asian_uninsured', 'Asian',
+                                         ifelse(pct_measure %in% 'pct_nhpi_uninsured', 'Native Hawaiian/Pacific Islander',
+                                                ifelse(pct_measure %in% 'pct_latinxcombo_uninsured', 'Latinx', ifelse(pct_measure %in% 'pct_twoormore_uninsured', 'Two or More Races', ifelse(pct_measure %in% "pct_other_uninsured", 'Other Race', "Blank"))))))))) 
 
 #we can remove the 'total insured' measure and percent as well
 insure_long_notot<-insure_long%>%
@@ -194,7 +194,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=40) %>%
+                                    }")), min=0,max=40,
+      plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=13.9%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 13.9,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Broadway/Manchester",
@@ -255,7 +263,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=30) %>%
+                                    }")), min=0,max=30,
+      plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=15.1%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 15.1,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Central Long Beach",
@@ -293,7 +309,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=20) %>%
+                                    }")), min=0,max=20,
+      plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=11.7%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 11.7,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in 	
@@ -330,7 +354,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=30) %>%
+                                    }")), min=0,max=30,
+      plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=14.1%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 14.1,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in East LA",
@@ -366,7 +398,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=30) %>%
+                                    }")), min=0,max=30, plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=5.4%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 5.4,
+        zIndex=5
+      ))
+      ) %>%
   
     hc_title(
     text = "Uninsured Population in Lancaster",
@@ -403,7 +443,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=40) %>%
+                                    }")), min=0,max=40,
+       plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=19.2%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 19.2,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Metro LA",
@@ -438,7 +486,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=20) %>%
+                                    }")), min=0,max=20,
+       plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=11.5%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 11.5,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in North East Valley",
@@ -474,7 +530,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=20) %>%
+                                    }")), min=0,max=20,
+       plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=8.5%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 8.5,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Palmdale",
@@ -510,7 +574,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=40) %>%
+                                    }")), min=0,max=40,
+       plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=14.1%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 14.1,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Panorama City & Neighbors",
@@ -533,8 +605,6 @@ hc_add_theme(thm)
 ### South El Monte/El Monte
 
 ```{r}
-
-
 insure_long_notot%>%
   filter(grepl("South El Monte/El Monte", best_start))%>%
   hchart("column", polar = TRUE,
@@ -546,7 +616,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=25) %>%
+                                    }")), min=0,max=25,
+       plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=14.7%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 14.7,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in South El Monte/El Monte",
@@ -583,7 +661,14 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=25) %>%
+                                    }")), min=0,max=25, plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=16.1%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 16.1,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Southeast LA",
@@ -619,7 +704,15 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=25) %>%
+                                    }")), min=0,max=25,
+       plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=14.4%", align = "left",  y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 14.4,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Watts/Willowbrook",
@@ -655,7 +748,14 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=20) %>%
+                                    }")), min=0,max=20, plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=10.3%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 10.3,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in West Athens",
@@ -691,7 +791,14 @@ insure_long_notot%>%
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=40) %>%
+                                    }")), min=0,max=40,  plotLines = list(
+      list(
+        label = list(text = "Total<br>Uninsured=14.3%", align = "left", y=-20, x=650),
+        color = "#FF0000",
+        width = 2,
+        value = 14.3,
+        zIndex=5
+      ))) %>%
   
     hc_title(
     text = "Uninsured Population in Wilmington",
@@ -900,7 +1007,7 @@ hchart(prenatal, "column",
                                     }")), min=0,max=15,
        plotLines = list(
       list(
-        label = list(text = "LA County = 8.2%", align = "left", y=-10, x=850),
+        label = list(text = "LA County = 8.2%", align = "left", y=-10, x=600),
         color = "#FF0000",
         width = 2,
         value = 8.2,
