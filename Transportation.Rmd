@@ -163,12 +163,12 @@ transpo_long<-transpo_long[c(-4)]
 #now create a nicer 'variable' column for grouping the races
 
 transpo_long<-transpo_long%>%
- mutate(variable=ifelse(pct_measure %in% 'pct_pubtrans_whitealone', 'Percent White',
-                         ifelse(pct_measure %in% 'pct_pubtrans_black', 'Percent Black',
-                                ifelse(pct_measure %in% 'pct_pubtrans_aian', 'Percent AIAN',
-                                       ifelse(pct_measure %in% 'pct_pubtrans_asian', 'Percent Asian',
-                                         ifelse(pct_measure %in% 'pct_pubtrans_nhpi', 'Percent Native Hawaiian/Pacific Islander',
-                                                ifelse(pct_measure %in% 'pct_pubtrans_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_pubtrans_twoormore', 'Percent Two or More Races', ifelse(pct_measure %in% "pct_pubtrans_other", 'Percent Other Race', "Blank")))))))))%>%
+ mutate(variable=ifelse(pct_measure %in% 'pct_pubtrans_whitealone', 'White',
+                         ifelse(pct_measure %in% 'pct_pubtrans_black', 'Black',
+                                ifelse(pct_measure %in% 'pct_pubtrans_aian', 'American Indian/Alaskan Native',
+                                       ifelse(pct_measure %in% 'pct_pubtrans_asian', 'Asian',
+                                         ifelse(pct_measure %in% 'pct_pubtrans_nhpi', 'Native Hawaiian/Pacific Islander',
+                                                ifelse(pct_measure %in% 'pct_pubtrans_latinxcombo', 'Latinx', ifelse(pct_measure %in% 'pct_pubtrans_twoormore', 'Two or More Races', ifelse(pct_measure %in% "pct_pubtrans_other", 'Other Race', "Blank")))))))))%>%
    mutate(num_value = as.character(formattable::comma(num_value, 0)))
 
 
@@ -184,12 +184,22 @@ hchart( "column",
     
       hc_tooltip(crosshairs = TRUE)%>%
      
-     hc_xAxis(title = list(text = ""))%>%
+     hc_xAxis(title = list(text = "")
+              # categories=c("Latinx", "Black", "American Indian/Alaskan Native", "Asian", "Native Hawaiian/Pacific Islander", "White", "Two or More Races","Other Race")
+              )%>%
     hc_yAxis(title = list(text = ""), 
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100,
+      plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=10.6%", align = "left",  y=-10, x=170),
+        color = "#FF0000",
+        width = 2,
+        value = 10.6,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -225,7 +235,6 @@ hchart( "column",
 
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 
 ### Central Long Beach
@@ -250,7 +259,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=12.8%", align = "left",  y=-10, x=170),
+        color = "#FF0000",
+        width = 2,
+        value = 12.8,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -268,7 +284,6 @@ hchart( "column",
 
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Compton/East Compton
 
@@ -292,7 +307,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public<br>Transit Users=4.7%", align = "left",  y=-22, x=80),
+        color = "#FF0000",
+        width = 2,
+        value = 4.7,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -310,7 +332,6 @@ hchart( "column",
 
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### East LA
 
@@ -334,7 +355,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=7.8%", align = "left",  y=-10, x=180),
+        color = "#FF0000",
+        width = 2,
+        value = 7.8,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -352,7 +380,6 @@ hchart( "column",
 
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Lancaster
 
@@ -376,7 +403,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public<br>Transit Users=1.7%", align = "left",  y=-22, x=80),
+        color = "#FF0000",
+        width = 2,
+        value = 1.7,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -394,7 +428,6 @@ hchart( "column",
 
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Metro LA
 
@@ -418,7 +451,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=21.7%", align = "left",  y=-10, x=180),
+        color = "#FF0000",
+        width = 2,
+        value = 21.7,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -436,7 +476,6 @@ hchart( "column",
 
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### North East Valley
 
@@ -459,7 +498,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public<br>Transit Users=4.4%", align = "left",  y=-22, x=80),
+        color = "#FF0000",
+        width = 2,
+        value = 4.4,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -475,7 +521,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Palmdale
 
@@ -498,7 +543,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=1.9%", align = "left",  y=-10, x=180),
+        color = "#FF0000",
+        width = 2,
+        value = 1.9,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -514,7 +566,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Panorama City & Neighbors
 
@@ -537,7 +588,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=9.8%", align = "left",  y=-10, x=5),
+        color = "#FF0000",
+        width = 2,
+        value = 9.8,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -553,7 +611,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### South El Monte/El Monte
 
@@ -576,7 +633,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public<br>Transit Users=4.7%", align = "left",  y=-20, x=1),
+        color = "#FF0000",
+        width = 2,
+        value = 4.7,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -592,7 +656,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Southeast LA
 
@@ -615,7 +678,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=6.6%", align = "left",  y=-10, x=80),
+        color = "#FF0000",
+        width = 2,
+        value = 6.6,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -631,7 +701,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Watts/Willowbrook
 
@@ -654,7 +723,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public Transit Users=9.6%", align = "left",  y=-10, x=180),
+        color = "#FF0000",
+        width = 2,
+        value = 9.6,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -670,7 +746,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### West Athens
 
@@ -693,7 +768,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public<br>Transit Users=8.1%", align = "left",  y=-20, x=80),
+        color = "#FF0000",
+        width = 2,
+        value = 8.1,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -709,7 +791,6 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 ### Wilmington
 
@@ -732,7 +813,14 @@ hchart( "column",
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
-                                    }")), min=0,max=100)%>%
+                                    }")), min=0,max=100, plotLines = list(
+      list(
+        label = list(text = "Total Public<br>Transit Users=4.1%", align = "left",  y=-20, x=1),
+        color = "#FF0000",
+        width = 2,
+        value = 4.1,
+        zIndex=5
+      )))%>%
     hc_title(
     text = "Public Transportation Usage among Working Population (Age 16 and Over)",
     margin = 20,
@@ -748,6 +836,5 @@ hchart( "column",
  hc_add_theme(thm)
 
 ```
-<br>2019 ACS 5-Year Estimates
 
 
