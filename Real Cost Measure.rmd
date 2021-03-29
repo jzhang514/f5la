@@ -210,7 +210,7 @@ rcm_long<-rcm_bsc%>%
 
   hchart(rcm_long, "column",
          hcaes(x=best_start, y=number, group=variable),
-          stacking = "normal",
+          #stacking = "normal",
           tooltip = list(pointFormat = "{point.num_label:,.0f}"))%>%
             hc_tooltip(crosshairs = TRUE)%>%
      hc_xAxis(title = list(text = ""),
