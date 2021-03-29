@@ -274,9 +274,6 @@ In light of the pandemic, it is unsurprising that access to __internet and the d
 
 This graph looks at the percentage of families who have Broadband such as cable, fiber optic or DSL in their homes. Families must have this type of internet in order to use virtual tools such as Zoom. It is important to distinguish the type of internet families have, because if a family has basic internet but cannot access video conferencing platforms that are commonly used, then that contributes to the widening digital divide. __In Broadway/Manchester, East LA and Watts/Willowbrook, less than half of the families living in these communities do not have the internet access needed for videoconferencing.__
 
-<br>
-<p class="round1">__Why this matters:__ With the pandemic forcing massive closures, families and children began having to rely on the internet to access a host of social resources. Children living without internet access will incur more learning loss; a disparity in digital access is driving a widening disparity in education outcomes. Several social welfare programs also transitioned to remote access as stay-at-home orders came into effect. Unfortunately, the families who likely need social assistance most are also least likely to have internet access, widening the gap between those who need and those who can access those resources.</p>
-<br>
 ```{r}
 
 #############Internet Access#################
@@ -347,15 +344,15 @@ hc_add_theme(hc, thm)
 
 
 ``` 
-<br>Source: 2019 ACS 5-Year Estimates
+
+<p class="round1">__Why this matters:__ With the pandemic forcing massive closures, families and children began having to rely on the internet to access a host of social resources. Children living without internet access will incur more learning loss; a disparity in digital access is driving a widening disparity in education outcomes. Several social welfare programs also transitioned to remote access as stay-at-home orders came into effect. Unfortunately, the families who likely need social assistance most are also least likely to have internet access, widening the gap between those who need and those who can access those resources.</p>
+<br>
 
 ### Families who Own One or More Technology Devices
 
 Remote learning and child care requires families to have reliable internet as well as sufficient devices for all the children and adults who are learning or working remotely from home. The visual below shows the percentage of families who own at least one or more devices at home.
 
-<br>
-<p class="round1">__Why this matters:__ Families with multiple children, especially if one is a K-12 aged child and another is an age 0 to 5 child, might have a constraint on available technological devices in the home. It is more likely that families will prioritize giving a K-12 aged child access to a device for online school purposes, resulting in a child age 0 to 5 foregoing access. This results in children age 0 to 5 not being able to access early learning care and engagement, which can impact their educational journey in future years.</p>
-<br>
+
 ```{r}
 
 #highcharts
@@ -400,7 +397,10 @@ hc_add_theme(thm)
 
 
 ```
-<br>Source: 2019 ACS 5-Year Estimates
+
+<br>
+<p class="round1">__Why this matters:__ Families with multiple children, especially if one is a K-12 aged child and another is an age 0 to 5 child, might have a constraint on available technological devices in the home. It is more likely that families will prioritize giving a K-12 aged child access to a device for online school purposes, resulting in a child age 0 to 5 foregoing access. This results in children age 0 to 5 not being able to access early learning care and engagement, which can impact their educational journey in future years.</p>
+<br>
 
 ### Families who own an Age 0 to 5 Child and a K-12 Aged Child
 ```{r}
@@ -469,7 +469,8 @@ The difference between the numbers of pre-k children who are eligible for subsid
 #####prek
 
 #grab data
-prek<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_prek_new")
+prek<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_prek_new")%>%
+  select(1,3:6)
 
 
 #convert data wide to long and prep for graphing
@@ -477,25 +478,19 @@ prek<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_prek_new")
 prek_long <- melt(setDT(prek), id.vars = c("best_start"), variable.name = "type")%>%
   filter(!grepl("unmet_need", type))%>%
   filter(!grepl("LA County", best_start))%>%
-  mutate(variable = ifelse(type %in% 'eligible_children_prek', 'Eligible Children',
-                                ifelse(type %in% 'enrolled_children_prek', 'Enrolled Children',
-                                       "Total Children")))%>%
+  mutate(variable = ifelse(type %in% 'eligible_children_prek', 'Eligible Children', 'Enrolled Children'))%>%
   mutate(valuelabel=as.character(formattable::comma(value, 0)))
 
 
-#get custom order of stacking bar graph
- prek_long <- within(prek_long, variable <- factor(variable, levels=c("Enrolled Children", "Eligible Children","Total Children")))
                      
-
 #highcharts
 hchart(prek_long, type="column",
          hcaes(x=best_start, y=value, group=variable),
           tooltip = list(pointFormat = "{point.variable}: {point.valuelabel}"))%>%
-       hc_plotOptions(series = list(stacking = "normal"))%>%
+       #hc_plotOptions(series = list(stacking = "normal"))%>%
       hc_tooltip(crosshairs = TRUE)%>%
   
-  hc_colors(cols3)%>%
-     
+
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
     hc_yAxis(title = list(text = ""))%>%
@@ -544,7 +539,8 @@ The gap between infant toddlers who are eligible for subsidized early learning p
 ```{r}
 
 #grab data
-it<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_it_new")
+it<-dbGetQuery(con, "SELECT * FROM bsc_unmet_ece_it_new")%>%
+  select(1,3:6)
 
 
 #convert data wide to long and prep for graphing
@@ -556,24 +552,19 @@ it_long <- melt(setDT(it), id.vars = c("best_start"), variable.name = "type")%>%
 #mutate and make the labels nicer for the legend on the graph
 
 it_long<-it_long%>%
-  mutate(variable = ifelse(type %in% 'eligible_children_it', 'Eligible Children',
-                                ifelse(type %in% 'enrolled_children_it', 'Enrolled Children',
-                                       "Total Children")))%>%
+  mutate(variable = ifelse(type %in% 'eligible_children_it', 'Eligible Children', 'Enrolled Children'))%>%
   mutate(valuelabel=as.character(formattable::comma(value, 0)))
 
-
-#get custom order of stacking bar graph
- it_long <- within(it_long, variable <- factor(variable, levels=c("Enrolled Children", "Eligible Children","Total Children")))
   
 
 #highcharts graph
 hchart(it_long, "column",
          hcaes(x=best_start, y=value, group=variable),
-         stacking="normal",
+         #stacking="normal",
           tooltip = list(pointFormat = "Total: {point.valuelabel}"))%>%
       
       hc_tooltip(crosshairs = TRUE)%>%
-  hc_colors(cols3)%>%
+  
      
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
