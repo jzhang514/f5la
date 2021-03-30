@@ -402,7 +402,7 @@ hc_add_theme(thm)
 <p class="round1">__Why this matters:__ Families with multiple children, especially if one is a K-12 aged child and another is an age 0 to 5 child, might have a constraint on available technological devices in the home. It is more likely that families will prioritize giving a K-12 aged child access to a device for online school purposes, resulting in a child age 0 to 5 foregoing access. This results in children age 0 to 5 not being able to access early learning care and engagement, which can impact their educational journey in future years.</p>
 <br>
 
-### Families who own an Age 0 to 5 Child and a K-12 Aged Child
+### Families with Age 0 to 5 Child and a K-12 Aged Child
 ```{r}
 
 children<-dbGetQuery(con, "SELECT * FROM f5la_2021_multiplechildren")
