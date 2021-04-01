@@ -110,11 +110,11 @@ cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A
 
 # Overview 
 
-Los Angeles County’s essential workers are the backbone of the county and essential to Best Start success. These workers tend to live and raise families in Best Start geographies, but do not earn enough income to access the resources they need to thrive. __[Most essential workers are Black, Latinx, and American Indian or Alaska Native, and Black and Latinx women disproportionately work in lower paying occupations.](https://laborcenter.berkeley.edu/front-line-essential-jobs-in-california-a-profile-of-job-and-worker-characteristics/){target="_blank"}__ Understanding the challenges essential workers face goes hand in hand with understanding racial inequities. As essential workers support the entire county during a global pandemic, it is imperative that mental models shift and we reimagine how we address the needs of essential workers and their families.
+Los Angeles County’s essential workers are the backbone of the county and essential to Best Start success. These workers tend to live and raise families in Best Start geographies, but do not earn enough income to access the resources they need to thrive. __[Most essential workers are Black, Latinx, and American Indian or Alaska Native, and Black and Latinx women disproportionately work in lower paying occupations.](https://laborcenter.berkeley.edu/front-line-essential-jobs-in-california-a-profile-of-job-and-worker-characteristics/){target="_blank"}__ Understanding the challenges essential workers face goes hand in hand with understanding racial inequities. 
 
-COVID-19 has created incredible challenges that disproportionately impact communities where essential workers and Black, Indigenous, Latinx and other People of Color live, including significant losses in child care, food access, income insecurity, and K-12 learning. These challenges stem from the systemic inequities that have always existed in communities of color and lower income neighborhoods. Generations of disinvestment and redlining have resulted in neighborhoods that lack robust infrastructure, resulting in a dearth of opportunities and resources. All of this contributes to a wider opportunity gap for children, especially children aged 0 to 5, in these communities. 
+The challenges that COVID-19 has created disproportionately impact communities where essential workers and Black, Indigenous, Latinx and other People of Color live, including significant losses in child care, food access, income insecurity, and K-12 learning. These challenges stem from the systemic inequities that have always existed in communities of color and lower income neighborhoods. Generations of disinvestment and redlining have resulted in neighborhoods that lack robust infrastructure, creating less access to opportunities and resources. All of this contributes to a wider opportunity gap for children, especially children aged 0 to 5, in these communities. 
 
-If we are serious about supporting essential workers, then we must examine the systemic and infrastructure failures that drive the conditions essential workers and their families face and confront the racial disparities that exist. If we want to create a post-pandemic world that is more equitable than the one before, then we must shift our mental models and how we think about essential workers to drive transformative and sustainable change for families.
+Essential workers are supporting the county during a global pandemic. If we are serious about supporting them in return, then we must examine the systemic failures that drive the conditions essential workers and their families face, and confront the racial disparities that exist. If we want to create a post-pandemic world that is more equitable than the one before, then we must shift our mental models and reimagine how we think about essential workers to drive transformative and sustainable change for families.
 
 <br>
 __The map below shows that essential workers predominantly live in and around Best Start geographies.__ Thus, supporting families in Best Start geographies in turn supports essential workers and their families. Essential workers include health practitioners, food service workers, and early learning and care providers.  The darker red areas on the map represent higher numbers of essential workers relative to the lighter red portions of the map. Most of the dark red areas on the map are within Best Start geography boundaries (outlined in black). 
@@ -452,7 +452,7 @@ kable(text_tbl, align = "l", col.names=c("Finding", "Description", "First 5 LA R
 
 Understanding who lives in Best Start geographies is foundational to addressing the systemic inequities Best Start families and children face. The Best Start geographies reflect communities with a higher Latinx and Black population, as well as a higher age 0 to 5 population. 
 
-As First 5 LA reaffirms its commitment to anti-racism and combating anti-blackness, it is imperative that the specific needs and experiences of Black families in the Best Start geographies are thoroughly examined. How anti-Blackness can be applied to Best Start work can be thought of in two ways: 1) Paying attention to racial disparities or unconscious biases that exist within Best Start work, and 2) Imagining new priorities and initiatives through direct and intentional engagement with black community members.  
+As First 5 LA reaffirms its commitment to anti-racism and combating anti-blackness, it is imperative that the specific needs and experiences of Black families in the Best Start geographies are thoroughly examined. How anti-Blackness can be applied to Best Start work can be thought of in two ways: 1) Paying attention to racial disparities or unconscious biases that exist within systems as it relates to Best Start work, and 2) Imagining new priorities and initiatives through direct and intentional engagement with black community members and black-led community partners. 
 
 <br>
 <a href="https://jzhang514.github.io/f5la/Demographics.html" class="button" target="_blank">Click here to explore the demographics of the Best Start Geographies</a>
@@ -462,11 +462,11 @@ As First 5 LA reaffirms its commitment to anti-racism and combating anti-blackne
 
 __[Promesa Boyle Heights (PBH)](https://www.promesaboyleheights.org/){target="_blank"}__ is a resident-led place-based organization working with residents in Boyle Heights and East LA on issues of immigration, healthy environments, early learning, and wellness and mental health supports. During the pandemic and witnessing the critical employment needs of the community, PBH repurposed existing grant funds to expand their stipend resident leader program to bring on 22 part-time positions to continue and deepen PBH’s community-led work.
 
-In the interviews with Program Officers and Regional Network Grantees, financial security was raised as the highest priority for families across all five Best Start regions, especially in conjunction with rent burden. Job loss and increased uncertainty during the pandemic puts families in impossible positions as they continue to work. Rent burden, the cost of food, and increased reliance on remote technologies are just some examples of the needs that add financial strain to families. Financial assistance including job opportunities are crucial to address the needs of families.
+The work that PBH is doing with resident leaders aligns with a consistent theme that came up in interviews with Program Officers and Regional Network Grantees: financial security. Financial security, especially in conjunction with rent burden, was raised as the highest priority for families across all five Best Start regions. Job loss and increased uncertainty during the pandemic puts families in impossible positions as they continue to work. Rent burden, the cost of food, and increased reliance on remote technologies are just some examples of the needs that add financial strain to families. 
 
 To begin understanding the way in which financial security is connected to every essential aspect of a family's life, this project uses the __[Real Cost Measure](https://www.unitedwaysca.org/realcost){target="_blank"}__ to illustrate what it really costs for a family with two children (one age 0-5 and one school-aged) to meet their essential needs in Los Angeles County. The Real Cost Measure takes into consideration the cost of living in Los Angeles County and measures the minimum budget for the necessary domains of life: Child Care, Food, Health Care, Housing, Transportation, Taxes and Miscellaneous items. 
 
-
+<br>
 <a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html" class="button" target="_blank">Click here to explore Real Cost Measure Data for the Best Start Geographies</a>
 
 # Findings and Policy Opportunities 
@@ -484,7 +484,9 @@ Many policy opportunities cited here stem from community collective impact equit
 
 ## Child care 
 
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/childcarevideo.PNG)](https://jzhang514.github.io/f5la/Child-Care.html){target="_blank"}
+</center>
 
 <br>
 Supporting child care needs for families is connected to supporting child care providers. Providers are predominately immigrant women of color, and they are the ones who are watching the children of other essential workers. During the pandemic, providers like __[Sue Carrera, a licensed child care provider who has worked in Inglewood for 30 years](https://www.advancementprojectca.org/blog/serving-infants-toddlers-and-school-aged-children-during-covid-19){target="_blank"}__, have had to adjust to constantly evolving safety guidelines,  in some cases accepting older children into child care, all while managing their own personal safety. All of this creates immense emotional and financial burdens on providers, who now have higher costs to stay open without the financial and technical support to match. Policies that provide more immediate financial support and tools to providers are desperately needed to ensure that they are being set up to succeed for the monumental task they have.
@@ -500,12 +502,14 @@ Supporting child care needs for families is connected to supporting child care p
 ## Food 
 
 <br>
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/lafpc_dashboard.JPG)](https://www.goodfoodla.org/foodsystemdashboard){target="_blank"}
+</center>
 
 <br>
 Systemic inequities in the food system  created the immediate and urgent prioritization of food access during the pandemic. Local food systems are not currently set up to distribute healthy and affordable food equitably across all local communities. The 2020 LA Food Policy Council (LAFPC) Dashboard combines powerful numbers with personal testimonials to illustrate the landscape of local food systems in Los Angeles.  
 
-At the local level, First 5 LA Program Officers and Regional Network Grantees ascertained the need for food access among families quickly through phone outreach and engagement with families in Best Start geographies. First 5 LA recognized the need for families to be connected to food banks and other resources that were being made available but not easily accessible. [This identified need prompted the partnership between First 5 LA and Metro LA.](#region1)
+At the local level, First 5 LA Program Officers and Regional Network Grantees quickly ascertained the need for food access among families through phone outreach and engagement with families in Best Start geographies. First 5 LA recognized the need for families to be connected to food banks and other resources that were being made available but not easily accessible. This identified need prompted the [partnership between First 5 LA and Metro LA.](#Region-1:-Metro-and-Food-Delivery)
 
 
 ### Policy Opportunities 
@@ -519,8 +523,9 @@ The failures of the current food landscape and the resulting inaccessibility to 
 ## Health care 
 
 <br>
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/uninsuredpop.PNG)](https://jzhang514.github.io/f5la/Health-Care.html){target="_blank"}
-
+</center>
 
 ### Policy Opportunities
 
@@ -532,8 +537,9 @@ Covid-19 has heightened the need for health insurance and access to health care 
 ## Housing 
 
 <br>
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/homelessregions.PNG)](https://jzhang514.github.io/f5la/Housing.html){target="_blank"}
-
+</center>
 
 ### Policy Opportunities 
 
@@ -544,10 +550,11 @@ Housing is arguably the number one issue that concerns families in Los Angeles C
 
 
 ## Transportation
+
 <br>
-
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/publictranspo.PNG)](https://jzhang514.github.io/f5la/Transportation.html){target="_blank"}
-
+</center>
 
 ### Policy Opportunities
 
@@ -588,10 +595,12 @@ Prior to the pandemic, many Program Officers and Regional Network Grantees were 
 ## Region 1: Metro and Food Delivery {#region1}
 
 <br>
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/foodregion1.JPG)](https://www.first5la.org/article/first-5-la-helps-get-food-on-the-road-to-l-a-county-families/){target="_blank"}
+</center>
 
 <br>
-Food insecurity immediately emerged as a pressing priority for families at the start of the pandemic. Through efficiently deployed outreach calls and surveys, Program Officers and Regional Network Grantees identified exactly what families needed. The problem with food insecurity was not just a lack of food options, but a lack of information and access. At the beginning of the pandemic, many local organizations were launching food banks, but families were unable to access them. First 5 LA connected with LA Metro to create a program that delivers food and essentials directly to families. The program was so successfully that it is now in the process of being expanded across al five regions.  
+Food insecurity immediately emerged as a pressing priority for families at the start of the pandemic. Through efficiently deployed outreach calls and surveys, Program Officers and Regional Network Grantees identified exactly what families needed. The problem with food insecurity was not just a lack of food options, but a lack of information and access. At the beginning of the pandemic, many local organizations launched food banks, but families were unable to access them. First 5 LA connected with LA Metro to create a program that delivers food and essentials directly to families. The program was so successful that it is now in the process of being expanded across all five regions.  
 
 ## Region 2: Free Wifi through Housing Project
 Region 2 conducted surveys to understand the needs of the families and identified a digital divide that made accessing critical information and resources more difficult during the pandemic. One of the community partners is now working to provide free potable wifi to families using an empty housing project. 
@@ -605,7 +614,9 @@ Many undocumented families have been hesitant to access Covid-19 testing or publ
 ## Region 5: Preschool Without Walls (PWW)
 
 <br>
+<center>
 [![Alt text](W:/Project/RDA Team/First5LA/V2.0 Report/R/images/eceregion5.JPG)](https://www.first5la.org/article/the-big-picture-parents-take-on-teaching-in-preschool-without-walls/){target="_blank"}
+</center>
 
 <br>
 The pandemic has undoubtedly created challenges for families, but it also demonstrates their ongoing resilience. As schools and childcare centers closed or transitioned online classes, many parents knew that their children still needed to continue their learning and engagement.  Preschool Without Walls PWW) is one example of how that need translated into a creative and responsive solution. PWW hosts free weekly education classes for young children in public parks and community wellness centers in Lancaster and Palmdale. Another unique aspect of PWW: Parent volunteers teach the classes and are actively involved in classes. Free outdoor childcare responds to the immediate needs of families during a pandemic, but it also tackles the systemic issues that extend beyond the pandemic by providing parental support in early childhood education and providing alternatives to the status quo of lengthy waitlists and unaffordable early learning programs. 
