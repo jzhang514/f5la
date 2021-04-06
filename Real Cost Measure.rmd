@@ -112,7 +112,7 @@ Progress on this indicator helps achieve [<nobr style="color: #04B2D9;">__First 
 
 # Annual Budget {#financialsecurity}
 
-This graph illustrates what an annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County compared to the county median household income. The median household income of $64,251 is clearly insufficient to meet the basic needs of most families with children. Several First 5 LA Program Officers and Regional Network Grantees noted that financial insecurity is increasing among families because of the pandemic. This further tightens the income constraint, forcing families to make difficult decisions between foundational needs like food, child care, health care, and housing. 
+This graph illustrates what an annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County compared to the county median household income. The median household income of $64,251 is clearly insufficient to meet the basic needs of most families with children. Several First 5 LA Program Officers and Regional Network Grantees noted that financial insecurity is increasing among families because of the pandemic. 
 
 <br>
 <p class="round1">__Why this matters:__ The Real Cost Measure resets the baseline for what expected costs are for a family with children. While it does not capture the varying costs of living within Los Angeles County, it helps reframe the mental model around what a family’s fundamental needs and costs are.</p>
@@ -222,8 +222,15 @@ rcm_long<-rcm_bsc%>%
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
-     hc_legend(enabled = TRUE)%>%
-   hc_add_theme( thm)
+     hc_legend(enabled = TRUE, layout='vertical')%>%
+   hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=800, sourceHeight=500, 
+
+    chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
    
    
    
@@ -312,7 +319,12 @@ rcm_race<-rcm_race%>%
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
      hc_legend(enabled = TRUE)%>%
-hc_add_theme(thm)
+hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=950, sourceHeight=500, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
 
 
 
