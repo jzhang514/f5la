@@ -124,7 +124,7 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
 
 #highcharts
 
-  age%>%
+ age%>%
     mutate(est_under_five=as.character(formattable::comma(est_under_five, 0)))%>%
     hchart("column",
          hcaes(x=best_start, y=pct_under_five),
@@ -143,7 +143,7 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
                                     }")), min=0,max=15,
        plotLines = list(
       list(
-        label = list(text = "LA County = 6.2%<br>", align = "left", x=47, y=-10),
+        label = list(text = "LA County = 6.2%<br>", align = "left", x=48, y=-10),
         color = "#FF0000",
         width = 2,
         value = 6.2,
@@ -162,10 +162,13 @@ age<-dbGetQuery(con, "SELECT * FROM f5la_2021_youngchildren")%>%
     align = "left"
   )%>%
      hc_legend(enabled = TRUE)%>%
-hc_add_theme(thm)
+hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=800, sourceHeight=500, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+  
 
-
-# 
 # #create factors for the x axis labels (bsc) to customize the order
 # age$best_start <- factor(age$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
 
@@ -185,7 +188,6 @@ hc_add_theme(thm)
 
 
 ```
-<br>Source: 2019 ACS 5-Year Estimates
 
 # Race
 
@@ -268,8 +270,12 @@ race%>%
     text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
      style = list( fontWeight = "bold"),
     align = "left")%>%
-     hc_legend(enabled = TRUE)%>%
- hc_add_theme(thm)
+     hc_legend(enabled = TRUE, layout='vertical', verticalAlign= 'top', align='right', y=150,  itemWidth=300)%>%
+ hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
 
 
 
@@ -289,7 +295,6 @@ race%>%
   
   
 ```
-<br>Source: 2019 ACS 5-Year Estimates
 
 
 # Undocumented Population
@@ -329,7 +334,7 @@ kable_styling(bootstrap_options = "striped")%>%
 The map below shows the varying median household incomes of families in LA County and Best Start geographies. Incomes are higher along the coast and on the Westside where fewer essential workers and more white-collar workers live.
 
 <br>
-<p class="round1">__Why this matters:__ Essential workers are earning incomes that are insufficient to meeting the fundamental needs of their children and families, despite shouldering the burden of the pandemic for families who can remain safe and earn higher incomes while working from home. Lower incomes automatically create constraints, forcing families to make impossible decisions on what to spend money on and sacrificing safety for job and income security.</p>
+<p class="round1">__Why this matters:__ Essential workers are earning incomes that are insufficient to meeting the fundamental needs of their children and families, despite shouldering the burden of the pandemic for families who can remain safe and earn higher incomes while working from home. Lower incomes automatically create constraints, forcing families to make impossible decisions on what to spend money on and sacrificing health and safety for job and income security.</p>
 <br>
 ```{r cache=TRUE}
 
@@ -477,6 +482,8 @@ kable(regions, col.names=c(""))%>%
   pack_rows("Region 3", 9, 10,label_row_css = "background-color: #033E8C; color: #fff;")%>%
   pack_rows("Region 4", 11, 12,label_row_css = "background-color: #033E8C; color: #fff;")%>%
   pack_rows("Region 5", 13, 14,label_row_css = "background-color: #033E8C; color: #fff;")
+  
+
 
 
 ```
