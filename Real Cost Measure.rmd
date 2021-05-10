@@ -45,6 +45,7 @@ library(rgdal)
 library(rpostgis)
 library(highcharter)
 library(kableExtra)
+library(downloadthis)
 
 
 # Data Setup
@@ -168,7 +169,7 @@ rcm_la$expense <- factor(rcm_la$expense,levels = c("Child Care", "Food", "Health
 
 #####Graph
 
-ggplot(rcm_la, aes(fill=expense, y=amount, x=measure, label=amount))+
+plot<-ggplot(rcm_la, aes(fill=expense, y=amount, x=measure, label=amount))+
   geom_bar(position="stack", stat="identity")+
   geom_text(aes(label=paste0("$", format(amount, big.mark=","))), size = 3, position = position_stack(vjust = 0.5))+
    scale_y_continuous(name="", labels=dollar_format(), breaks=seq(0,95000,10000))+
@@ -178,6 +179,10 @@ ggplot(rcm_la, aes(fill=expense, y=amount, x=measure, label=amount))+
   ggtitle("Real Cost Budget for Family in Los Angeles County")+
  theme(panel.background = element_blank())
 
+plot
+
+
+download_this(plot)
 
 ```
 <br>Source: Annual budget looks like for a family of two adults, one preschooler, and one school-age child living in Los Angeles County from Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California. [http://www.unitedwaysca.org/realcost](http://www.unitedwaysca.org/realcost){target="_blank"}
