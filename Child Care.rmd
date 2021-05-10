@@ -286,7 +286,7 @@ internet<-dbGetQuery(con, "SELECT * FROM f5la_2021_internet")%>%
 
 #highcharts
 
-hc<-hchart(internet, "column",
+hchart(internet, "column",
          hcaes(x=best_start, y=pct_broadband),
           tooltip = list(pointFormat = "Percentage of Households with Internet: {point.pct_broadband:.1f}%<br>
                          Number of Households with Internet: {point.tot_broadband}"))%>%
@@ -309,7 +309,7 @@ hc<-hchart(internet, "column",
       )
     ))%>%
     hc_title(
-    text = "Homes with Broadband Internet Access such as Cable, Fiber Optic or DSL in Best Start Geographies",
+    text = "Homes with Broadband Internet Access such as Cable, Fiber Optic or DSL",
     margin = 20,
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
@@ -319,9 +319,14 @@ hc<-hchart(internet, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE)
+     hc_legend(enabled = TRUE)%>%
 
-hc_add_theme(hc, thm)
+hc_add_theme(thm)%>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
 
 
 # #create factors for the x axis labels (bsc) to customize the order
@@ -380,7 +385,7 @@ hchart(internet, "column",
       )
     ))%>%
     hc_title(
-    text = "Families who own One or More Technology Devices in Best Start Geographies",
+    text = "Families who own One or More Technology Devices",
     margin = 20,
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
@@ -392,7 +397,11 @@ hchart(internet, "column",
   )%>%
      hc_legend(enabled = TRUE)%>%
 
-hc_add_theme(thm)
+hc_add_theme(thm)%>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
 
 
 
@@ -429,7 +438,7 @@ children_long<-children_long[c(-4)]
 #highcharts
 
  children_long %>%
-   mutate(variable=ifelse(pct_measure %in% 'pct_hh_childund6', 'Percentage of Children Under 6 Years Old', 'Percentage of Children between 6 and 17 Years Old'))%>%
+   mutate(variable=ifelse(pct_measure %in% 'pct_hh_childund6', 'Children Under 6 Years Old', 'Children 6-17 Years Old'))%>%
   hchart('column', hcaes(x = 'best_start', y = 'pct_value', group = 'variable'),
           tooltip = list(pointFormat = "Percent: {point.pct_value:,.1f}%<br>
                         Total: {point.num_value}")) %>%
@@ -451,8 +460,13 @@ children_long<-children_long[c(-4)]
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE)%>%
-  hc_add_theme(thm)
+     hc_legend(enabled = TRUE,
+               itemDistance= 100)%>%
+ hc_add_theme(thm)%>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
   
 
 
@@ -505,9 +519,13 @@ hchart(prek_long, type="column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE)%>%
-hc_add_theme(thm)
-
+     hc_legend(enabled = TRUE,
+               itemDistance= 50)%>%
+hc_add_theme(thm)%>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
 
 # #create factors for the x axis labels (bsc) to customize the order
 # prek_long$best_start <-  factor(prek_long$best_start,levels = c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))
@@ -580,9 +598,13 @@ hchart(it_long, "column",
      style = list( fontWeight = "bold"),
     align = "left"
   )%>%
-     hc_legend(enabled = TRUE)%>% 
-hc_add_theme(thm)
-
+     hc_legend(enabled = TRUE,
+       itemDistance= 50)%>%
+hc_add_theme(thm)%>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
 
 
 # #creat factors for the x axis labels (bsc) to customize the order
