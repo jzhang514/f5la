@@ -232,12 +232,12 @@ race<-race%>%
 
 #now create column 'variable' for nicer looking graph labels
 race<-race%>%
- mutate(variable=ifelse(pct_measure %in% 'pct_white', 'Percent White',
-                         ifelse(pct_measure %in% 'pct_black_afam', 'Percent Black',
-                                ifelse(pct_measure %in% 'pct_aian', 'Percent AIAN',
-                                       ifelse(pct_measure %in% 'pct_asian', 'Percent Asian',
-                                         ifelse(pct_measure %in% 'pct_nhpi', 'Percent Native Hawaiin/Pacific Islander',
-                                                ifelse(pct_measure %in% 'pct_latinxcombo', 'Percent Latinx', ifelse(pct_measure %in% 'pct_combined', 'Percent Other/Two or More Races', "Blank"))))))))
+ mutate(variable=ifelse(pct_measure %in% 'pct_white', 'White',
+                         ifelse(pct_measure %in% 'pct_black_afam', 'Black',
+                                ifelse(pct_measure %in% 'pct_aian', 'AIAN',
+                                       ifelse(pct_measure %in% 'pct_asian', 'Asian',
+                                         ifelse(pct_measure %in% 'pct_nhpi', 'NHPI',
+                                                ifelse(pct_measure %in% 'pct_latinxcombo', 'Latinx', ifelse(pct_measure %in% 'pct_combined', 'Other/<br>Two or More', "Blank"))))))))
 
 
 #highcharts
@@ -249,7 +249,7 @@ race%>%
           stacking = "normal",
           tooltip = list(pointFormat = "{point.variable}: {point.pct_value:,.1f}%<br>
                          Total Number: {point.num_value}"))%>%
-      
+
   hc_colors(cols7)%>%
       hc_tooltip(crosshairs = TRUE)%>%
      
@@ -270,7 +270,9 @@ race%>%
     text =  '<a href="https://data.census.gov/cedsci/">ACS 2019 5-Year Estimates (Click to download)</a>',
      style = list( fontWeight = "bold"),
     align = "left")%>%
-     hc_legend(enabled = TRUE, layout='vertical', verticalAlign= 'top', align='right', y=150,  itemWidth=300)%>%
+     hc_legend(enabled = TRUE, layout='vertical', verticalAlign= 'top', align='right', y=100,  itemWidth=100,
+                 itemMarginTop=2,
+   itemMarginBottom=2)%>%
  hc_add_theme(thm)%>% 
   hc_exporting(
     enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
