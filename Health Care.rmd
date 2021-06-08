@@ -217,30 +217,11 @@ insure_long_notot%>%
     align = "left"
   )%>%
      hc_legend(enabled = TRUE)%>% 
-hc_add_theme(thm)
-  
-
-
-##polar column graph
-
-# broadwaymanchester<-insure_long_notot%>%
-#   filter(grepl("Broadway/Manchester", best_start))
-# 
-# 
-# highchart() %>%
-#   hc_chart(type = "column", polar = TRUE) %>% 
-#   hc_xAxis(categories = broadwaymanchester$variable) %>% 
-#   hc_series(list(
-#      name = "Percent",
-#      data = broadwaymanchester$pct_value,
-#      colorByPoint = TRUE,
-#      type = "column",
-#        colors=cols7,
-#      showInLegend = FALSE
-#    )
-#    )%>%
-# hc_add_theme(thm)
-
+hc_add_theme(thm) %>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
 
 ```
 <br>Source: ACS 2019 5-Year Estimates
@@ -999,7 +980,7 @@ hchart(prenatal, "column",
 
       hc_tooltip(crosshairs = TRUE)%>%
      
-     hc_xAxis(title = list(text = "Supervisorial Districts"))%>%
+     hc_xAxis(title = list(text = "<br>Supervisorial Districts"))%>%
     hc_yAxis(title = list(text = ""), 
               labels = list(
       formatter = JS("function () {
@@ -1007,7 +988,7 @@ hchart(prenatal, "column",
                                     }")), min=0,max=15,
        plotLines = list(
       list(
-        label = list(text = "LA County = 8.2%", align = "left", y=-10, x=600),
+        label = list(text = "LA County = 8.2%", align = "left", y=-10, x=650),
         color = "#FF0000",
         width = 2,
         value = 8.2,
@@ -1027,7 +1008,11 @@ hchart(prenatal, "column",
   )%>%
      hc_legend(enabled = TRUE)%>%
 
-hc_add_theme(thm)
+hc_add_theme(thm)%>%
+  hc_exporting(
+    enabled = TRUE, sourceWidth=1000, sourceHeight=500, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
 
 #set colors 
 # 
