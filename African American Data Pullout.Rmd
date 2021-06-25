@@ -1,0 +1,1191 @@
+---
+title: Los Angeles County African American Data Pullout
+output:
+  html_document:
+    number_sections: no
+    css: styles.css
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: no
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+ body{
+  font-family: Franklin Gothic;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(comment=FALSE, message=FALSE, warning=FALSE, echo=FALSE
+)
+
+setwd("W:/Project/RDA Team/First5LA/V2.0 Report/R")
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(RPostgreSQL)
+library(tidyr)
+library(scales)
+library(knitr)
+library(data.table)
+library(sp)
+library(sf)
+library(rgdal)
+library(rpostgis)
+library(highcharter)
+library(readxl)
+
+# Data Setup
+pw <- {
+  "password"
+}
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname = "f5la_v2",
+                 host = "aws-postgres-db.c5udgz7ro8hq.us-west-2.rds.amazonaws.com", port = 5432,
+                 user = "postgres", password = pw)
+```
+
+```{r, include=FALSE}
+
+####### ESTABLISH HIGHCHART THEME ############
+
+
+##colors as a vector
+
+cols=c("#22BCB8", "#332985", "#22BCB8","#54B847", "#EC098C")
+
+cols3=c("#22BCB8", "#332985", "#22BCB8")
+
+cols9=c("#04B2D9", "#033E8C", "#EC098D","#26BFB0", "#64BF4B", "#590219","#D9C71A", "#11768C","#04B2D9")
+
+
+##fonts##
+
+# define fonts in chart
+font_title <- "Arial"
+font_subtitle <- "Arial"
+font_caption <- "Arial"
+font_bar_label <- "Arial"
+font_axis_label <- "Arial"
+font_table_text<-"Arial"
+
+
+####MAKE MY HC THEME###
+
+  thm <- hc_theme(
+  colors = c("#22BCB8", "#332985", "#009CDB","#54B847", "#EC098C"),
+  chart = list(
+    backgroundColor = ""
+  ),
+  title = list(
+    style = list(
+      color = "#333333",
+      fontFamily = font_title,
+       textAlign="left",
+      fontsize='200px'
+    )
+  ),
+  subtitle = list(
+    style = list(
+      color = "#666666",
+      fontFamily = font_subtitle,
+      fontsize='100px'
+    )
+  ),
+  
+  caption=list(
+     caption = list(
+    style = list(
+      color = "black",
+      fontFamily = font_caption,
+      textAlign = "left",
+      fontsize="12px"
+    
+  ))),
+  
+   axis = list(
+    style = list(
+      color = "black",
+      fontFamily = font_axis_label,
+      fontsize='50px'
+    )
+  ),
+  
+
+  
+  legend = list(
+    itemStyle = list(
+      fontFamily = font_caption,
+      color = "black"
+    ),
+    itemHoverStyle = list(
+      color = "gray"
+    )
+  )
+)
+
+
+```
+
+One year into First 5 LA's strategic plan, groundbreaking research in the [First 5 LA 2020 Indicators Report](https://www.first5la.org/wp-content/uploads/2020/09/First-5-LA-2020-Indicators-Report.pdf) shows how close LA's children and families are to First 5 LA's goal of ensuring all children enter kindergarten ready to succeed. Including results for children and families needed to meet that goal, the report lays out the indicators to track and analyzes data by race, geography, income, and more. 
+Across indicators, Black mothers and children are more likely to be more negatively impacted or disproportionately affected by our systems. This shows up in poorer results or outcomes from indicators such as low-birth-weight births, postpartum checkup rates, and preventable deaths to name a few.
+Simultaneously, First 5 LA staff in departments across the organization are elevating the need to understand how systems impact African American families, especially in an era of a growing awareness of how systemic racism and anti-Blackness impact individual and public health. These staff and partners are working to pool knowledge to address what they see in the indicators report and on the ground.
+
+This brief pulls out data on LA's Black families from the [Version 2.0 analysis](https://jzhang514.github.io/f5la/V2.0-Deliverable_newlayout.html#Overview) developed in a strategic partnership of First 5 LA and Advancement Project and spotlights how First 5 LA can understand systems' impacts on Black families. It seeks to tell a piece of the story of each system and how First 5 LA can change them in pursuit of kindergarten-readiness and its desired results for children and families.
+
+# Summary
+
+Our systems place Black families under a tremendous amount of stress. Above and beyond the temporary stresses of the COVID pandemic and recession, which disproportionately impacts Black families, Black families experience long-term discrimination in accessing and receiving housing and health care, pushout from educational systems, and criminalization from law enforcement systems. Historical racism denying Black people the ability to accumulate wealth and resources (e.g., redlining) leave less with which to combat these stressors. The impacts of these stressors and discrimination cumulatively build up in the bodies of Black residents and cause health issues in Black mothers and children and reduce life expectancies for Black people overall.
+
+However, there are tremendous number of assets in Black communities and with partners and funders like First 5 LA that remain largely unnoticed or untapped. Grassroots community organizing and base-building organizations continue to build power resulting in more equitable policies and distributions of government funds. Black-led organizations and allies have shined a light on the racism in policing and in school pushout and have secured/are securing additional wins. Black workers have kept the economy running through the COVID pandemic with outsized impacts in essential sectors such as childcare. Black individuals, like Amanda Gorman, have inspired a nation. For First 5 LA to attain its kindergarten-readiness goal and results for children and families, it will need to partner with these Black groups and individuals to change the systems impacting them.
+
+# Black Los Angeles by the numbers
+
+<br>
+
+```{r}
+########Prep Data: Census Tract Shapefile
+
+#read census tract shapefiles data
+ct <- st_read(
+  "W:/Project/RDA Team/First5LA/First 5 LA Regional Report/Shapes/tl_2019_06_tract_pj_clip.shp", quiet=TRUE)
+
+## find centroid coordinates
+ct_cnt = st_centroid(ct)
+ct_crd = data.frame(st_coordinates(ct_cnt))
+
+#add ID column to each df and spatial df for joining
+ct$ID <- seq.int(nrow(ct))
+ct_crd$ID <- seq.int(nrow(ct_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+library(tigris)
+
+ct<-geo_join(ct, ct_crd, 'ID', 'ID',
+  how = "left")
+
+#######Prep Data: Black pop by CT 
+
+##read median HH data from ACS
+
+pop<-dbGetQuery(con,"SELECT * FROM black_pop_by_ct") 
+
+#join the black pop data to census tract shapefile
+
+ct<-geo_join(ct, pop, 'GEOID', 'geoid',
+  how = "left")
+
+# transform for leaflet
+
+ct<-st_transform(ct, 4326)
+
+########################BSC#################################
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies") #this is the updated view that CR made 
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc<-st_transform(bsc, 4326)
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+library(leaflet)
+library(htmltools)
+
+pal <- colorBin(
+  palette = c("#d2c4ef","#907ec1","#6452a3","#332985"), 
+  domain = ct$pct_black_aoic_pop,
+  bins=c(0,25,50,75,100),
+  na.color = NA
+)
+
+#define pop ups
+
+popup<-paste0(label = paste0("<span style='font-size: 14px; font-weight: bold'>", htmlEscape(ct$NAMELSAD), "</span></br>", "Black Alone or in Combination</br>Population Percent: ",ct$pct_black_aoic_pop,"%","</br></br>","Black Alone or in Combination</br>Population Total: ",ct$black_aoic_pop))
+
+####format income labels
+#labels <- sprintf(prettyNum(ct$family_medianincome, big.mark = ","))
+
+########################FINAL Map!!##############################
+
+leaflet(height=585,width=785) %>%
+  
+ 
+  addMapPane("ct_pane", zIndex=485)%>%
+  addMapPane("bsc_pane", zIndex=489)%>%
+  
+  
+  addPolygons(data=ct, color="white", fillColor=~pal(pct_black_aoic_pop), weight = 1, smoothFactor = 0.5,
+    opacity = 1, fillOpacity =.8, group = "LA County Census Tracts", highlight=highlightOptions(color= "white", stroke = 2, weight = 2, bringToFront = TRUE),  popup = ~popup, options = pathOptions(pane = "ct_pane"))%>%
+  
+  
+  addPolygons(data=bsc, color="black", weight=1, opacity = 1, fill=F,
+              options = pathOptions(pane = "bsc_pane")) %>%
+  addLabelOnlyMarkers(data=bsc, ~X, ~Y, label =  ~as.character(bsc_label), labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T, style=list("font-size"="12px", "color"="black",  "font-weight" = "bold", " text-shadow"="1px 1px white"))) %>%
+
+ 
+  addProviderTiles("CartoDB.Positron")%>%
+  setView(	-118.205914, 	34.187684	, zoom = 9)%>%
+  
+  
+ addLegend("bottomright", pal=pal, values = ct$pct_black_aoic_pop,
+            title = "Percent Black Alone or in Combination Population")
+
+
+
+```
+Data Source: American Community Survey 2015-2019 Estimates. 
+
+<br>
+
+# Our health care system produces unequal maternal/child health outcomes for Black families {.tabset .tabset-pills}
+
+Infant mortality is one of a number of indicators tracked by First 5 LA where Black outcomes are among the lowest because of discrimination and allostatic load from impacts from other systems. The infant mortality rate is also rising, with the Black rate the only racial/ethnic group to [increase](https://www.kidsdata.org/topic/295/infantmortality-race/table#fmt=2749&loc=364&tf=107,94,90,85,80,75,72&ch=7,11,8,10,9,73,1436&sortColumnId=0&sortType=asc) in the past few years.
+
+<br>
+
+## Infant mortality by race in Los Angeles County 
+
+```{r}
+infant<-dbGetQuery(con, "SELECT * FROM f5la_multigeo_inf_mort_2011_16")
+
+ infant%>%
+   filter(geoid=='LA County' & variable!='Total')%>%
+  arrange(-inf_mort_rate)%>%
+    hchart("bar",
+         hcaes(x=variable, y=inf_mort_rate),
+          tooltip = list(pointFormat = "Infant Mortality Rate: {point.inf_mort_rate}"))%>%
+      
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    
+   hc_yAxis(title = list(text = ""), 
+            min=0,max=8,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", subset(infant, geoid =="LA County" & variable=="Total")$inf_mort_rate),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 3.6,
+        zIndex=5
+      )
+    ))%>%
+  
+    hc_title(
+    text = "Infant Mortality Rate per 1,000 Live Births in Los Angeles County by Race or Ethnicity of Mother",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+    hc_subtitle(
+    text = "Results are an Average of Data from 2011-2016",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+  
+    hc_caption(
+    text = paste0('<a href="https://www.first5la.org/wp-content/uploads/2020/09/First-5-LA-2020-Indicators-Report.pdf">Data Source: First 5 LA 2020 Indicators Report.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+  
+hc_add_theme(thm)%>% 
+  
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
+
+
+
+
+```
+
+
+## Infant mortality in the Best Start Geographies 
+
+```{r}
+
+
+#highcharts
+
+ infant%>%
+   filter(geoid!='LA County')%>%
+    hchart("bar",
+         hcaes(x=geoid, y=inf_mort_rate),
+          tooltip = list(pointFormat = "Infant Mortality Rate: {point.inf_mort_rate}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    
+   hc_yAxis(title = list(text = ""), 
+            min=0,max=8,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", subset(infant, geoid =="LA County" & variable=="Total")$inf_mort_rate),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 3.6,
+        zIndex=5
+      )
+    ))%>%
+   
+    hc_title(
+    text = "Infant Mortality Rate per 1,000 Live Births by Best Start Geography",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+     
+
+     hc_caption(
+    text = paste0('<a href="https://www.first5la.org/wp-content/uploads/2020/09/First-5-LA-2020-Indicators-Report.pdf">Data Source: First 5 LA 2020 Indicators Report.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+   
+hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, 
+    filename = "plot"
+    )
+  
+
+```
+
+
+See more health care indicators in our [Version 2.0 Analysis](https://jzhang514.github.io/f5la/V2.0-Deliverable_newlayout.html#Overview).
+
+Lower birth outcomes, [including infant and maternal mortality, persist regardless of mother’s education and income](https://www.chcf.org/wp-content/uploads/2019/10/DisparitiesAlmanacRaceEthnicity2019.pdf). An MIHA study found that [as the number of childhood hardships increases, so does the percentage of pre-natal and post-natal depression](https://mynevadacounty.com/DocumentCenter/View/27687/Symptoms-of-Depression-During-and-After-Pregnancy-PDF). Experiencing discrimination is one of those types of hardships, and more than 1 in 4 Black mothers reported discrimination at their job in 2014 LAMB Survey.
+
+[11% of LA Black respondents said their experience seeking health care was worse than other races](http://publichealth.lacounty.gov/ha/LACHSDataTopics2018.htm) in that same survey, and according to CHIS 2011-19 pooled estimates, [37.8% of Black respondents reported unfair treatment when getting medical care](https://ask.chis.ucla.edu/ask/SitePages/AskChisLogin.aspx?ReturnUrl=%2fAskCHIS%2ftools%2f_layouts%2fAuthenticate.aspx%3fSource%3d%252FAskCHIS%252Ftools%252F%255Flayouts%252FAskChisTool%252Fhome%252Easpx&Source=%2FAskCHIS%2Ftools%2F%5Flayouts%2FAskChisTool%2Fhome%2Easpx#/results). [There are half as many Black physicians as the CA Black population suggests there should be](https://www.chcf.org/wp-content/uploads/2019/10/DisparitiesAlmanacRaceEthnicity2019.pdf).
+
+Potential Partners: [FIRST 5 LA & BLACK EQUITY COLLECTIVE TO CURATE] Community Health Councils, Black Women for Wellness, California Pan Ethnic Health Network, Maternal and Child Health Access, Prevention Institute, Public Health Advocates, The Children's Partnership.
+
+<br>
+
+# Racism across systems further contributs to health disparites through ACEs and increases allostatic load
+
+Black Californians are more likely to report adverse childhood experiences or ACEs, which create toxic stress in the body that can have lasting health impacts, including lower life expectancies. Read more on ACEs [here](https://letsgethealthy.ca.gov/goals/healthy-beginnings/adverse-childhood-experiences/) and [here](https://www.kidsdata.org/topic/2223/aces-nsch-race/table#fmt=2780&loc=1,2&tf=139&ch=7,10,9,127).
+
+```{r}
+aces<-dbGetQuery(con, "SELECT * FROM nsch_state_adv_chldhd_exp_2016_19")
+
+aces%>%
+   filter(variable!='Total')%>%
+  
+    arrange(-pct_twoplus_aces) %>% 
+  
+    hchart("bar",
+         hcaes(x=variable, y=pct_twoplus_aces),
+          tooltip = list(pointFormat = "Percent with 2 or More ACEs: {point.pct_twoplus_aces:.1f}%"))%>%
+      
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    
+   hc_yAxis(title = list(text = ""), 
+            min=0,max=25,
+       plotLines = list(
+      list(
+        label = list(text = paste0("California: ", subset(aces, variable=="Total")$pct_twoplus_aces),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 3.6,
+        zIndex=5
+      )
+    ))%>%
+  
+    hc_title(
+    text = "Percentage of Black Californians with 2 or More Adverse Childhood Expeiences (ACEs)",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+    hc_subtitle(
+    text = "Data from 2011-2017",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+  
+  
+    hc_caption(
+    text = paste0('<a href="https://www.cdph.ca.gov/Programs/CCDPHP/DCDIC/SACB/CDPH%20Document%20Library/Essentials%20for%20Childhood%20Initiative/ACEs-BRFSS-Update_final%2010.26.20.pdf">Data Source: BRFSS.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+  
+hc_add_theme(thm)%>% 
+  
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
+
+
+
+```
+
+ACES encompass abuse and neglect, household challenges, and other adversities such as discrimination, safety, and child welfare involvement. [Recent research](https://pediatrics.aappublications.org/content/pediatrics/124/Supplement_3/S176.full.pdf) also underscores the growing understanding of the link between discrimination and the health outcomes in children and offers a [weathering hypothesis](https://www.sciencedirect.com/science/article/abs/pii/S1047279718300802?via%3Dihub): "that chronic exposure to social and economic disadvantage leads to accelerated decline in physical health outcomes and could partially explain racial disparities in a wide array of health conditions."
+
+Black people unfortunately experience more of these stressors and build up a greater allostatic load than people of other races.  [Allostatic load](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3417124/) is the “accumulation of physiological perturbations as a result of repeated or chronic stressors in daily life,” which partially explains black-white disparities in health outcomes. Mental and emotional health resources are also more likely to be available to and affordable for more affluent, Whiter communities.
+
+FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]: Note: follow up with Breanna about an org focusing on Black outreach in her region (from interview notes).
+
+<br> 
+
+# Our economic system produces wealth gaps for Black households
+
+Centuries of discrimination and racism in policies reduced the earnings and wealth accumulation abilities of Black households. <i>[The Color of Wealth](http://www.aasc.ucla.edu/besol/Color_of_Wealth_Report.pdf)</i> and PPIC research further talks about wealth gaps in the LA County and California context.
+
+```{r}
+rcm<-dbGetQuery(con, "SELECT * FROM uw_supdist_real_cost_measure_2017")
+
+
+rcm%>%
+   filter(variable=='Black')%>%
+  mutate(geoid=paste0('Supervisorial District ',geoid))%>%
+  
+    hchart("bar",
+         hcaes(x=geoid, y=pct_below_rcm),
+          tooltip = list(pointFormat = "Percent Below Real Cost Measure: {point.pct_below_rcm:.0f}%"))%>%
+      
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    
+    hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")))%>%
+  
+    hc_title(
+    text = "Percentage of Black Households in LA County who Earn Below the Real Cost Measure",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+
+  
+    hc_caption(
+    text = paste0('<a href="http://www.unitedwaysca.org/realcost">Data Source: Struggling to Stay Afloat: The Real Cost Measure in California 2019. United Ways of California. http://www.unitedwaysca.org/realcost </a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+  
+hc_add_theme(thm)%>% 
+  
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
+
+
+
+```
+
+
+```{r, include=FALSE}
+
+rcm%>%
+   filter(variable=='Black' | variable=='Total')%>%
+  mutate(variable=ifelse(variable %in% 'Black', 'Black Households', 'Total Households'))%>%
+  mutate(geoid=paste0('Supervisorial District ',geoid))%>%
+  
+    hchart("bar",
+         hcaes(x=geoid, y=pct_below_rcm, group=variable),
+          tooltip = list(pointFormat = "Percent Below Real Cost Measure: {point.pct_below_rcm:.0f}%"))%>%
+      
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    
+    hc_yAxis(title = list(text = ""),
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")))%>%
+  
+    hc_title(
+    text = "Percentage of Black Households in LA County who Earn Below the Real Cost Measure",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+
+  
+    hc_caption(
+    text = paste0('<a href="https://www.unitedway.org/">Data Source: United Way.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+  
+hc_add_theme(thm)%>% 
+  
+  
+  
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
+
+```
+
+See more economic indicators in our [Version 2.0 Analysis](https://jzhang514.github.io/f5la/V2.0-Deliverable_newlayout.html#Overview).
+
+For families to have the resources to optimize their child's development (Result 1), families will need a baseline of wealth and economic stability. This baseline also protects against abuse, neglect, and other trauma (Result 3).
+
+The COIVD pandemic and recession has been particularly hard on Black households. According to the California Policy Lab, [over 80% of Black workers in California have applied for unemployment claims during the pandemic](https://laborcenter.berkeley.edu/wp-content/uploads/2020/12/COVID-research-synthesis-update-2020-12-03.pdf). Without a job, parents aren't able to afford childcare and other valuable early childhood education. (The reverse is also true: without access to affordable childcare, parents aren't able to stay in the workforce). While essential workers, who are more likely to be Black, have needed to work in potentially unsafe conditions, whiter/more affluent workers could stay at home and spend more time with their families. In contrast, [fewer Black families reported daily opportunities for fun than other racial/ethnic groups during COVID](https://www.kidsdata.org/blog/?p=9530) (52% of Black families compared to 66.9% of White families, 67.5%, of Asian families and 63.4 % of Hispanic families).
+
+Beyond a job, a job with a sustainable wage is also an issue. Black Angelenos have been overrepresented in Union jobs for decades in no small part due to the ability to avoid at least some of the discrimination in less regulated employment sectors. Two measures of employment discrimination are LA County Health Survey's finding that [19.9% of US-born African Americans said they were treated worse at work compared to people of other races](http://publichealth.lacounty.gov/ha/LACHSDataTopics2018.htm) and LAMB's survey finding that more than 10% of Black mothers reported discrimination on the job. Unfortunately, union employment and higher-paying blue caller jobs have been on the decline for years. A plan to reduce the wage gap and bring employment, must also focus on replacing living-wage jobs being lost for Black workers.
+
+Potential Partners: [FIRST 5 LA & BLACK EQUITY COLLECTIVE TO CURATE] Brotherhood Crusade, California Calls, Community Coalition, Community Health Councils, Community Partners, ...
+FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
+
+<br>
+
+# Our housing system burdens Black families the most and provide opportunities for the least housing
+
+```{r}
+rent<-dbGetQuery(con, "SELECT * FROM f5la_2021_rentburden")
+
+rent<-rent%>%
+  mutate(race_label=ifelse(race %in% 'AIAN Alone or in Combination', 'American Indian/Alaska Native', 
+                           ifelse(race %in% 'Asian NL', 'Asian',
+                                  ifelse(race %in% "Two or More NL", 'Two or More',
+                                         ifelse(race %in% 'Latinx', 'Latinx',
+                                                ifelse(race %in% 'NHPI Alone or in Combination', 'Native Hawaiian/Pacific Islander',
+                                                       ifelse(race %in% 'Black NL', 'Black',
+                                                              ifelse(race %in% 'White NL', 'White',
+                                                               ifelse(race %in% 'Other NL', 'Other',
+                                                                ifelse(race %in% 'Total', 'Total', 'Blank'))))))))))%>%
+  mutate(pct=pct_rent_adj*100)
+
+
+#graph
+
+
+  rent %>% 
+  filter(!is.na(pct) & race_label=='Black' & best_start!='LA County' & best_start!='California') %>% 
+  arrange(-pct) %>% 
+  hchart(
+    type = "bar", 
+    hcaes(y = round(pct, 2), x = best_start), 
+    tooltip = list(
+      pointFormat = "Rate: {point.pct:.1f}%"),
+  ) %>% 
+  hc_tooltip(crosshairs = TRUE) %>% 
+  
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+  
+  hc_yAxis( title = list(text = ""),
+            labels = list(format = '{value:.0f}%'))%>%
+    
+  # title elements
+  hc_title(
+    text = paste0("Perfentage of Annual Income Black Households Spend on Rent"),
+    margin = 20, align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")) %>% 
+
+  hc_caption(
+    text = paste0('<a href=https://data.census.gov/cedsci/">Data Source: American Community Survey, 2015-2019 5-Year Estimate.</a>'),
+     align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+  
+  hc_add_theme(thm)%>%
+    hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, 
+    filename = "plot"
+    )
+
+
+
+```
+
+See more housing indicators in our [Version 2.0 Analysis](https://jzhang514.github.io/f5la/V2.0-Deliverable_newlayout.html#Overview).
+
+Black Californians experience the highest rates of rent burden among racial/ethnic groups. For families to have the resources to optimize their child's development (Result 1), families will need stable affordable housing. If Black families have the least stable housing, Black housing stability is the place to start to help meet Result 1. First 5 LA expert Maria Aquino notes that housing referrals are one of the top types of referrals families ask for from Frist 5 LA.
+
+Cost of housing is one factor in homelessness a potential a reason why [over one third of the LA County homeless population is Black](https://www.lahsa.org/data-refresh) even though the Black population is only 8% of the total County population. Eviction is another factor, with Black households living in areas with higher rates of evictions per an analysis of [Eviction Lab](https://evictionlab.org/map/#/2016?geography=tracts&bounds=-118.865,33.611,-117.6,34.11&type=er) and American Community Survey data. Discrimination in the system exists with more than 15% of Black mothers reporting discrimination in housing in a 2015 LAMB survey.
+Homeownership is one avenue towards more secure housing (and wealth creation). Unfortunately, Black households in LA County are more likely to be denied a mortgage or offered a subprime mortgage than White households, leading to lower Black homeownership rates.
+
+Potential Partners: [FIRST 5 LA & BLACK EQUITY COLLECTIVE TO CURATE] California Housing Partnership Corporation, California Partnership, Coalition for Economic Survival, Corporation for Supportive Housing, Council on Community Housing Organizations (CCHO), East Los Angeles Community Corporation, Esperanza Community Housing Corporation, Housing Long Beach, Inner City Law Center, Inquilinos Unidos, LA Tenants Union, Long Beach Residents Empowered, Los Angeles Equity Alliance, Neighborhood Legal Services of Los Angeles County, Right to the City Alliance, Southern California Association of Non-Profit Housing, Strategic Actions for a Just Economy (SAJE), T.R.U.S.T. South LA, Women Organizing Resources, Knowledge and Services (works)
+FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
+
+# Our education system disproportionately pushes out Black children
+
+Schools suspended Black students at double the rate of students overall.
+
+```{r}
+
+################
+####BSC Layer###
+################
+
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies")
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc <- st_transform(bsc, crs = 4326)
+
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+
+##########################
+#######School Layer#######
+##########################
+
+suspension<-pgGetGeom(con, query = "SELECT a.cdscode,
+	a.schoolname,
+	a.reportingcategory,
+	a.race,
+	a.cohortstudents,
+	a.unduplicated_count_of_students_suspended,
+	a.prc_suspensions,
+	ST_TRANSFORM(GEOM, 4326) AS geom_4326,
+	ST_X(ST_TRANSFORM(geom, 4326)) AS x,
+	ST_Y(ST_TRANSFORM(geom, 4326)) AS y
+	FROM la_county_school_suspensions_1819 a
+ LEFT JOIN cde_public_schools_2019_20 b ON (((b.cdscode)::text = (a.cdscode)::text))", geom="geom_4326")
+
+
+#white only for pop up
+
+suspension_white<-dbGetQuery(con, "SELECT * FROM la_county_school_suspensions_1819 WHERE race='White'")
+
+#black only for pop up
+
+suspension_black<-dbGetQuery(con, "SELECT * FROM la_county_school_suspensions_1819 WHERE race='Black'")
+
+
+###Palette###
+
+#red/green divergent
+
+pal <- colorBin(
+  palette = c("#d2c4ef","#907ec1","#6452a3","#332985"), 
+  domain = ct$pct_black_aoic_pop,
+  bins=c(0,25,50,75,100),
+  na.color = "#BABABA"
+)
+
+# pal <- colorBin(
+#   palette =c("#c0eab3", "#36d72b","#ff8060","#f5361a"), 
+#   domain = suspension_black$prc_suspensions,
+#   bins=c(0,25,50,75,100),
+#   na.color = "#BABABA"
+# )
+
+
+###########
+####MAP####
+###########
+
+
+popup<-paste0(label = paste0("<span style='font-size: 15px; font-weight: bold'>", htmlEscape(suspension$schoolname), "</span></br>",
+                                    "<span style='font-weight: bold;'>Black Student Suspension Rate:</span> ",percent(suspension_black$prc_suspensions/100,.1),"</br>",
+                                    "<span style='font-weight: bold;'>White Student Suspension Rate:</span> ", percent(suspension_white$prc_suspensions/100,.1)))
+  
+  
+  
+leaflet(height=585,width=785)%>%
+
+  #school layer
+  
+  addCircleMarkers(data = suspension, lat = ~y, lng = ~x,
+                   popup=~paste0(popup),
+                   weight = 1, fillOpacity = 1, radius=3,
+                   color="white",  fillColor=~pal(suspension_black$prc_suspensions), stroke = TRUE
+  )%>%
+  
+  #bsc layer
+
+   addPolygons(data=bsc, color="black", weight=1, opacity = .5, fill=F,
+ 
+               label=as.character(bsc$best_start)
+  ) %>%
+   addLabelOnlyMarkers(data=bsc,  ~X, ~Y, label =  ~as.character(bsc_label),
+                       labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T,
+                                                  style=list("font-size"="12px", "color"="black",
+                                                            "font-weight" = "bold",
+                                                            "text-shadow"="1px 1px white")))%>%
+
+
+  #base and view
+   addProviderTiles("CartoDB.PositronNoLabels") %>%
+  #addProviderTiles("CartoDB.PositronOnlyLabels",options = providerTileOptions(pane = "markerPane"))%>%
+  setView(	-118.205914, 	34.187684	, zoom = 9)%>%
+    
+ addLegend("bottomright", pal=pal, values = suspension_black$prc_suspensions,
+            title = "Black Student Suspension Rate")
+  
+
+
+```
+Data Source: California Department of Education 2018-2019 School Year. 
+
+See more housing indicators in our [Version 2.0 Analysis](https://jzhang514.github.io/f5la/V2.0-Deliverable_newlayout.html#Overview).
+
+For families to have high-quality early care and education systems and beyond (Result 4), our education systems will need to welcome them. It will also need to do more to support foster youth, low-income youth, youth with disabilities, and other youth who might need different kinds of support.
+
+Black students and families are not able to benefit from our education system if they are pushed out of it. The Los Angeles County Office of Child Protection (OCP) along with partners such as First 5 LA track a series of prevention metrics aimed at helping every child be healthy, grow and thrive in a strong family, and be supported by a safe and nurturing community. Suspensions and expulsions are among the measures tracked. According to their metrics, [Black students and youth are also the most likely to be expelled and disconnected among LA County racial groups](https://data.lacounty.gov/stories/s/Strong-Children/qh4y-dqvs). Relatively [low rates of Black teachers and staff](https://www.racecounts.org/county/los-angeles/) likely contribute to Black students’ feelings of connectedness to school and attendance.
+
+Potential Partners: [FIRST 5 LA & BLACK EQUITY COLLECTIVE TO CURATE] Asian Youth Canter, Association of Mexican American Educators, California Alliance for Community Schools, Californians for Justice Education Fund, Californians Together, Center for Equity for English Learners, Children Now, Community Asset Development Re-Defining Education (CADRE), Echo Parenting & Education, El Nido Family Centers, Families in Schools, IDEPSCA, Korean Resource Center, Parent Institute for Quality Education, Social Justice Learning Institute,... 
+FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5] First 5 LA has worked with the County Board of Supervisors to expand internet and device access to families so that internet/device access is not one more reason to be excluded from education...
+
+# Our governments are not representing Black residents
+
+Black neighborhoods in LA can be directly traced to redlining in prior decades. This definition of where Black people could buy homes often placed Black residents near sources of pollution and far from healthy resources. For example, Black families in the South Bay are still housed near airports or ports and still fight for environmental justice and the right to health in these areas. Black neighborhoods in South LA are less likely to be located near parks and open space spaces that provide free or affordable recreation for young children. Instead of healthy resources like banks and grocery stores, many businesses prey on these neighborhoods setting up check cashing operations, subprime lenders, or fast-food restaurants. Local governments have not done enough to stand up to these predatory entities and instead represent the health and safety of Black families.
+
+## Redistricting Equity Index: Power Building Opportunities
+
+Individual equity indicators were combined to create an index highlighting areas where progressive-minded low-income people of color reside. The highest index values indicate the areas with: the highest BIPOC population; the highest BIPOC eligible voter population (CVAP); the highest disabled, immigrant and non-English speaking populations; the highest population living below the poverty line and housing cost-burdened population; the highest vote share in favor of Proposition 15 (Schools & Communities First); the lowest eligible voter turnout; highest share of people without college degrees; the highest enrollment of migrant students in public schools; and the areas with the highest pollution burden.
+
+
+```{r}
+library(leaflet)
+
+redist<-st_read('W:/Project/Political Voice/Redistricting/Data/Equity Indicators/output/Equity_Indicator_Index.shp',  quiet=TRUE)
+
+#transform
+
+redist<-st_transform(redist, 4326)
+
+
+########################BSC#################################
+
+bsc<-pgGetGeom(con, "f5la_best_start_geographies") #this is the updated view that CR made 
+
+#convert to sf 
+bsc<-st_as_sf(bsc)
+
+####transform bsc shapefile for leaflet
+
+bsc<-st_transform(bsc, 4326)
+
+####Add XY coordinates to bsc spatial df
+
+## find centroid coordinates
+bsc_cnt = st_centroid(bsc)
+bsc_crd = data.frame(st_coordinates(bsc_cnt))
+
+#add ID column to each df and spatial df for joining
+bsc$ID <- seq.int(nrow(bsc))
+bsc_crd$ID <- seq.int(nrow(bsc_crd))
+
+##join spatial frame with data frame to get the XY columns into the spatial frame
+
+bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
+              how = "left")
+
+#create label 
+bsc_label<-paste(bsc$best_start)
+
+
+##define palette
+
+redist$quintil<-as.factor(redist$quintil)
+
+pal <- colorFactor(
+  palette = c("#332985", "#9687bb", "#f1f1f1", "#9ed7d4", "#22bcb8"), 
+  domain = redist$quintil,
+  na.color = NA
+)
+
+
+
+##########Map#########
+
+leaflet(height=585,width=785)%>%
+  
+  
+   addPolygons(data=redist, color="white", fillColor=~pal(quintil),  weight = .8, smoothFactor = 0.5,
+    opacity = 1, fillOpacity =0.8,
+    highlight=highlightOptions(color= "white", stroke = 2, weight = 2, bringToFront = TRUE))%>%
+  
+   
+  addPolygons(data=bsc, color="black", weight=1.5, opacity = 1, fill=F
+             ) %>%
+  addLabelOnlyMarkers(data=bsc, ~X, ~Y, label =  ~as.character(bsc_label), labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T, style=list("font-size"="12px", "color"="black",  "font-weight" = "bold", " text-shadow"="1px 1px white"))) %>%
+
+  
+   addProviderTiles("CartoDB.Positron")%>%
+  
+  setView(	-118.205914, 	34.187684	, zoom = 9)%>%
+  
+  addLegend("bottomright", pal=pal, values = redist$quintil,
+            title = "Redistricting Equity Index")
+  
+
+```
+
+# Our law enforcement systems target Black residents {.tabset .tabset-pills}
+
+Black drivers (in LA City) are 5 times more likely to be stopped and nearly 9 times more likely to be arrested for traffic violations than White individuals, regardless of fault. 
+
+## County-wide disparities in use of force
+
+```{r}
+
+lac<-dbGetQuery(con, "SELECT * FROM use_of_force_county_race_2016_18")
+
+lac_est<-lac%>%
+  gather(est_measure, est_value, nh_white_pop:total_rate)%>%
+  filter(grepl('raw',est_measure))
+
+lac_rate<-lac%>%
+  gather(rate_measure, rate_value, nh_white_pop:total_rate)%>%
+  filter(grepl('rate',rate_measure))
+
+lac<-cbind(lac_est, lac_rate)%>%
+  select(1,2,3,4,7,8)%>%
+  mutate(label=ifelse(rate_measure %in% 'nh_white_rate', 'White',
+              ifelse(rate_measure %in% 'nh_black_rate', 'Black', 
+              ifelse(rate_measure %in% 'nh_aian_rate','American Indian/Alaskan Native',
+              ifelse(rate_measure %in% "latinx_rate", "Latinx", "Total")))))
+
+#graph
+
+lac%>%
+   filter(label!='Total' & label!='American Indian/Alaskan Native')%>%
+  arrange(-rate_value)%>%
+    hchart("bar",
+         hcaes(x=label, y=rate_value),
+          tooltip = list(pointFormat = "Rate of Incidents per 100k: {point.rate_value:.1f}<br>
+                         Total Number of Incidents: {point.est_value}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    
+   hc_yAxis(title = list(text = ""),  min=0,max=10,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", subset(lac, label=="Total")$rate_value),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 3.6,
+        zIndex=5
+      )
+    ))%>%
+
+   
+    hc_title(
+    text = "Use of Force Incidents per 100,000 Individuals",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+     
+
+     hc_caption(
+    text = paste0('<a href="https://openjustice.doj.ca.gov/data">Data Source: URSUS Use of Force from the Department of Justice Open Justice Data Portal.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+   
+hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+  
+
+```
+
+## Use of force in the Best Start Geographies
+
+```{r}
+incident<-dbGetQuery(con, 
+                     "SELECT best_start,
+SUM(num_incidents) AS tot_incidents,
+SUM(population) AS tot_pop,
+ROUND(SUM(num_incidents)/SUM(population)*100000, 2) AS incidents_per_100k
+FROM
+
+(SELECT * FROM bsc_zip_crosswalk_new a
+LEFT JOIN use_of_force_zip_2019 b on b.zip_code=a.zip_code) z
+
+GROUP BY best_start
+UNION
+SELECT * FROM use_of_force_zip_2019 WHERE zip_code='LA County'")
+
+#graph
+incident%>%
+  filter(best_start!='LA County')%>%
+    hchart("bar",
+         hcaes(x=best_start, y=incidents_per_100k),
+          tooltip = list(pointFormat = "Rate of Incidents per 100k: {point.incidents_per_100k:.1f}<br>
+                         Total Number of Incidents: {point.tot_incidents}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""),
+               categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
+    
+   hc_yAxis(title = list(text = ""),  min=0,max=10,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", subset(incident, best_start=="LA County")$incidents_per_100k),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 3.6,
+        zIndex=5
+      )
+    ))%>%
+
+   
+    hc_title(
+    text = "Use of Force Incidents per 100,000 Individuals",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+     
+
+     hc_caption(
+    text = paste0('<a href="https://openjustice.doj.ca.gov/data">Data Source: URSUS Use of Force from the Department of Justice Open Justice Data Portal.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+   
+hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+  
+
+
+```
+
+A recent Advancement Project California analysis of traffic stops adds more evidence to the long-known understanding of inappropriate policing in Black communities. The study shows that police spend disproportionately more time and money stopping Black Angelenos, regardless of whether they are ticketed or arrested, likely as pretexts for profiling and harassment. Similar studies of police use of force have found that [Black residents to suffer police violence at 3x the rate of all Angelenos](https://www.racecounts.org/county/los-angeles/). (There are fewer Black police than the LA Black population suggests there should be). Mistrust of police compounds the issue of safety when [Black adults report feeling less safe in their neighborhoods](https://www.racecounts.org/county/los-angeles/) compared to other races.
+
+To be safe from abuse, neglect, and trauma (Result 3) families need police not to target them. For families to have the resources and relationships needed (Result 1) they cannot be over-incarcerated.
+
+# And our criminal justice system over-incarcerates Black residents
+
+We spend far too many of our tax dollars creating "Million Dollar Hoods" incarcerating people, when it is cheaper and healthier to offer people services. We spent $38 million incarcerating people from Westside South Central (an LAPD geography, and predominantly Black part of LA) from 2012 and 2017.
+
+```{r}
+jail<-dbGetQuery(con, "SELECT * FROM incarceration_county_race_2012_16")
+
+jail_est<-jail%>%
+  gather(est_measure, est_value, nh_white_pop:total_rate)%>%
+  filter(grepl('raw',est_measure))
+
+jail_rate<-jail%>%
+  gather(rate_measure, rate_value, nh_white_pop:total_rate)%>%
+  filter(grepl('rate',rate_measure))
+
+jail<-cbind(jail_est, jail_rate)%>%
+  select(1,2,3,4,7,8)%>%
+  mutate(label=ifelse(rate_measure %in% 'nh_white_rate', 'White',
+              ifelse(rate_measure %in% 'nh_black_rate', 'Black', 
+              ifelse(rate_measure %in% 'nh_other_rate','Other',
+              ifelse(rate_measure %in% "latinx_rate", "Latinx", "Total")))))
+
+#graph
+
+jail%>%
+   filter(label!='Total')%>%
+  arrange(-rate_value)%>%
+    hchart("bar",
+         hcaes(x=label, y=rate_value),
+          tooltip = list(pointFormat = "Incarceration Rate per 1k: {point.rate_value:.1f}<br>
+                         Total Incarcerations: {point.est_value}"))%>%
+      
+
+      hc_tooltip(crosshairs = TRUE)%>%
+     
+     hc_xAxis(title = list(text = ""))%>%
+    
+   hc_yAxis(title = list(text = ""),  min=0,max=10,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", subset(lac, label=="Total")$rate_value),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 3.6,
+        zIndex=5
+      )
+    ))%>%
+
+   
+    hc_title(
+    text = "Incarceration Rates per 1,000 Individuals in Los Angeles County",
+    margin = 20,
+    align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")
+    )%>%
+     
+
+     hc_caption(
+    text = paste0('<a href="http://www.cjcj.org/index.html">Data Source: Center on Juvenile and Criminal Justice, 2012-2016.</a>'
+                ),
+    align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+   
+hc_add_theme(thm)%>% 
+  hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
+    filename = "plot"
+    )
+
+
+
+```
+This mass incarceration doesn't affect individuals in a vacuum, but affects their families and children, through loss of caretakers, relationships, and income. Long-term threats to recidivate or barriers to employment, housing, or other resources last well beyond the incarceration itself.
+
+Potential Partners: [FIRST 5 LA & BLACK EQUITY COLLECTIVE TO CURATE] A New Way of Life, Anti-Recidivism Coalition, California Coalition for Women Prisoners, Dignity and Power Now, Fair Chance Project, One LA-IAF, Progressive Christians Uniting, Revolve Impact, Youth Justice Coalition.
+FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
+
+# Black-lead/serving organizations are changing things for the better
+
+Los Angeles County is blessed with a large number of Black-led and Black-serving organizations.
+Grassroots organizing and base-building organizations focusing specifically on Black power include Strategic Concepts in Organizing and Policy Education (SCOPE), the Los Angeles Black Worker Center, Black Alliance for Just Immigration (BAJI), Black Lives Matter Long Beach, and Black Lives Matter LA.
+
+Power-building research and policy advocacy organizations focusing specifically on Black power include Black Male Institute UCLA, Black Women for Wellness, and California Black Women's Health Project.
+Community Asset Development Re-Defining Education (CADRE) is an education and community economic development with a core focus on the Black community.
+
+A much larger network of power-building organizations serve Black constituencies among broader communities of color or boys and men of color constituencies. 
+
+The Black Equity Collective is one of a number of alliances of organizations that is also dedicated to the Black community. [WILL WORK WITH BLACK EQUITY COLLECTIVE ON ORGANIZATION LIST]
+[Can Black Equity Collective identify a recent history of organizing and things that have changed for the better for the Black community as a result]
+
+FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
+
+# Call to Action
+
+For First 5 LA to help ensure all children are ready for Kindergarten and for it's desired Results for Children and Families to happen, it will require sustained partnership with Black-led/serving organizations and communities to change the systems producing these outcomes. Here are immediate steps First 5 LA can take:
+
+Follow LADPH action plan. According to an [LADPH action plan](http://publichealth.lacounty.gov/centerforhealthequity/PDF/AAIM-ActionPlan.pdf), reducing inequalities in infant mortality means reducing racism in systems, reducing poverty caused by housing and economic systems, reducing exposure to violence, as well as well individual actions.
+
+Develop new forms of representation and power. Redistricting offers an opportunity to build community power through government representation. The last decade has seen many Black families leave South LA for the Antelope Valley and Inland Empire. Redistricting with developing Black representation and power in mind can help Black families have better access to resources and policies that serve them.
+
+Build power with community-based organizations. Community-based organizations that are organizing constituencies for advocacy are a necessary component to bending public systems to the will of community members. Without a strong community advocacy voice, concerns of Black residents can be sidelined by powerful business or interests that can exert power on elected officials.
+
+[GATHER FROM FIRST 5 LA]
+
+# First 5 LA Goals and Provocative Questions
+
+Pullout of Black data for indicators, results, and overall kindergarten readiness.
+
+```{r}
+library(kableExtra)
+
+ northstar <- c('By 2028 all children in LA county will enter kindergarten ready to succeed in school and life',
+                
+"Families have the resources, opportunities and relationships to optimize their child's relationships",
+
+'Children are connected to early to developmental services and supports.',
+
+'Children are safe from abuse, neglect, and other trauma.',
+
+'Children have high-quality ECE experiences.')
+ 
+ 
+ status <- c("If Black families are overrepresented among families with housing burdens, how does that affect First 5 LA's ability to raise kindergarten readiness?",
+             
+           "If Black families are less likely to have living-wage employment, how can First 5 LA work to optimize family-child relationships?",
+           
+           "If Black families are least likely to be represented by their public systems, how can First 5 LA better connect them to services and supports?",
+           
+           "If Black families are least likely to be near parks or other healthy resources, how can First 5 LA better ensure safety?",
+           
+          "If Black families are most likely to be pushed out of education systems, how can First 5 LA support better early educational experiences?")
+
+ table<-data.frame(northstar, status)
+ 
+ table%>%
+   kbl(col.names=c("North Star or Result", "Status without systems change for Black Families"))%>%
+     kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+
+```
+
+
+
+
