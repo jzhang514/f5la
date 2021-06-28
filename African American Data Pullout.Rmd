@@ -151,6 +151,8 @@ However, there are tremendous number of assets in Black communities and with par
 
 # Black Los Angeles by the numbers
 
+There are 820,478 of Black residents in Los Angeles. Black Angelenos predominantly live in South LA, with additional concentrations in Central Long Beach and Wilmington, and Lancaster and Palmdale.
+
 <br>
 
 ```{r}
@@ -216,7 +218,10 @@ bsc<-geo_join(bsc, bsc_crd, 'ID', 'ID',
               how = "left")
 
 #create label 
-bsc_label<-paste(bsc$best_start)
+
+#bsc_label<-paste(bsc$best_start)
+
+bsc_label<-as.list(bsc$best_start)
 
 library(leaflet)
 library(htmltools)
@@ -230,7 +235,7 @@ pal <- colorBin(
 
 #define pop ups
 
-popup<-paste0(label = paste0("<span style='font-size: 14px; font-weight: bold'>", htmlEscape(ct$NAMELSAD), "</span></br>", "Black Alone or in Combination</br>Population Percent: ",ct$pct_black_aoic_pop,"%","</br></br>","Black Alone or in Combination</br>Population Total: ",ct$black_aoic_pop))
+popup<-paste0(label = paste0("<span style='font-size: 14px; font-weight: bold'>", htmlEscape(ct$NAMELSAD), "</span></br>", "Percent Black Population: ",ct$pct_black_aoic_pop,"%","</br>","Total Black Population: ",ct$black_aoic_pop))
 
 ####format income labels
 #labels <- sprintf(prettyNum(ct$family_medianincome, big.mark = ","))
@@ -250,7 +255,11 @@ leaflet(height=585,width=785) %>%
   
   addPolygons(data=bsc, color="black", weight=1, opacity = 1, fill=F,
               options = pathOptions(pane = "bsc_pane")) %>%
-  addLabelOnlyMarkers(data=bsc, ~X, ~Y, label =  ~as.character(bsc_label), labelOptions = labelOptions(noHide= T, direction = 'top', textOnly = T, style=list("font-size"="12px", "color"="black",  "font-weight" = "bold", " text-shadow"="1px 1px white"))) %>%
+  
+  addLabelOnlyMarkers(data=bsc, ~X, ~Y, label =  lapply(bsc_label, HTML), 
+                      options = pathOptions(pane = "bsc_pane"),
+                      labelOptions = labelOptions(noHide= T, direction = 'lower', textOnly = T,
+                                                  clusterOptions = markerClusterOptions(), riseOnHover = TRUE, bringToFront = TRUE, style=list("font-size"="8px", "color"="black",  "font-weight" = "bold", " text-shadow"="1px 1px white"))) %>%
 
  
   addProviderTiles("CartoDB.Positron")%>%
@@ -258,12 +267,12 @@ leaflet(height=585,width=785) %>%
   
   
  addLegend("bottomright", pal=pal, values = ct$pct_black_aoic_pop,
-            title = "Percent Black Alone or in Combination Population")
+            title = "Percent Black Population")
 
-
+#as.character(bsc_label)
 
 ```
-Data Source: American Community Survey 2015-2019 Estimates. 
+Data Source: American Community Survey 2015-2019 Estimates. For this analysis, the race is defined as 'Black Alone or in Combination.' 
 
 <br>
 
@@ -433,7 +442,7 @@ aces%>%
                         align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
         color = "#FF0000",
         width = 2,
-        value = 3.6,
+        value = subset(aces, variable=="Total")$pct_twoplus_aces,
         zIndex=5
       )
     ))%>%
@@ -454,7 +463,7 @@ aces%>%
   
   
     hc_caption(
-    text = paste0('<a href="https://www.cdph.ca.gov/Programs/CCDPHP/DCDIC/SACB/CDPH%20Document%20Library/Essentials%20for%20Childhood%20Initiative/ACEs-BRFSS-Update_final%2010.26.20.pdf">Data Source: BRFSS.</a>'
+    text = paste0('<a href="https://www.cdph.ca.gov/Programs/CCDPHP/DCDIC/SACB/CDPH%20Document%20Library/Essentials%20for%20Childhood%20Initiative/ACEs-BRFSS-Update_final%2010.26.20.pdf">Data Source: U.S. Dept. of Health and Human Services, https://www.cdph.ca.gov/Programs/CCDPHP/DCDIC/SACB/CDPH%20Document%20Library/Essentials%20for%20Childhood%20Initiative/ACEs-BRFSS-Update_final%2010.26.20.pdf</a>'
                 ),
     align = "left",
     style=list(fontSize='12px')
@@ -480,10 +489,11 @@ FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]: Note: follow up with
 
 <br> 
 
-# Our economic system produces wealth gaps for Black households
+# Our economic system produces wealth gaps for Black households {.tabset .tabset-pills}
 
-Centuries of discrimination and racism in policies reduced the earnings and wealth accumulation abilities of Black households. <i>[The Color of Wealth](http://www.aasc.ucla.edu/besol/Color_of_Wealth_Report.pdf)</i> and PPIC research further talks about wealth gaps in the LA County and California context.
+Black households earn incomes below the Real Cost Measure of living at nearly twice the rate of White households. Centuries of discrimination and racism in policies reduced the earnings and wealth accumulation abilities of Black households. <i>[The Color of Wealth](http://www.aasc.ucla.edu/besol/Color_of_Wealth_Report.pdf)</i> and PPIC research further talks about wealth gaps in the LA County and California context. 
 
+## Black families earning less than the Real Cost Measure
 ```{r}
 rcm<-dbGetQuery(con, "SELECT * FROM uw_supdist_real_cost_measure_2017")
 
@@ -500,12 +510,24 @@ rcm%>%
      
      hc_xAxis(title = list(text = ""))%>%
     
-    hc_yAxis(title = list(text = ""),
+     
+   hc_yAxis(title = list(text = ""), 
+            min=0,max=60,
+       plotLines = list(
+      list(
+        label = list(text = "LA County: 46.5%",
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value = 46.5,
+        zIndex=5
+        )),
+    
              labels = list(
       formatter = JS("function () {
                       return Math.abs(this.value) + '%';
                                     }")))%>%
-  
+
     hc_title(
     text = "Percentage of Black Households in LA County who Earn Below the Real Cost Measure",
     margin = 20,
@@ -533,51 +555,80 @@ hc_add_theme(thm)%>%
 
 ```
 
+## Families earning less than the Real Cost Measure by race
+```{r}
 
-```{r, include=FALSE}
 
-rcm%>%
-   filter(variable=='Black' | variable=='Total')%>%
-  mutate(variable=ifelse(variable %in% 'Black', 'Black Households', 'Total Households'))%>%
-  mutate(geoid=paste0('Supervisorial District ',geoid))%>%
-  
-    hchart("bar",
-         hcaes(x=geoid, y=pct_below_rcm, group=variable),
-          tooltip = list(pointFormat = "Percent Below Real Cost Measure: {point.pct_below_rcm:.0f}%"))%>%
+#grab data 
+rcm_race<-dbGetQuery(con, "SELECT * FROM uw_2017_county_state_real_cost_measure")%>%
+  filter(county=='Los Angeles') #filter for LA County only
+
+#subset only keep colunms of interest for the graph
+rcm_race<-rcm_race[c(1,2, 14:23)]
+
+#make data long for both pct and number
+
+rcm_race_num <- melt(setDT(rcm_race), id.vars = c("county_id", "county"), variable.name = "num_measure")%>%
+  filter(str_detect(num_measure, "num"))%>%
+  rename(num_value=value)
+
+rcm_race_pct<- melt(setDT(rcm_race), id.vars = c("county_id", "county"), variable.name = "pct_measure")%>%
+  filter(str_detect(pct_measure, "pct"))%>%
+    rename(pct_value=value)
+
+#make percent column be multiplied by 100 
+rcm_race_pct$pct_value=rcm_race_pct$pct_value*100
+
+#combine
+
+rcm_race<-cbind(rcm_race_num, rcm_race_pct)
+
+#remove duplicate columns from cbind
+rcm_race<-rcm_race[,-c(5:6)]
+
+#now create new variable column with nicer labeling for the graph
+
+rcm_race<-rcm_race%>%
+  mutate(variable=ifelse(pct_measure %in% 'pct_hh_below_rcm_white', 'White',
+                         ifelse(pct_measure %in% 'pct_hh_below_rcm_black', 'Black',
+                                ifelse(pct_measure %in% 'pct_hh_below_rcm_api', 'Asian Pacific Islander',
+                                                ifelse(pct_measure %in% 'pct_hh_below_rcm_latino', 'Latinx', ifelse(pct_measure %in% 'pct_hh_below_rcm_other', 'Other', "Blank"))))))%>%
+  mutate(num_label=as.character(formattable::comma(num_value, 0)))
+
+#fix the NULL value for the OTHER RACE percent
+
+
+rcm_race[is.na(rcm_race)] = 'Data not Available'
+
+#highcharts
+
+rcm_race%>%
+  arrange(-num_value)%>%
+   hchart("bar",
+         hcaes(x=variable, y=num_value),
+          tooltip = list(pointFormat = "Percent: {point.pct_value:,.1f}%<br>
+                         Number: {point.num_label}"))%>%
       
+
       hc_tooltip(crosshairs = TRUE)%>%
      
      hc_xAxis(title = list(text = ""))%>%
-    
-    hc_yAxis(title = list(text = ""),
-             labels = list(
-      formatter = JS("function () {
-                      return Math.abs(this.value) + '%';
-                                    }")))%>%
-  
+    hc_yAxis(title = list(text = ""))%>%
     hc_title(
-    text = "Percentage of Black Households in LA County who Earn Below the Real Cost Measure",
+    text = "Number of Households in Los Angeles County Earning Less Than the Real Cost Measure",
     margin = 20,
     align = "left",
     style = list(useHTML = TRUE, fontWeight="bold")
     )%>%
-
-  
-    hc_caption(
-    text = paste0('<a href="https://www.unitedway.org/">Data Source: United Way.</a>'
-                ),
-    align = "left",
-    style=list(fontSize='12px')
-  ) %>% 
-  
+     hc_legend(enabled = TRUE)%>%
 hc_add_theme(thm)%>% 
-  
-  
-  
   hc_exporting(
     enabled = TRUE, sourceWidth=900, sourceHeight=600, chartOptions=list(subtitle=NULL),
     filename = "plot"
     )
+   
+   
+
 
 
 ```
@@ -595,7 +646,7 @@ FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
 
 <br>
 
-# Our housing system burdens Black families the most and provide opportunities for the least housing
+# Our housing system burdens Black families the most and provides opportunities for the least housing
 
 ```{r}
 rent<-dbGetQuery(con, "SELECT * FROM f5la_2021_rentburden")
@@ -630,8 +681,25 @@ rent<-rent%>%
      hc_xAxis(title = list(text = ""),
                categories=c("East LA", "Metro LA", "South El Monte/El Monte", "Southeast LA", "Broadway/Manchester", "Compton/East Compton", "Watts/Willowbrook", "West Athens", "North East Valley", "Panorama City & Neighbors", "Central Long Beach", "Wilmington", "Lancaster", "Palmdale"))%>%
   
-  hc_yAxis( title = list(text = ""),
-            labels = list(format = '{value:.0f}%'))%>%
+   
+   hc_yAxis(title = list(text = ""), 
+            min=0,max=40,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", scales::percent(subset(rent, best_start =="LA County" & race_label=="Total")$pct/100,.1)),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value =  subset(rent, best_start =="LA County" & race_label=="Total")$pct,
+        zIndex=5
+      )
+    ),
+    
+    
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")))%>%
     
   # title elements
   hc_title(
@@ -640,7 +708,7 @@ rent<-rent%>%
     style = list(useHTML = TRUE, fontWeight="bold")) %>% 
 
   hc_caption(
-    text = paste0('<a href=https://data.census.gov/cedsci/">Data Source: American Community Survey, 2015-2019 5-Year Estimate.</a>'),
+    text = paste0('<a href=https://data.census.gov/cedsci/">Data Source: American Community Survey, 2015-2019 5-Year Estimates.</a>'),
      align = "left",
     style=list(fontSize='12px')
   ) %>% 
@@ -739,7 +807,7 @@ suspension_black<-dbGetQuery(con, "SELECT * FROM la_county_school_suspensions_18
 pal <- colorBin(
   palette = c("#d2c4ef","#907ec1","#6452a3","#332985"), 
   domain = ct$pct_black_aoic_pop,
-  bins=c(0,25,50,75,100),
+  bins=c(0,5,10,15,100),
   na.color = "#BABABA"
 )
 
@@ -813,6 +881,8 @@ Black neighborhoods in LA can be directly traced to redlining in prior decades. 
 
 ## Redistricting Equity Index: Power Building Opportunities
 
+One opportunity to change systems and build power for Black communities is the current redistricting process. [The People's Bloc](https://www.thepeoplesbloc.org/) created a redistricting equity index for advocates to coordinate efforts and build political districts that empower Black communities and other progressive communities of color to pass progressive policies that benefit low income BIPOC communities. 
+
 Individual equity indicators were combined to create an index highlighting areas where progressive-minded low-income people of color reside. The highest index values indicate the areas with: the highest BIPOC population; the highest BIPOC eligible voter population (CVAP); the highest disabled, immigrant and non-English speaking populations; the highest population living below the poverty line and housing cost-burdened population; the highest vote share in favor of Proposition 15 (Schools & Communities First); the lowest eligible voter turnout; highest share of people without college degrees; the highest enrollment of migrant students in public schools; and the areas with the highest pollution burden.
 
 
@@ -867,6 +937,11 @@ pal <- colorFactor(
 )
 
 
+### pop up
+
+popup<-paste0(label = paste0("<span style='font-size: 14px; font-weight: bold'>", "Census Tract ",htmlEscape(redist$name), "</span></br>", "Redistricting Equity Index: ",redist$quintil))
+
+
 
 ##########Map#########
 
@@ -874,7 +949,7 @@ leaflet(height=585,width=785)%>%
   
   
    addPolygons(data=redist, color="white", fillColor=~pal(quintil),  weight = .8, smoothFactor = 0.5,
-    opacity = 1, fillOpacity =0.8,
+    opacity = 1, fillOpacity =0.8, popup = ~popup,
     highlight=highlightOptions(color= "white", stroke = 2, weight = 2, bringToFront = TRUE))%>%
   
    
@@ -888,14 +963,14 @@ leaflet(height=585,width=785)%>%
   setView(	-118.205914, 	34.187684	, zoom = 9)%>%
   
   addLegend("bottomright", pal=pal, values = redist$quintil,
-            title = "Redistricting Equity Index")
+            title = "Lowest to Highest Power Building Opportunities")
   
 
 ```
 
 # Our law enforcement systems target Black residents {.tabset .tabset-pills}
 
-Black drivers (in LA City) are 5 times more likely to be stopped and nearly 9 times more likely to be arrested for traffic violations than White individuals, regardless of fault. 
+Police are far more likely to use force with Black residents than with residents of other races in LA County and in many Best Start geographies. Black drivers (in LA City) are 5 times more likely to be stopped and nearly 9 times more likely to be arrested for traffic violations than White individuals, regardless of fault. 
 
 ## County-wide disparities in use of force
 
@@ -940,7 +1015,7 @@ lac%>%
                         align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
         color = "#FF0000",
         width = 2,
-        value = 3.6,
+        value = subset(lac, label=="Total")$rate_value,
         zIndex=5
       )
     ))%>%
@@ -1008,7 +1083,7 @@ incident%>%
                         align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
         color = "#FF0000",
         width = 2,
-        value = 3.6,
+        value = subset(incident, best_start=="LA County")$incidents_per_100k,
         zIndex=5
       )
     ))%>%
@@ -1045,7 +1120,7 @@ To be safe from abuse, neglect, and trauma (Result 3) families need police not t
 
 # And our criminal justice system over-incarcerates Black residents
 
-We spend far too many of our tax dollars creating "Million Dollar Hoods" incarcerating people, when it is cheaper and healthier to offer people services. We spent $38 million incarcerating people from Westside South Central (an LAPD geography, and predominantly Black part of LA) from 2012 and 2017.
+Our justice system in LA County is far more likely to incarcerate Black individuals than individuals of other races. We spend far too many of our tax dollars creating "Million Dollar Hoods" incarcerating people, when it is cheaper and healthier to offer people services. We spent $38 million incarcerating people from Westside South Central (an LAPD geography, and predominantly Black part of LA) from 2012 and 2017.
 
 ```{r}
 jail<-dbGetQuery(con, "SELECT * FROM incarceration_county_race_2012_16")
@@ -1087,7 +1162,7 @@ jail%>%
                         align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
         color = "#FF0000",
         width = 2,
-        value = 3.6,
+        value = subset(lac, label=="Total")$rate_value,
         zIndex=5
       )
     ))%>%
@@ -1137,6 +1212,50 @@ The Black Equity Collective is one of a number of alliances of organizations tha
 
 FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
 
+```{r}
+
+table<-c("A New Way of Life Reentry Project",
+"Black Being",
+"California Black Women's Health Project",
+"Community Citizens Community Involvement",
+"Community Health Action Network (CHAN)",
+"Community Reflections",
+"Compound LB",
+"Congregations Organized for Prophetic Engagement",
+"Curls, Coils & Crowns",
+"Educational Student Tours College Access Program",
+"Elite Skills Development",
+"G.IRL",
+"growURpotential",
+"Human Being Reimagined, Inc.",
+"iDream for Racial Health Equity",
+"Inland Valley Alumnae Chapter Delta Sigma Theta Sorority Inc.",
+"Mighty Little Giants, Inc.",
+"MomsHouse",
+"Ohana Center",
+"Positive Alternative Recreation Team-building Impact",
+"Positive Results Center",
+"Project Joy",
+"San Bernardino Fatherhood",
+"Serving the People",
+"The Community Action League",
+"The Gailen and Cathy Reevers Center",
+"Therapeutic Play Foundation",
+"TruEvolution",
+"With Open Arms, Inc"
+
+)
+
+
+library(kableExtra)
+
+
+table%>%
+   kbl(col.names = "Collective member organizations of the Black Equity Collective as of May 13th, 2021")%>%
+     kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
 # Call to Action
 
 For First 5 LA to help ensure all children are ready for Kindergarten and for it's desired Results for Children and Families to happen, it will require sustained partnership with Black-led/serving organizations and communities to change the systems producing these outcomes. Here are immediate steps First 5 LA can take:
@@ -1180,7 +1299,7 @@ library(kableExtra)
  table<-data.frame(northstar, status)
  
  table%>%
-   kbl(col.names=c("North Star or Result", "Status without systems change for Black Families"))%>%
+   kbl(col.names=c("North Star or Result", "Provocative Question"))%>%
      kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 
