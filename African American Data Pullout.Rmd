@@ -646,7 +646,86 @@ FIRST 5 LA Opportunities for Impact: [GATHER FROM FIRST 5]
 
 <br>
 
-# Our housing system burdens Black families the most and provides opportunities for the least housing
+# Our housing system burdens Black families the most and provides opportunities for the least housing {.tabset .tabset-pills}
+
+## Rent burden in Los Angeles County by race
+
+```{r}
+
+lac<-dbGetQuery(con, "SELECT * FROM f5la_2021_rentburden WHERE best_start ILIKE 'LA County'")
+
+lac<-lac%>%
+  mutate(race_label=ifelse(race %in% 'AIAN Alone or in Combination', 'American Indian/Alaska Native', 
+                           ifelse(race %in% 'Asian NL', 'Asian',
+                                  ifelse(race %in% "Two or More NL", 'Two or More',
+                                         ifelse(race %in% 'Latinx', 'Latinx',
+                                                ifelse(race %in% 'NHPI Alone or in Combination', 'Native Hawaiian/Pacific Islander',
+                                                       ifelse(race %in% 'Black NL', 'Black',
+                                                              ifelse(race %in% 'White NL', 'White',
+                                                               ifelse(race %in% 'Other NL', 'Other',
+                                                                ifelse(race %in% 'Total', 'Total', 'Blank'))))))))))%>%
+  mutate(pct=pct_rent_adj*100)
+
+
+#graph
+
+
+  lac%>% 
+  filter(!is.na(pct) & race_label!='Total') %>% 
+  arrange(-pct) %>% 
+  hchart(
+    type = "bar", 
+    hcaes(y = round(pct, 2), x = race_label), 
+    tooltip = list(
+      pointFormat = "Rate: {point.pct:.1f}%"),
+  ) %>% 
+  hc_tooltip(crosshairs = TRUE) %>% 
+  
+     hc_xAxis(title = list(text = ""))%>%
+  
+   
+   hc_yAxis(title = list(text = ""), 
+            min=0,max=35,
+       plotLines = list(
+      list(
+        label = list(text = paste0("LA County: ", scales::percent(subset(lac, race_label=="Total")$pct/100,.1)),
+                        align = "left",  y=0, x=0, rotation=0, verticalAlign= 'bottom'),
+        color = "#FF0000",
+        width = 2,
+        value =  subset(lac, best_start =="LA County" & race_label=="Total")$pct,
+        zIndex=5
+      )
+    ),
+    
+    
+             labels = list(
+      formatter = JS("function () {
+                      return Math.abs(this.value) + '%';
+                                    }")))%>%
+    
+  # title elements
+  hc_title(
+    text = paste0("Perfentage of Annual Income Households Spend on Rent in Los Angeles County"),
+    margin = 20, align = "left",
+    style = list(useHTML = TRUE, fontWeight="bold")) %>% 
+
+  hc_caption(
+    text = paste0('<a href=https://data.census.gov/cedsci/">Data Source: American Community Survey, 2015-2019 5-Year Estimates.</a>'),
+     align = "left",
+    style=list(fontSize='12px')
+  ) %>% 
+  
+  hc_add_theme(thm)%>%
+    hc_exporting(
+    enabled = TRUE, sourceWidth=900, sourceHeight=600, 
+    filename = "plot"
+    )
+
+
+
+```
+
+## Black families experiencing rent burden in the Best Start Geographies
 
 ```{r}
 rent<-dbGetQuery(con, "SELECT * FROM f5la_2021_rentburden")
