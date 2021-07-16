@@ -319,7 +319,7 @@ pal <- colorQuantile("YlOrRd", NULL, n = 8)
 #######Map#########
 
 
-leaflet(ct_lac)%>%
+leaflet(height=585,width=785)%>%
   
   addMapPane("ct_pane", zIndex=485)%>%
   #ct layer
@@ -375,10 +375,9 @@ leaflet(ct_lac)%>%
   
   #legend
   addLegend(pal = pal, 
-            values = ~total,
+            values = ct_lac$total,
             opacity = 0.7,
             position = "bottomright",
-            #na.label = "Outside LA County",
             title="Percentage of<br>Essential Workers"
   )
 
@@ -452,11 +451,13 @@ kable(text_tbl, align = "l", col.names=c("Finding", "Description", "First 5 LA R
 
 Understanding who lives in Best Start geographies is foundational to addressing the systemic inequities Best Start families and children face. The Best Start geographies reflect communities with a higher Latinx and Black population, as well as a higher age 0 to 5 population. 
 
-As First 5 LA reaffirms its commitment to anti-racism and combating anti-blackness, it is imperative that the specific needs and experiences of Black families in the Best Start geographies are thoroughly examined. How anti-Blackness can be applied to Best Start work can be thought of in two ways: 1) Paying attention to racial disparities or unconscious biases that exist within systems as it relates to Best Start work, and 2) Imagining new priorities and initiatives through direct and intentional engagement with black community members and black-led community partners. 
+As First 5 LA reaffirms its commitment to anti-racism and combating anti-blackness, it is imperative that the specific needs and experiences of Black families in the Best Start Geographies are thoroughly examined. How anti-Blackness can be applied to Best Start work can be thought of in two ways: 1) Paying attention to racial disparities or unconscious biases that exist within systems as it relates to Best Start work, and 2) Imagining new priorities and initiatives through direct and intentional engagement with black community members and black-led community partners. 
 
-<br>
-<a href="https://jzhang514.github.io/f5la/Demographics.html" class="button" target="_blank">Click here to explore the demographics of the Best Start Geographies</a>
 
+<div id="container">
+<a href="https://jzhang514.github.io/f5la/African-American-Data-Pullout" class="button" id="button1" target="_blank">Click here to view the African American data pull out</a>
+<a href="https://jzhang514.github.io/f5la/Demographics.html" class="button" id="button2" target="_blank">Click here to explore the demographics of the Best Start Geographies</a>
+</div>
 
 # What does it really cost to support essential workers {.tabset .tabset-pills}
 
@@ -467,7 +468,9 @@ The work that PBH is doing with resident leaders aligns with a consistent theme 
 To begin understanding the way in which financial security is connected to every essential aspect of a family's life, this project uses the __[Real Cost Measure](https://www.unitedwaysca.org/realcost){target="_blank"}__ to illustrate what it really costs for a family with two children (one age 0-5 and one school-aged) to meet their essential needs in Los Angeles County. The Real Cost Measure takes into consideration the cost of living in Los Angeles County and measures the minimum budget for the necessary domains of life: Child Care, Food, Health Care, Housing, Transportation, Taxes and Miscellaneous items. 
 
 <br>
+<center>
 <a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html" class="button" target="_blank">Click here to explore Real Cost Measure Data for the Best Start Geographies</a>
+</center>
 
 # Findings and Policy Opportunities 
 
@@ -497,7 +500,9 @@ Supporting child care needs for families is connected to supporting child care p
 Supporting child care needs for families is connected to supporting child care providers. Providers, who are essential workers, are predominately immigrant women of color. [They are the ones who are watching children while their parents continue to work in their own essential occupations.](https://www.advancementprojectca.org/blog/the-necessity-of-staying-open-during-Covid-19) During the pandemic, providers have had to adjust to Covid-19 safety guidelines, meet their financial needs in increasingly difficult circumstances, provide a safe space for children of essential workers, all while managing their own personal safety. Policies that provide more immediate financial support and tools to providers is desperately needed to ensure that they are being set up to succeed for the monumental task they have. 
 
 <br>
+<center>
 <a href="https://jzhang514.github.io/f5la/Child-Care.html" class="button" target="_blank">Click here to explore data and policy opportunities on child care providers and access early child care education</a>
+</center>
 
 ## Food 
 
@@ -517,8 +522,9 @@ At the local level, First 5 LA Program Officers and Regional Network Grantees qu
 The failures of the current food landscape and the resulting inaccessibility to food are painfully clear during the pandemic. Serious investment is needed to reshape food access and empower communities to be able to create their own sources for healthy and affordable food, through green spaces and local businesses. The current reliance on K-12 schools for meals has long been an insufficient and inequitable system for food access. Funding must be directed to new sources of healthy food that are community-owned and empowering to communities of color. 
 
 <br>
+<center>
 <a href="https://jzhang514.github.io/f5la/Food.html" class="button" target="_blank">Click here to explore data and policy opportunities on food access</a>
-
+</center>
 
 ## Health care 
 
@@ -531,8 +537,9 @@ The failures of the current food landscape and the resulting inaccessibility to 
 
 Covid-19 has heightened the need for health insurance and access to health care facilities. That is why the conversation surrounding the digital divide and access to technology must also include telehealth and the ability for families to receive health care services remotely and safely. However, it is crucial to think about health holistically. A child's safety is an intrinsic aspect of her health. Ensuring that children are in safe home situations is more crucial than ever given the increased isolation children are facing in lockdown. Ultimately, investing in a comprehensive continuum of care is needed to ensure that families and children are safe and have all of their health needs met in a preventative and timely manner. 
 
-<br>
+<center>
 <a href="https://jzhang514.github.io/f5la/Health-Care.html" class="button" target="_blank">Click here to explore more health care data and policy opportunities</a>
+</center>
 
 ## Housing 
 
@@ -546,8 +553,9 @@ Covid-19 has heightened the need for health insurance and access to health care 
 Housing is arguably the number one issue that concerns families in Los Angeles County, so it is unsurprising when talking about family priorities in the Best Start Geographies that housing came up consistently. Increasing job insecurity and financial strains from the pandemic have made the high rent burden feel even more painful for families. Policies must quickly be enacted to cancel rent and evictions and ensure housing security. In addition to improving housing security, investments need to be directed to unused spaces to repurpose them for housing, health and child care needs. 
 
 <br>
+<center>
 <a href="https://jzhang514.github.io/f5la/Housing.html" class="button" target="_blank">Click here to explore more housing data and policy opportunities</a>
-
+</center>
 
 ## Transportation
 
@@ -561,7 +569,9 @@ Housing is arguably the number one issue that concerns families in Los Angeles C
 Public transportation is inherent to access, whether it is to grocery stores for food or child care centers for children. It is a core tenant of a community's built environment and requires robust infrastructure and investment to ensure that it connects families to essential services. In light of the pandemic, many families are feeling the consequences of poor public transportation infrastructure as inaccessibility worsens. Safety is also a growing concern as crowded buses further the spread of disease. A stronger public transportation infrastructure that includes more bus options and flexible transit improves the safety of both riders and bus drivers.
 
 <br>
+<center>
 <a href="https://jzhang514.github.io/f5la/Transportation.html" class="button" target="_blank">Click here to explore more transportation data and policy opportunities</a>
+</center>
 
 ## Additional Priority Areas {.tabset .tabset-pills}
 
@@ -626,7 +636,7 @@ The pandemic has undoubtedly created challenges for families, but it also demons
 
 [Click here for the full Appendix, which includes raw data tables and crosswalks for downloading](https://jzhang514.github.io/f5la/Appendix){target="_blank"}
 
-# Index of Indicators
+# Index of Indicators 
 ```{r}
 
 library(DT)
@@ -642,7 +652,7 @@ m = matrix(c(
 '<a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html#Households_Below_Real_Cost_Measure" target="_blank">Households Below the Real Cost Measure by Best Start Geography</a>',
 '<a href="https://jzhang514.github.io/f5la/Real-Cost-Measure.html#Households_in_LA_County_Below_Real_Cost_Measure_by_Race" target="_blank">Households Below the Real Cost Measure by Race</a>',
 '<a href="https://jzhang514.github.io/f5la/Child-Care.html#Child_Care_Workers_in_Best_Start_Geographies" target="_blank">Child Care Workers in Best Start Geographies</a>',
-'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Internet_Access" target="_blank">internet Access</a>',
+'<a href="https://jzhang514.github.io/f5la/Child-Care.html#Internet_Access" target="_blank">Internet Access</a>',
 '<a href="https://jzhang514.github.io/f5la/Child-Care.html#Families_who_Own_One_or_More_Technology_Devices" target="_blank">Families Who Own One or More Technology Devices</a>',
 '<a href="https://jzhang514.github.io/f5la/Child-Care.html#Pre-K_Early_Learning_Care_Enrollment" target="_blank">Pre-K Early Learning Care Enrollment</a>',
 '<a href="https://jzhang514.github.io/f5la/Child-Care.html#Infant_Toddler_Early_Learning_Care_Enrollment" target="_blank">Infant Toddler Early Learning Care Enrollment</a>',
@@ -711,6 +721,24 @@ colnames(m) = c('Indicator', 'Data Source', 'Year')
 datatable(m, escape=FALSE) 
 
 ```
+# Frequently Asked Questions (FAQs)
+
+__Question: What year is the data from?__
+
+This webpage uses data from a variety of different sources. All of the data visuals have data captions listing the source and year. Consolidated information on the data sources and years of every indicator on this webpage can be found in the [Index of Indicators] section. 
+
+__Question: How is this webpage related to the First 5 LA Impact Framework?__ 
+
+The First 5 LA Impact Framework lists out four key results 
+
+__Question: Can I download the data visualizations?__
+
+Yes. Each data visualization has three horizontal lines on the top right corner that you can click to download the image. Note that the interactive pop up messages you see when you hover over the graphs will not be part of the image download. 
+
+__Question: How are the Best Start Geographies defined?__
+
+For the different geography levels present on this webpage (i.e. Census Tract, PUMA, Zip Code), a crosswalk was made to map the geographies to the Best Start Geography. For example, the percentage of the population age 0 to 5 in each of the Best Start Geographies is calculated at the Census Tract level. A crosswalk was created to determine the Census Tracts that are contained within each of the Best Start geographies. Crosswalk tables that map the PUMAS, Census Tracts and Zip Codes that are contained in each of the Best Start geographies can be downloaded [here](https://jzhang514.github.io/f5la/Appendix) 
+
 
 # Acknowledgements
 
