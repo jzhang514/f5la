@@ -163,6 +163,7 @@ transpo_long<-transpo_long[c(-4)]
 #now create a nicer 'variable' column for grouping the races
 
 transpo_long<-transpo_long%>%
+  arrange(-pct_value)%>%
  mutate(variable=ifelse(pct_measure %in% 'pct_pubtrans_whitealone', 'White',
                          ifelse(pct_measure %in% 'pct_pubtrans_black', 'Black',
                                 ifelse(pct_measure %in% 'pct_pubtrans_aian', 'American Indian/Alaskan Native',
@@ -194,7 +195,7 @@ hchart( "column",
                                     }")), min=0,max=100,
       plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=10.6%", align = "left",  y=-10, x=170),
+        label = list(text = "Total Public Transit Users=10.6%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 10.6,
@@ -245,6 +246,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("Central Long Beach", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -261,7 +263,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=12.8%", align = "left",  y=-10, x=170),
+        label = list(text = "Total Public Transit Users=12.8%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 12.8,
@@ -341,6 +343,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("East LA", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -357,7 +360,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=7.8%", align = "left",  y=-10, x=180),
+        label = list(text = "Total Public Transit Users=7.8%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 7.8,
@@ -389,6 +392,8 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
+
   filter(grepl("Lancaster", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -405,7 +410,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public<br>Transit Users=1.7%", align = "left",  y=-22, x=80),
+        label = list(text = "Total Public<br>Transit Users=1.7%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 1.7,
@@ -437,6 +442,8 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
+
   filter(grepl("Metro LA", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -453,7 +460,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=21.7%", align = "left",  y=-10, x=180),
+        label = list(text = "Total Public Transit Users=21.7%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 21.7,
@@ -484,6 +491,8 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
+
   filter(grepl("North East Valley", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -500,7 +509,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public<br>Transit Users=4.4%", align = "left",  y=-22, x=80),
+        label = list(text = "Total Public<br>Transit Users=4.4%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 4.4,
@@ -529,6 +538,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("Palmdale", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -545,7 +555,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=1.9%", align = "left",  y=-10, x=180),
+        label = list(text = "Total Public Transit Users=1.9%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 1.9,
@@ -574,6 +584,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("Panorama City & Neighbors", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -590,7 +601,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=9.8%", align = "left",  y=-10, x=5),
+        label = list(text = "Total Public Transit Users=9.8%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 9.8,
@@ -619,6 +630,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("South El Monte/El Monte", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -635,7 +647,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public<br>Transit Users=4.7%", align = "left",  y=-20, x=1),
+        label = list(text = "Total Public<br>Transit Users=4.7%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 4.7,
@@ -664,6 +676,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("Southeast LA", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -680,7 +693,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=6.6%", align = "left",  y=-10, x=80),
+        label = list(text = "Total Public Transit Users=6.6%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 6.6,
@@ -709,6 +722,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("Watts/Willowbrook", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -725,7 +739,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public Transit Users=9.6%", align = "left",  y=-10, x=180),
+        label = list(text = "Total Public Transit Users=9.6%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 9.6,
@@ -754,6 +768,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("West Athens", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -770,7 +785,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public<br>Transit Users=8.1%", align = "left",  y=-20, x=80),
+        label = list(text = "Total Public<br>Transit Users=8.1%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 8.1,
@@ -799,6 +814,7 @@ hchart( "column",
 #highcharts 
 
 transpo_long%>%
+    arrange(-pct_value)%>%
   filter(grepl("Wilmington", best_start))%>%
 hchart( "column",
          hcaes(x=variable, y=pct_value),
@@ -815,7 +831,7 @@ hchart( "column",
                       return Math.abs(this.value) + '%';
                                     }")), min=0,max=100, plotLines = list(
       list(
-        label = list(text = "Total Public<br>Transit Users=4.1%", align = "left",  y=-20, x=1),
+        label = list(text = "Total Public<br>Transit Users=4.1%", align = "right"),
         color = "#FF0000",
         width = 2,
         value = 4.1,
