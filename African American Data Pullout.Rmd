@@ -1337,21 +1337,13 @@ table%>%
 
 # Call to Action
 
-For First 5 LA to help ensure all children are ready for Kindergarten and for it's desired Results for Children and Families to happen, it will require sustained partnership with Black-led/serving organizations and communities to change the systems producing these outcomes. Here are immediate steps First 5 LA can take:
-
-Follow LADPH action plan. According to an [LADPH action plan](http://publichealth.lacounty.gov/centerforhealthequity/PDF/AAIM-ActionPlan.pdf), reducing inequalities in infant mortality means reducing racism in systems, reducing poverty caused by housing and economic systems, reducing exposure to violence, as well as well individual actions.
-
-Develop new forms of representation and power. Redistricting offers an opportunity to build community power through government representation. The last decade has seen many Black families leave South LA for the Antelope Valley and Inland Empire. Redistricting with developing Black representation and power in mind can help Black families have better access to resources and policies that serve them.
-
-Build power with community-based organizations. Community-based organizations that are organizing constituencies for advocacy are a necessary component to bending public systems to the will of community members. Without a strong community advocacy voice, concerns of Black residents can be sidelined by powerful business or interests that can exert power on elected officials.
-
-[GATHER FROM FIRST 5 LA]
+Content under review by First 5 LA 
 
 # First 5 LA Goals and Provocative Questions
 
-Pullout of Black data for indicators, results, and overall kindergarten readiness.
+Content under review by First 5 LA
 
-```{r}
+```{r, include=FALSE}
 library(kableExtra)
 
  northstar <- c('By 2028 all children in LA county will enter kindergarten ready to succeed in school and life',
